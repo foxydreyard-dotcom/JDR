@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.3.1</title>
+<title>JDR Dreyard - V1.3.2</title>
 <style>
 *{box-sizing:border-box}
 :root{--bg:#060812;--panel:#111727;--panel2:#171f34;--panel3:#0c1120;--border:#2b3553;--text:#f3f5ff;--muted:#9099b9;--moon:#dce2ff;--moon2:#aebaf4;--danger:#ff707b;--gold:#efcf78}
@@ -29,413 +29,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
-
-/* V1.3 - SESSION JDR EN DIRECT */
-.live-session-bar{
-  margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#0d1425
-}
-.live-session-status{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.live-session-status strong{font-size:15px}
-.live-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.live-actions button{flex:1;min-width:150px}
-.live-player-dashboard{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
-.live-stat-card{padding:14px;border:1px solid var(--border);border-radius:14px;background:#0d1425}
-.live-big-name{font-size:26px;font-weight:900;margin:4px 0 12px}
-.live-resources{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.live-resource{padding:12px;border:1px solid var(--border);border-radius:12px;background:#11192b}
-.live-resource .value{font-size:24px;font-weight:900;margin-top:4px}
-.live-controls{display:flex;gap:6px;margin-top:8px}
-.live-controls button{padding:7px 10px;border-radius:9px;border:1px solid var(--border);background:#172139;color:#fff;cursor:pointer}
-.live-dice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.live-dice-grid button{padding:12px;border-radius:11px;border:1px solid var(--border);background:#151e34;color:#fff;font-weight:800;cursor:pointer}
-.live-log{max-height:300px;overflow:auto;padding:10px;border:1px solid var(--border);border-radius:12px;background:#090f1c}
-.live-log-entry{padding:8px 4px;border-bottom:1px solid #202a42;font-size:13px}
-.live-log-entry:last-child{border-bottom:0}
-.mj-live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
-.mj-live-player{padding:12px;border:1px solid var(--border);border-radius:12px;background:#11192b}
-.mj-live-player .numbers{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.mj-live-player .numbers span{padding:5px 8px;border:1px solid var(--border);border-radius:999px;font-size:12px}
-@media(max-width:800px){.live-player-dashboard{grid-template-columns:1fr}.live-resources{grid-template-columns:1fr}}
-
-/* V1.2 - GROUPE MULTIJOUEUR */
-.group-panel{
-  margin-top:18px;
-  padding:16px;
-  border-radius:16px;
-  border:1px solid var(--border);
-  background:#0d1425;
-}
-.group-settings{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin:12px 0 16px;
-}
-.group-roster{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:10px;
-}
-.group-player{
-  padding:12px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:#11192b;
-}
-.group-player.me{
-  border-color:#5d6fb5;
-  box-shadow:0 0 0 1px rgba(93,111,181,.18);
-}
-.group-player-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-}
-.group-player-name{
-  font-weight:800;
-}
-.group-player-role{
-  font-size:11px;
-  color:var(--muted);
-  padding:3px 7px;
-  border-radius:999px;
-  border:1px solid var(--border);
-}
-.group-player-character{
-  margin-top:8px;
-  color:#dce2ff;
-  font-size:13px;
-}
-.group-player-status{
-  margin-top:5px;
-  font-size:11px;
-  color:#79e0aa;
-}
-@media(max-width:700px){
-  .group-settings{grid-template-columns:1fr}
-}
-
-/* V1.1 - MULTIJOUEUR */
-.multiplayer-card{max-width:760px;margin:0 auto;padding:24px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(145deg,#151c30,#0d1221)}
-.multiplayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.multiplayer-status{margin:16px 0;padding:12px;border-radius:12px;border:1px solid var(--border);background:#0d1425;color:var(--muted)}.multiplayer-status.online{border-color:#2f6b4a;color:#9ff0bd;background:#0f2018}.room-code-box{font-size:30px;font-weight:900;letter-spacing:5px;text-align:center;padding:16px;border:1px solid #55669f;border-radius:14px;background:#0d1428;margin:12px 0}.player-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.player-chip{padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:#121a2e;font-size:12px}.multiplayer-actions{display:flex;gap:10px;flex-wrap:wrap}.multiplayer-actions button{flex:1;min-width:140px}.sync-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#72e0a5;margin-right:7px;box-shadow:0 0 10px rgba(114,224,165,.45)}@media(max-width:700px){.multiplayer-grid{grid-template-columns:1fr}.room-code-box{font-size:24px}}
-/* V1.0 - COMBAT VISUEL */
-.combat-stage{
-  grid-column:span 3;
-  padding:22px;
-  border:1px solid var(--border);
-  border-radius:18px;
-  background:linear-gradient(145deg,rgba(18,25,45,.98),rgba(9,13,24,.98));
-}
-.combat-stage-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:16px;
-}
-.combat-stage-grid{
-  display:grid;
-  grid-template-columns:1fr 340px;
-  gap:18px;
-}
-.fighter-zone{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:12px;
-}
-.fighter-card{
-  padding:14px;
-  border-radius:15px;
-  border:1px solid var(--border);
-  background:linear-gradient(145deg,#171f34,#0e1424);
-  transition:.18s;
-}
-.fighter-card.active{
-  border-color:#8898ff;
-  box-shadow:0 0 0 1px rgba(136,152,255,.25),0 0 30px rgba(100,120,255,.12);
-}
-.fighter-card.targeted{
-  outline:2px solid #efcf78;
-}
-.fighter-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px;
-}
-.fighter-avatar{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#222c4b;
-  border:1px solid #50608e;
-}
-.fighter-avatar img{width:100%;height:100%;object-fit:cover}
-.fighter-name{font-weight:800}
-.fighter-type{font-size:11px;color:var(--muted)}
-.fighter-bars{display:flex;flex-direction:column;gap:8px}
-.smallbar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
-.smallbar{height:9px;border-radius:999px;overflow:hidden;background:#070a12;border:1px solid #27304a}
-.smallbar>div{height:100%}
-.hpfill{background:linear-gradient(90deg,#7f2632,#ef5f6c)}
-.spfill{background:linear-gradient(90deg,#454786,#9ba7ff)}
-.fighter-actions{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:7px;
-  margin-top:12px;
-}
-.fighter-actions button{
-  padding:9px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  background:#141c31;
-  color:white;
-}
-.fighter-actions .attack-btn{background:#32161c}
-.fighter-actions .heal-btn{background:#123022}
-.fighter-actions .target-btn{background:#2c2947}
-.combat-console{
-  padding:15px;
-  border-radius:15px;
-  border:1px solid var(--border);
-  background:#0b1120;
-  position:sticky;
-  top:18px;
-  height:max-content;
-}
-.combat-console h3{margin-top:0}
-.console-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.console-grid label{margin:0}
-.console-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.console-actions button{
-  padding:11px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  color:white;
-  background:#151c31;
-}
-.console-actions .big-attack{background:#4a1d25}
-.console-actions .big-heal{background:#17432d}
-.turn-banner{
-  margin-bottom:12px;
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid #4f5f9a;
-  background:#151d38;
-  color:#dfe4ff;
-}
-.quick-roll{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  margin-top:10px;
-}
-.quick-roll button{
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:#121a2e;
-  color:white;
-}
-.mobile-bottom-bar{
-  display:none;
-}
-@media(max-width:950px){
-  .combat-stage{grid-column:span 2}
-  .combat-stage-grid{grid-template-columns:1fr}
-  .combat-console{position:static}
-}
-@media(max-width:700px){
-  body{padding-bottom:68px}
-  .combat-stage{grid-column:span 1}
-  .fighter-zone{grid-template-columns:1fr}
-  .mobile-bottom-bar{
-    position:fixed;
-    left:0;right:0;bottom:0;
-    z-index:300;
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:1px;
-    background:#0b1020;
-    border-top:1px solid var(--border);
-  }
-  .mobile-bottom-bar button{
-    border:0;
-    border-right:1px solid var(--border);
-    background:#101727;
-    color:white;
-    padding:12px 6px;
-    font-size:12px;
-  }
-  .combat-stage-header{align-items:flex-start}
-  .console-grid,.console-actions{grid-template-columns:1fr}
-}
-
-/* PNJ + ENNEMIS + COMBAT */
-.npc-panel{grid-column:span 2}
-.npc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.npc-card{padding:14px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
-.npc-card h3{margin:0 0 6px}.npc-meta{color:var(--muted);font-size:12px;line-height:1.5}
-.npc-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.npc-actions button{flex:1;min-width:80px;padding:8px;border-radius:8px;border:1px solid var(--border);background:#151c31;color:white}
-.combat-board{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
-.initiative-list{display:flex;flex-direction:column;gap:8px}
-.init-row{display:grid;grid-template-columns:60px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:10px;border:1px solid var(--border);background:#101728}
-.init-row.active{border-color:#8d9dff;background:#18203a}.init-value{font-size:18px;font-weight:800;color:var(--gold);text-align:center}
-.combat-actions{display:flex;gap:8px;flex-wrap:wrap}.combat-actions button{padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:#151c31;color:white}
-.combat-log{max-height:360px;overflow:auto}.combat-entry{padding:10px;border-radius:10px;border:1px solid var(--border);background:#101728;margin-bottom:8px}.combat-entry small{display:block;color:var(--muted);margin-top:4px}
-.enemy-hp{margin-top:8px}.enemy-hpbar{height:10px;border-radius:20px;background:#080b12;border:1px solid #29324c;overflow:hidden}.enemy-hpfill{height:100%;background:linear-gradient(90deg,#7d2631,#e75c68)}
-@media(max-width:950px){.combat-board{grid-template-columns:1fr}.npc-panel{grid-column:span 2}}
-@media(max-width:700px){.npc-panel{grid-column:span 1!important}}
-
-
-/* V1.3 - SESSION JDR EN DIRECT */
-function getControlledCharacter(){
-  if(!multiplayerCharacterId)return null;
-  return getCharacters().find(c=>c.id===multiplayerCharacterId)||null;
-}
-function addLiveEvent(textValue){
-  liveSessionEvents.push({time:new Date().toISOString(),text:textValue});
-  if(liveSessionEvents.length>100)liveSessionEvents=liveSessionEvents.slice(-100);
-  renderLiveSession();
-  if(realtimeChannel)broadcastLiveSession("event");
-}
-function launchLiveSession(){
-  if(multiplayerRoleValue!=="MJ"){
-    alert("Seul le Maître du jeu peut lancer la session.");
-    return;
-  }
-  liveSessionActive=true;
-  liveSessionStartedAt=Date.now();
-  liveSessionEvents=[];
-  addLiveEvent(`${multiplayerPlayerName} a lancé la session.`);
-  updateLiveSessionLabel();
-  broadcastLiveSession("launch");
-  openLiveSession();
-}
-function stopLiveSession(){
-  if(multiplayerRoleValue!=="MJ"){
-    alert("Seul le Maître du jeu peut arrêter la session.");
-    return;
-  }
-  liveSessionActive=false;
-  addLiveEvent(`${multiplayerPlayerName} a arrêté la session.`);
-  updateLiveSessionLabel();
-  broadcastLiveSession("stop");
-}
-function updateLiveSessionLabel(){
-  const label=$("liveSessionLabel");
-  if(!label)return;
-  label.textContent=liveSessionActive?"🟢 Session en cours":"Aucune session lancée";
-}
-function openLiveSession(){
-  if(!liveSessionActive){
-    alert("Aucune session JDR n'est actuellement lancée.");
-    return;
-  }
-  hideScreens();
-  liveSessionScreen.classList.remove("hidden");
-  renderLiveSession();
-  window.scrollTo(0,0);
-}
-function renderLiveSession(){
-  updateLiveSessionLabel();
-  $("liveSessionTitle").textContent=currentRoomCode?`Salon ${currentRoomCode}`:"Session";
-
-  const c=getControlledCharacter();
-  $("liveCharacterName").textContent=c?`${c.prenom} ${c.nom}`.trim():"Aucun personnage attribué";
-  $("livePvValue").textContent=c?`${c.pv} / ${Number(c.pvMax||10)}`:"—";
-  $("liveEspritValue").textContent=c?`${c.esprit} / ${Number(c.espritMax||10)}`:"—";
-  $("liveHand").textContent=c?(c.main||"Rien"):"Choisis ton personnage depuis le salon.";
-
-  $("playerLivePanel").classList.toggle("hidden",multiplayerRoleValue==="MJ"&&!c);
-  $("mjLivePanel").classList.toggle("hidden",multiplayerRoleValue!=="MJ");
-
-  const log=$("liveSessionLog");
-  log.innerHTML="";
-  if(!liveSessionEvents.length){
-    log.innerHTML='<div style="color:#9099b9">Aucun événement pour le moment.</div>';
-  }else{
-    [...liveSessionEvents].reverse().forEach(e=>{
-      const d=document.createElement("div");
-      d.className="live-log-entry";
-      const t=new Date(e.time).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
-      d.textContent=`${t} — ${e.text}`;
-      log.appendChild(d);
-    });
-  }
-  renderMJLiveRoster();
-}
-function renderMJLiveRoster(){
-  const box=$("mjLiveRoster");
-  if(!box||multiplayerRoleValue!=="MJ")return;
-  box.innerHTML="";
-  if(!realtimeChannel)return;
-  const state=realtimeChannel.presenceState();
-  const players=[];
-  Object.values(state).forEach(entries=>(entries||[]).forEach(p=>players.push(p)));
-  players.forEach(p=>{
-    const c=p.characterId?getCharacters().find(x=>x.id===p.characterId):null;
-    const card=document.createElement("div");
-    card.className="mj-live-player";
-    card.innerHTML=`
-      <strong>🟢 ${esc(p.name||"Joueur")}</strong>
-      <div style="color:#9099b9;font-size:12px;margin-top:3px">${esc(p.role||"Joueur")}</div>
-      <div style="margin-top:8px">🎭 ${esc(c?`${c.prenom} ${c.nom}`:p.characterName||"Aucun personnage")}</div>
-      <div class="numbers">
-        <span>❤️ ${c?`${c.pv}/${Number(c.pvMax||10)}`:"—"}</span>
-        <span>✨ ${c?`${c.esprit}/${Number(c.espritMax||10)}`:"—"}</span>
-      </div>`;
-    box.appendChild(card);
-  });
-}
-function changeLiveResource(field,delta){
-  const c=getControlledCharacter();
-  if(!c){alert("Aucun personnage attribué.");return}
-  const chars=getCharacters();
-  const target=chars.find(x=>x.id===c.id);
-  if(!target)return;
-  const maxValue=field==="pv"?Number(target.pvMax||10):Number(target.espritMax||10);
-  target[field]=Math.max(0,Math.min(maxValue,Number(target[field]||0)+delta));
-  saveCharacters(chars);
-  addLiveEvent(`${multiplayerPlayerName} : ${field==="pv"?"PV":"Esprit"} ${delta>0?"+":""}${delta} (${target[field]}/${target[maxField]}).`);
-  renderLiveSession();
-}
-function rollLiveDice(sides){
-  const value=Math.floor(Math.random()*sides)+1;
-  $("liveDiceResult").textContent=`D${sides} → ${value}`;
-  addLiveEvent(`${multiplayerPlayerName} lance un D${sides} : ${value}.`);
-}
-async function broadcastLiveSession(reason="sync"){
-  if(!realtimeChannel)return;
-  try{
-    await realtimeChannel.send({
-      type:"broadcast",
-      event:"live-session",
-      payload:{
-        senderId:multiplayerPlayerId,
-        active:liveSessionActive,
-        startedAt:liveSessionStartedAt,
-        events:liveSessionEvents,
-        reason
-      }
-    });
-  }catch(err){console.error("Live session broadcast:",err)}
-}
-function applyRemoteLiveSession(payload){
-  if(!payload||payload.senderId===multiplayerPlayerId)return;
-  liveSessionActive=!!payload.active;
-  liveSessionStartedAt=payload.startedAt||null;
-  if(Array.isArray(payload.events))liveSessionEvents=payload.events;
-  updateLiveSessionLabel();
-  if(!liveSessionScreen.classList.contains("hidden"))renderLiveSession();
-}
 
 /* PARTIES + MODE MJ */
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
@@ -489,7 +82,7 @@ function applyRemoteLiveSession(payload){
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.3.1</div>
+    <div class="version">VERSION 1.3.2</div>
   </div>
 </div>
 
@@ -975,6 +568,77 @@ function applyRemoteLiveSession(payload){
 </div>
 
 
+
+<div id="liveSessionScreen" class="screen hidden">
+  <header class="topbar">
+    <button id="liveBackBtn" class="back-button">← Salon</button>
+    <div class="topbar-title">
+      <p class="eyebrow">SESSION JDR EN DIRECT</p>
+      <h1 id="liveSessionTitle">Session</h1>
+    </div>
+    <button id="liveSyncBtn" class="save-button">🔄 Synchroniser</button>
+  </header>
+
+  <main class="dashboard">
+    <section id="playerLivePanel" class="card" style="grid-column:span 2">
+      <h2>🎭 Interface joueur</h2>
+      <div class="live-player-dashboard">
+        <div class="live-stat-card">
+          <div style="color:#9099b9">Personnage contrôlé</div>
+          <div id="liveCharacterName" class="live-big-name">Aucun personnage</div>
+
+          <div class="live-resources">
+            <div class="live-resource">
+              <div>❤️ PV</div>
+              <div id="livePvValue" class="value">—</div>
+              <div class="live-controls">
+                <button id="livePvMinus">−1</button>
+                <button id="livePvPlus">+1</button>
+              </div>
+            </div>
+
+            <div class="live-resource">
+              <div>✨ Esprit</div>
+              <div id="liveEspritValue" class="value">—</div>
+              <div class="live-controls">
+                <button id="liveEspritMinus">−1</button>
+                <button id="liveEspritPlus">+1</button>
+              </div>
+            </div>
+          </div>
+
+          <h3>À portée de main</h3>
+          <div id="liveHand" style="white-space:pre-wrap;color:#dce2ff">—</div>
+        </div>
+
+        <div class="live-stat-card">
+          <h3 style="margin-top:0">🎲 Jets rapides</h3>
+          <div class="live-dice-grid">
+            <button data-live-dice="4">D4</button>
+            <button data-live-dice="6">D6</button>
+            <button data-live-dice="8">D8</button>
+            <button data-live-dice="10">D10</button>
+            <button data-live-dice="12">D12</button>
+            <button data-live-dice="20">D20</button>
+          </div>
+          <div id="liveDiceResult" class="dice-result" style="margin-top:12px">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mjLivePanel" class="card hidden" style="grid-column:span 3">
+      <h2>👑 Tableau du Maître du jeu</h2>
+      <p style="color:#9099b9">Vue en direct des joueurs présents et de leurs personnages.</p>
+      <div id="mjLiveRoster" class="mj-live-grid"></div>
+    </section>
+
+    <section class="card" style="grid-column:span 3">
+      <h2>📜 Journal en direct</h2>
+      <div id="liveSessionLog" class="live-log"></div>
+    </section>
+  </main>
+</div>
+
 <div class="mobile-bottom-bar">
   <button id="mobileHomeBtn">🏠<br>Accueil</button>
   <button id="mobileCharactersBtn">👤<br>Persos</button>
@@ -1220,6 +884,177 @@ document.querySelectorAll(".dice-button").forEach(b=>b.onclick=()=>rollDice(Numb
 
 
 
+
+/* V1.3 - SESSION JDR EN DIRECT */
+function getControlledCharacter(){
+  if(!multiplayerCharacterId)return null;
+  return getCharacters().find(c=>c.id===multiplayerCharacterId)||null;
+}
+
+function addLiveEvent(textValue){
+  liveSessionEvents.push({time:new Date().toISOString(),text:textValue});
+  if(liveSessionEvents.length>100)liveSessionEvents=liveSessionEvents.slice(-100);
+  renderLiveSession();
+  if(realtimeChannel)broadcastLiveSession("event");
+}
+
+function launchLiveSession(){
+  if(multiplayerRoleValue!=="MJ"){
+    alert("Seul le Maître du jeu peut lancer la session.");
+    return;
+  }
+  liveSessionActive=true;
+  liveSessionStartedAt=Date.now();
+  liveSessionEvents=[];
+  addLiveEvent(`${multiplayerPlayerName} a lancé la session.`);
+  updateLiveSessionLabel();
+  broadcastLiveSession("launch");
+  openLiveSession();
+}
+
+function stopLiveSession(){
+  if(multiplayerRoleValue!=="MJ"){
+    alert("Seul le Maître du jeu peut arrêter la session.");
+    return;
+  }
+  liveSessionActive=false;
+  addLiveEvent(`${multiplayerPlayerName} a arrêté la session.`);
+  updateLiveSessionLabel();
+  broadcastLiveSession("stop");
+}
+
+function updateLiveSessionLabel(){
+  const label=$("liveSessionLabel");
+  if(label)label.textContent=liveSessionActive?"🟢 Session en cours":"Aucune session lancée";
+}
+
+function openLiveSession(){
+  if(!liveSessionActive){
+    alert("Aucune session JDR n'est actuellement lancée.");
+    return;
+  }
+  hideScreens();
+  liveSessionScreen.classList.remove("hidden");
+  renderLiveSession();
+  window.scrollTo(0,0);
+}
+
+function renderLiveSession(){
+  updateLiveSessionLabel();
+  if($("liveSessionTitle"))$("liveSessionTitle").textContent=currentRoomCode?`Salon ${currentRoomCode}`:"Session";
+
+  const c=getControlledCharacter();
+  if($("liveCharacterName"))$("liveCharacterName").textContent=c?`${c.prenom} ${c.nom}`.trim():"Aucun personnage attribué";
+  if($("livePvValue"))$("livePvValue").textContent=c?`${Number(c.pv||0)} / ${Number(c.pvMax||10)}`:"—";
+  if($("liveEspritValue"))$("liveEspritValue").textContent=c?`${Number(c.esprit||0)} / ${Number(c.espritMax||10)}`:"—";
+
+  let handText="Choisis ton personnage depuis le salon.";
+  if(c){
+    const handItems=[
+      c.equipment?.rightHand ? `Main droite : ${c.equipment.rightHand}` : "",
+      c.equipment?.leftHand ? `Main gauche : ${c.equipment.leftHand}` : ""
+    ].filter(Boolean);
+    handText=handItems.length?handItems.join("\n"):"Rien";
+  }
+  if($("liveHand"))$("liveHand").textContent=handText;
+
+  $("playerLivePanel")?.classList.toggle("hidden",multiplayerRoleValue==="MJ"&&!c);
+  $("mjLivePanel")?.classList.toggle("hidden",multiplayerRoleValue!=="MJ");
+
+  const log=$("liveSessionLog");
+  if(log){
+    log.innerHTML="";
+    if(!liveSessionEvents.length){
+      log.innerHTML='<div style="color:#9099b9">Aucun événement pour le moment.</div>';
+    }else{
+      [...liveSessionEvents].reverse().forEach(e=>{
+        const d=document.createElement("div");
+        d.className="live-log-entry";
+        const t=new Date(e.time).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+        d.textContent=`${t} — ${e.text}`;
+        log.appendChild(d);
+      });
+    }
+  }
+  renderMJLiveRoster();
+}
+
+function renderMJLiveRoster(){
+  const box=$("mjLiveRoster");
+  if(!box||multiplayerRoleValue!=="MJ")return;
+  box.innerHTML="";
+  if(!realtimeChannel)return;
+
+  const state=realtimeChannel.presenceState();
+  const players=[];
+  Object.values(state).forEach(entries=>(entries||[]).forEach(p=>players.push(p)));
+
+  players.forEach(p=>{
+    const c=p.characterId?getCharacters().find(x=>x.id===p.characterId):null;
+    const card=document.createElement("div");
+    card.className="mj-live-player";
+    card.innerHTML=`
+      <strong>🟢 ${esc(p.name||"Joueur")}</strong>
+      <div style="color:#9099b9;font-size:12px;margin-top:3px">${esc(p.role||"Joueur")}</div>
+      <div style="margin-top:8px">🎭 ${esc(c?`${c.prenom} ${c.nom}`:p.characterName||"Aucun personnage")}</div>
+      <div class="numbers">
+        <span>❤️ ${c?`${Number(c.pv||0)}/${Number(c.pvMax||10)}`:"—"}</span>
+        <span>✨ ${c?`${Number(c.esprit||0)}/${Number(c.espritMax||10)}`:"—"}</span>
+      </div>`;
+    box.appendChild(card);
+  });
+}
+
+function changeLiveResource(field,delta){
+  const c=getControlledCharacter();
+  if(!c){alert("Aucun personnage attribué.");return}
+
+  const chars=getCharacters();
+  const target=chars.find(x=>x.id===c.id);
+  if(!target)return;
+
+  const maxValue=field==="pv"?Number(target.pvMax||10):Number(target.espritMax||10);
+  target[field]=Math.max(0,Math.min(maxValue,Number(target[field]||0)+delta));
+  saveCharacters(chars);
+
+  addLiveEvent(`${multiplayerPlayerName} : ${field==="pv"?"PV":"Esprit"} ${delta>0?"+":""}${delta} (${target[field]}/${maxValue}).`);
+  renderLiveSession();
+}
+
+function rollLiveDice(sides){
+  const value=Math.floor(Math.random()*sides)+1;
+  if($("liveDiceResult"))$("liveDiceResult").textContent=`D${sides} → ${value}`;
+  addLiveEvent(`${multiplayerPlayerName} lance un D${sides} : ${value}.`);
+}
+
+async function broadcastLiveSession(reason="sync"){
+  if(!realtimeChannel)return;
+  try{
+    await realtimeChannel.send({
+      type:"broadcast",
+      event:"live-session",
+      payload:{
+        senderId:multiplayerPlayerId,
+        active:liveSessionActive,
+        startedAt:liveSessionStartedAt,
+        events:liveSessionEvents,
+        reason
+      }
+    });
+  }catch(err){
+    console.error("Live session broadcast:",err);
+  }
+}
+
+function applyRemoteLiveSession(payload){
+  if(!payload||payload.senderId===multiplayerPlayerId)return;
+  liveSessionActive=!!payload.active;
+  liveSessionStartedAt=payload.startedAt||null;
+  if(Array.isArray(payload.events))liveSessionEvents=payload.events;
+  updateLiveSessionLabel();
+  if(!liveSessionScreen.classList.contains("hidden"))renderLiveSession();
+}
+
 /* V1.1 - MULTIJOUEUR SUPABASE */
 const SUPABASE_URL="https://ggihzbrlrwgutxhpnede.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_2n799n3Nj_C64JuqdmMjtw_0fEc_iAT";
@@ -1408,6 +1243,16 @@ function refreshVisibleScreenAfterSync(){
       renderVisualCombat(g);
     }
   }
+}
+
+
+function normalizeGame(g){
+  g.characterIds ||= [];
+  g.sessionLog ||= [];
+  g.npcs ||= [];
+  g.combat ||= {order:[],turnIndex:0,log:[]};
+  g.notes ||= "";
+  return g;
 }
 
 function getGames(){
@@ -1906,6 +1751,12 @@ function deleteJournal(id){
   chars[i].journal=chars[i].journal.filter(x=>x.id!==id);saveCharacters(chars);renderJournal(chars[i]);
 }
 
+
+
+window.broadcastFullState=broadcastFullState;
+window.scheduleRealtimeSync=scheduleRealtimeSync;
+window.requestFullState=requestFullState;
+window.applyRemoteState=applyRemoteState;
 
 /* UTILITAIRES + BOUTONS */
 function notice(text){const n=$("notification");n.textContent=text;n.classList.add("show");setTimeout(()=>n.classList.remove("show"),1600)}
