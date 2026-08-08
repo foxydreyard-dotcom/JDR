@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.8</title>
+<title>JDR Dreyard - V1.5.9</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1332,6 +1332,42 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   width:0%!important;
 }
 
+
+/* V1.5.9 - JAUGES NATIVES FIABLES */
+.mj-native-progress,
+.fighter-native-progress{
+  width:100%;
+  height:12px;
+  display:block;
+  border:0;
+  border-radius:999px;
+  overflow:hidden;
+  background:#070a12;
+}
+.mj-native-progress::-webkit-progress-bar,
+.fighter-native-progress::-webkit-progress-bar{
+  background:#070a12;
+  border-radius:999px;
+}
+.mj-native-progress.pv::-webkit-progress-value,
+.fighter-pv-progress::-webkit-progress-value{
+  background:linear-gradient(90deg,#8d2836,#f16573);
+  border-radius:999px;
+}
+.mj-native-progress.spirit::-webkit-progress-value,
+.fighter-spirit-progress::-webkit-progress-value{
+  background:linear-gradient(90deg,#4e4f9a,#a5b0ff);
+  border-radius:999px;
+}
+.mj-native-progress.pv::-moz-progress-bar,
+.fighter-pv-progress::-moz-progress-bar{
+  background:linear-gradient(90deg,#8d2836,#f16573);
+}
+.mj-native-progress.spirit::-moz-progress-bar,
+.fighter-spirit-progress::-moz-progress-bar{
+  background:linear-gradient(90deg,#4e4f9a,#a5b0ff);
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1353,7 +1389,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.5.8</div>
+    <div class="version">VERSION 1.5.9</div>
   </div>
 </div>
 
@@ -1544,9 +1580,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
               <span>❤️ PV</span>
               <strong id="mjSelectedPvText">— / 10</strong>
             </div>
-            <div class="mj-selected-bar">
-              <div id="mjSelectedPvFill" class="mj-selected-fill pv"></div>
-            </div>
+            <progress id="mjSelectedPvProgress" class="mj-native-progress pv" max="10" value="0"></progress>
           </div>
 
           <div class="mj-selected-resource">
@@ -1554,9 +1588,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
               <span>✨ Esprit</span>
               <strong id="mjSelectedSpiritText">— / 10</strong>
             </div>
-            <div class="mj-selected-bar">
-              <div id="mjSelectedSpiritFill" class="mj-selected-fill spirit"></div>
-            </div>
+            <progress id="mjSelectedSpiritProgress" class="mj-native-progress spirit" max="10" value="0"></progress>
           </div>
         </div>
 
@@ -2486,7 +2518,7 @@ async function updatePlayerProfile(){
 
 async function createRoom(){const name=$("multiplayerName").value.trim();if(!name)return alert("Entre ton nom.");multiplayerPlayerName=name;multiplayerIsHost=true;multiplayerRoleValue="MJ";multiplayerRole.value="MJ";refreshMultiplayerCharacterOptions();await joinRealtimeRoom(randomRoomCode())}
 async function joinRoom(){const name=$("multiplayerName").value.trim(),code=normalizeRoomCode($("joinRoomCode").value);if(!name)return alert("Entre ton nom.");if(code.length<4)return alert("Entre un code de salon valide.");multiplayerPlayerName=name;multiplayerIsHost=false;multiplayerRoleValue=localStorage.getItem("jdrMultiplayerRole")||"Joueur";multiplayerRole.value=multiplayerRoleValue;refreshMultiplayerCharacterOptions();await joinRealtimeRoom(code)}
-async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>{broadcastFullState("join");broadcastLiveSession("join")},250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).on("broadcast",{event:"live-session"},({payload})=>applyRemoteLiveSession(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await trackCurrentPresence();updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
+async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>{broadcastFullState("join");broadcastLiveSession("join")},250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).on("broadcast",{event:"live-session"},({payload})=>applyRemoteLiveSession(payload)).on("broadcast",{event:"mj-character-patch"},({payload})=>applyMjCharacterPatch(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await trackCurrentPresence();updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
 async function leaveRealtimeRoom(goHome=true){if(realtimeChannel){try{await realtimeChannel.untrack()}catch{}try{await realtimeClient.removeChannel(realtimeChannel)}catch{}}realtimeChannel=null;currentRoomCode="";multiplayerIsHost=false;onlinePlayers.innerHTML="";if(groupRoster)groupRoster.innerHTML="";updateMultiplayerUI();if(goHome)openHome()}
 function renderPresence(){
   if(!realtimeChannel)return;
@@ -2566,6 +2598,50 @@ async function broadcastFullState(reason="manual"){
     });
   }catch(err){
     console.error("Erreur Broadcast:",err);
+  }
+}
+
+
+async function broadcastMjCharacterPatch(c){
+  if(!realtimeChannel || !currentRoomCode || !c)return;
+  try{
+    await realtimeChannel.send({
+      type:"broadcast",
+      event:"mj-character-patch",
+      payload:{
+        senderId:multiplayerPlayerId,
+        characterId:c.id,
+        pv:Number(c.pv)||0,
+        esprit:Number(c.esprit)||0,
+        blessures:c.blessures||emptyInjuries(),
+        sentAt:Date.now()
+      }
+    });
+  }catch(err){
+    console.error("MJ character patch:",err);
+  }
+}
+
+function applyMjCharacterPatch(payload){
+  if(!payload || !payload.characterId || payload.senderId===multiplayerPlayerId)return;
+  const chars=getCharacters();
+  const i=chars.findIndex(c=>c.id===payload.characterId);
+  if(i<0)return;
+
+  chars[i].pv=Math.max(0,Math.min(10,Number(payload.pv)||0));
+  chars[i].esprit=Math.max(0,Math.min(10,Number(payload.esprit)||0));
+  chars[i].blessures=payload.blessures||chars[i].blessures||emptyInjuries();
+
+  localStorage.setItem("jdrCharacters",JSON.stringify(chars));
+  updateCombatCharacterVisual(payload.characterId);
+
+  if(!mjScreen.classList.contains("hidden") && currentGameId){
+    const g=getGames().find(x=>x.id===currentGameId);
+    if(g)renderVisualCombat(g);
+  }
+
+  if(!characterScreen.classList.contains("hidden") && currentCharacterId===payload.characterId){
+    fillCharacterSheet(chars[i]);
   }
 }
 
@@ -3112,15 +3188,14 @@ function renderMjCombatPanel(){
   const meta=$("mjCombatSelectedMeta");
   const pvText=$("mjSelectedPvText");
   const spiritText=$("mjSelectedSpiritText");
-  const pvFill=$("mjSelectedPvFill");
-  const spiritFill=$("mjSelectedSpiritFill");
+  const pvProgress=$("mjSelectedPvProgress");
+  const spiritProgress=$("mjSelectedSpiritProgress");
 
   if(!holder||!name||!meta)return;
 
-  let c=null;
-  if(mjCombatSelectedCharacterId){
-    c=getCharacters().find(x=>x.id===mjCombatSelectedCharacterId)||null;
-  }
+  const c=mjCombatSelectedCharacterId
+    ? getCharacters().find(x=>x.id===mjCombatSelectedCharacterId)
+    : null;
 
   if(!c){
     holder.dataset.characterId="";
@@ -3129,25 +3204,25 @@ function renderMjCombatPanel(){
     holder.querySelector(".mj-combat-avatar").innerHTML="🌙";
     if(pvText)pvText.textContent="— / 10";
     if(spiritText)spiritText.textContent="— / 10";
-    if(pvFill)pvFill.style.width="0%";
-    if(spiritFill)spiritFill.style.width="0%";
+    if(pvProgress)pvProgress.value=0;
+    if(spiritProgress)spiritProgress.value=0;
     document.querySelectorAll(".injury-zone").forEach(b=>b.classList.remove("injured"));
     return;
   }
 
   holder.dataset.characterId=c.id;
 
-  const currentPv=Math.max(0,Math.min(10,Number(c.pv)||0));
-  const currentSpirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
+  const pv=Math.max(0,Math.min(10,Number(c.pv)||0));
+  const spirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
 
   name.textContent=`${c.prenom} ${c.nom}`.trim();
   meta.textContent=`${c.race||"Personnage"}${c.metier?` • ${c.metier}`:""}`;
   holder.querySelector(".mj-combat-avatar").innerHTML=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
 
-  if(pvText)pvText.textContent=`${currentPv} / 10`;
-  if(spiritText)spiritText.textContent=`${currentSpirit} / 10`;
-  if(pvFill)pvFill.style.width=`${currentPv*10}%`;
-  if(spiritFill)spiritFill.style.width=`${currentSpirit*10}%`;
+  if(pvText)pvText.textContent=`${pv} / 10`;
+  if(spiritText)spiritText.textContent=`${spirit} / 10`;
+  if(pvProgress)pvProgress.value=pv;
+  if(spiritProgress)spiritProgress.value=spirit;
 
   document.querySelectorAll(".injury-zone").forEach(btn=>{
     btn.classList.toggle("injured",c.blessures?.[btn.dataset.injury]===true);
@@ -3182,38 +3257,30 @@ function updateCombatCharacterVisual(characterId){
   const pv=Math.max(0,Math.min(10,Number(c.pv)||0));
   const spirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
 
-  // Console de droite
   if(characterId===getSelectedCombatCharacterId()){
     const pvText=$("mjSelectedPvText");
     const spiritText=$("mjSelectedSpiritText");
-    const pvFill=$("mjSelectedPvFill");
-    const spiritFill=$("mjSelectedSpiritFill");
+    const pvProgress=$("mjSelectedPvProgress");
+    const spiritProgress=$("mjSelectedSpiritProgress");
 
     if(pvText)pvText.textContent=`${pv} / 10`;
     if(spiritText)spiritText.textContent=`${spirit} / 10`;
-    if(pvFill){
-      pvFill.style.setProperty("width",`${pv*10}%`,"important");
-      pvFill.dataset.value=String(pv);
-    }
-    if(spiritFill){
-      spiritFill.style.setProperty("width",`${spirit*10}%`,"important");
-      spiritFill.dataset.value=String(spirit);
-    }
+    if(pvProgress)pvProgress.value=pv;
+    if(spiritProgress)spiritProgress.value=spirit;
   }
 
-  // Carte du joueur à gauche
   document.querySelectorAll(".fighter-card").forEach(card=>{
     if(card.dataset.kind!=="character" || card.dataset.id!==characterId)return;
 
     const pvText=card.querySelector(".fighter-pv-text");
-    const pvFill=card.querySelector(".fighter-pv-fill");
     const spiritText=card.querySelector(".fighter-spirit-text");
-    const spiritFill=card.querySelector(".fighter-spirit-fill");
+    const pvProgress=card.querySelector(".fighter-pv-progress");
+    const spiritProgress=card.querySelector(".fighter-spirit-progress");
 
     if(pvText)pvText.textContent=`${pv}/10`;
-    if(pvFill)pvFill.style.setProperty("width",`${pv*10}%`,"important");
     if(spiritText)spiritText.textContent=`${spirit}/10`;
-    if(spiritFill)spiritFill.style.setProperty("width",`${spirit*10}%`,"important");
+    if(pvProgress)pvProgress.value=pv;
+    if(spiritProgress)spiritProgress.value=spirit;
   });
 }
 
@@ -3230,38 +3297,39 @@ function commitMjCharacterChange(characterId, mutator, logText){
     return false;
   }
 
-  // 1. Modifier la vraie donnée.
   mutator(chars[i]);
 
-  // 2. Écrire immédiatement dans le stockage, sans attendre le réseau.
+  // Ecriture locale immédiate.
   localStorage.setItem("jdrCharacters",JSON.stringify(chars));
   mjCombatSelectedCharacterId=characterId;
 
-  // 3. Mettre à jour DIRECTEMENT les deux jauges visibles.
+  // Mise à jour visuelle immédiate des jauges natives.
   updateCombatCharacterVisual(characterId);
+  renderMjCombatPanel();
 
-  // 4. Journal de combat.
+  const saved=chars[i];
+
   const games=getGames();
   const game=games.find(g=>g.id===currentGameId);
   if(game){
     game.combat ||= {order:[],turnIndex:0,log:[]};
     game.combat.log ||= [];
-
-    const saved=chars[i];
     if(logText){
       game.combat.log.unshift({
         date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
         text:logText(saved)
       });
     }
-
     localStorage.setItem("jdrGames",JSON.stringify(games));
     renderCombat(game);
   }
 
-  // 5. Synchroniser ensuite avec les autres navigateurs.
-  scheduleRealtimeSync();
+  // Confirmation visible pour vérifier sans ambiguïté.
+  notice(`✓ ${saved.prenom} — PV ${saved.pv}/10 • Esprit ${saved.esprit}/10`);
 
+  // Envoi d'un patch dédié au salon, puis synchro normale.
+  broadcastMjCharacterPatch(saved);
+  scheduleRealtimeSync();
   return true;
 }
 
@@ -3362,12 +3430,12 @@ function renderVisualCombat(game){
       <div class="fighter-bars">
         <div>
           <div class="smallbar-label"><span>❤️ PV</span><span class="fighter-pv-text">${f.hp}/${f.maxHp}</span></div>
-          <div class="smallbar"><div class="hpfill fighter-pv-fill" style="width:${hpPct}%"></div></div>
+          <progress class="fighter-native-progress fighter-pv-progress" max="${f.maxHp}" value="${f.hp}"></progress>
         </div>
         ${f.spirit!==null?`
         <div>
           <div class="smallbar-label"><span>✨ Esprit</span><span class="fighter-spirit-text">${f.spirit}/${f.maxSpirit}</span></div>
-          <div class="smallbar"><div class="spfill fighter-spirit-fill" style="width:${spPct}%"></div></div>
+          <progress class="fighter-native-progress fighter-spirit-progress" max="${f.maxSpirit}" value="${f.spirit}"></progress>
         </div>`:""}
       </div>
       ${f.kind==="character"?'<div class="meta" style="margin-top:10px">Clique pour gérer ce joueur</div>':""}
