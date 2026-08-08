@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.4</title>
+<title>JDR Dreyard - V1.5.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1238,6 +1238,24 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   user-select:none;
 }
 
+
+/* V1.5.5 - CORRECTION CLICS CONSOLE MJ */
+.kitsune-body{isolation:isolate}
+.kitsune-injury-character{z-index:1!important;pointer-events:none!important}
+.injury-zone{
+  z-index:5!important;
+  pointer-events:auto!important;
+}
+#mjPvMinus,#mjPvPlus,#mjSpiritMinus,#mjSpiritPlus{
+  position:relative;
+  z-index:6;
+  pointer-events:auto;
+}
+#mjPvMinus:active,#mjPvPlus:active,#mjSpiritMinus:active,#mjSpiritPlus:active,
+.injury-zone:active{
+  transform:scale(.97);
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1445,10 +1463,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         </div>
 
         <div class="mj-resource-controls">
-          <button id="mjPvMinus" class="minus">❤️ PV -1</button>
-          <button id="mjPvPlus" class="plus">❤️ PV +1</button>
-          <button id="mjSpiritMinus" class="minus">✨ Esprit -1</button>
-          <button id="mjSpiritPlus" class="plus">✨ Esprit +1</button>
+          <button type="button" id="mjPvMinus" class="minus">❤️ PV -1</button>
+          <button type="button" id="mjPvPlus" class="plus">❤️ PV +1</button>
+          <button type="button" id="mjSpiritMinus" class="minus">✨ Esprit -1</button>
+          <button type="button" id="mjSpiritPlus" class="plus">✨ Esprit +1</button>
         </div>
 
         <div class="kitsune-body-wrap">
@@ -1456,12 +1474,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
           <div class="kitsune-body">
             <img class="kitsune-injury-character" src="kitsune_blessures.png" alt="Silhouette kitsune pour localiser les blessures">
 
-            <button class="injury-zone injury-head" data-injury="tete">Tête</button>
-            <button class="injury-zone injury-torso" data-injury="torse">Torse</button>
-            <button class="injury-zone injury-arm-left" data-injury="brasG">Bras G</button>
-            <button class="injury-zone injury-arm-right" data-injury="brasD">Bras D</button>
-            <button class="injury-zone injury-leg-left" data-injury="jambeG">Jambe G</button>
-            <button class="injury-zone injury-leg-right" data-injury="jambeD">Jambe D</button>
+            <button type="button" class="injury-zone injury-head" data-injury="tete">Tête</button>
+            <button type="button" class="injury-zone injury-torso" data-injury="torse">Torse</button>
+            <button type="button" class="injury-zone injury-arm-left" data-injury="brasG">Bras G</button>
+            <button type="button" class="injury-zone injury-arm-right" data-injury="brasD">Bras D</button>
+            <button type="button" class="injury-zone injury-leg-left" data-injury="jambeG">Jambe G</button>
+            <button type="button" class="injury-zone injury-leg-right" data-injury="jambeD">Jambe D</button>
           </div>
         </div>
 
@@ -3024,38 +3042,91 @@ function selectMjCombatCharacter(id){
   renderMjCombatPanel();
 }
 
-function toggleMjInjury(part){
-  const c=getMjCombatSelectedCharacter();
-  if(!c)return alert("Sélectionne d'abord un joueur.");
-
+function commitMjCharacterChange(characterId, mutator, logText){
   const chars=getCharacters();
-  const target=chars.find(x=>x.id===c.id);
-  if(!target)return;
+  const i=chars.findIndex(c=>c.id===characterId);
+  if(i<0){
+    alert("Personnage introuvable.");
+    return false;
+  }
 
-  target.blessures ||= emptyInjuries();
-  target.blessures[part]=!target.blessures[part];
-  saveCharacters(chars);
+  mutator(chars[i]);
+  localStorage.setItem("jdrCharacters",JSON.stringify(chars));
 
   const games=getGames();
   const game=games.find(g=>g.id===currentGameId);
   if(game){
-    const labels={tete:"Tête",torse:"Torse",brasD:"Bras droit",brasG:"Bras gauche",jambeD:"Jambe droite",jambeG:"Jambe gauche"};
-    game.combat.log.unshift({
-      date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
-      text:`🩹 ${target.prenom} ${target.nom} — ${labels[part]} : ${target.blessures[part]?"blessé":"soigné"}`
-    });
-    saveGames(games);
+    game.combat ||= {order:[],turnIndex:0,log:[]};
+    game.combat.log ||= [];
+    if(logText){
+      game.combat.log.unshift({
+        date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+        text:logText(chars[i])
+      });
+    }
+    localStorage.setItem("jdrGames",JSON.stringify(games));
+
     renderCombat(game);
+    renderMJMembers(game);
     renderVisualCombat(game);
   }
+
   renderMjCombatPanel();
+
+  if(realtimeChannel && currentRoomCode){
+    setTimeout(()=>broadcastFullState("mj-combat-change"),20);
+  }
+  return true;
+}
+
+function toggleMjInjury(part){
+  const c=getMjCombatSelectedCharacter();
+  if(!c){
+    alert("Sélectionne d'abord un joueur.");
+    return;
+  }
+
+  const labels={
+    tete:"Tête",
+    torse:"Torse",
+    brasD:"Bras droit",
+    brasG:"Bras gauche",
+    jambeD:"Jambe droite",
+    jambeG:"Jambe gauche"
+  };
+
+  commitMjCharacterChange(
+    c.id,
+    target=>{
+      target.blessures ||= emptyInjuries();
+      target.blessures[part]=!target.blessures[part];
+    },
+    target=>`🩹 ${target.prenom} ${target.nom} — ${labels[part]} : ${target.blessures?.[part]?"blessé":"soigné"}`
+  );
 }
 
 function mjCombatAdjust(resource,delta){
   const c=getMjCombatSelectedCharacter();
-  if(!c)return alert("Sélectionne d'abord un joueur.");
-  applyCombatDelta("character",c.id,delta,resource);
-  renderMjCombatPanel();
+  if(!c){
+    alert("Sélectionne d'abord un joueur.");
+    return;
+  }
+
+  commitMjCharacterChange(
+    c.id,
+    target=>{
+      if(resource==="hp"){
+        target.pv=Math.max(0,Math.min(10,Number(target.pv||0)+delta));
+      }else if(resource==="spirit"){
+        target.esprit=Math.max(0,Math.min(10,Number(target.esprit||0)+delta));
+      }
+    },
+    target=>{
+      const label=resource==="hp"?"PV":"Esprit";
+      const value=resource==="hp"?target.pv:target.esprit;
+      return `🎛️ MJ — ${target.prenom} ${target.nom} : ${label} ${delta>0?"+":""}${delta} → ${value}/10`;
+    }
+  );
 }
 
 function renderVisualCombat(game){
@@ -3318,11 +3389,23 @@ $("addNpcBtn").onclick=()=>openNpcModal();$("cancelNpcBtn").onclick=closeNpcModa
 $("buildInitiativeBtn").onclick=buildInitiative;$("nextTurnBtn").onclick=nextTurn;$("clearCombatBtn").onclick=clearCombat;
 $("visualNextTurnBtn").onclick=nextTurn;
 $("visualRollInitBtn").onclick=buildInitiative;
-$("mjPvMinus").onclick=()=>mjCombatAdjust("hp",-1);
-$("mjPvPlus").onclick=()=>mjCombatAdjust("hp",1);
-$("mjSpiritMinus").onclick=()=>mjCombatAdjust("spirit",-1);
-$("mjSpiritPlus").onclick=()=>mjCombatAdjust("spirit",1);
-document.querySelectorAll(".injury-zone").forEach(btn=>btn.onclick=()=>toggleMjInjury(btn.dataset.injury));
+const mjPvMinusBtn=$("mjPvMinus");
+const mjPvPlusBtn=$("mjPvPlus");
+const mjSpiritMinusBtn=$("mjSpiritMinus");
+const mjSpiritPlusBtn=$("mjSpiritPlus");
+
+if(mjPvMinusBtn)mjPvMinusBtn.addEventListener("click",e=>{e.preventDefault();mjCombatAdjust("hp",-1)});
+if(mjPvPlusBtn)mjPvPlusBtn.addEventListener("click",e=>{e.preventDefault();mjCombatAdjust("hp",1)});
+if(mjSpiritMinusBtn)mjSpiritMinusBtn.addEventListener("click",e=>{e.preventDefault();mjCombatAdjust("spirit",-1)});
+if(mjSpiritPlusBtn)mjSpiritPlusBtn.addEventListener("click",e=>{e.preventDefault();mjCombatAdjust("spirit",1)});
+
+document.querySelectorAll(".injury-zone").forEach(btn=>{
+  btn.addEventListener("click",e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    toggleMjInjury(btn.dataset.injury);
+  });
+});
 document.querySelectorAll(".quick-die").forEach(b=>b.onclick=()=>quickCombatRoll(Number(b.dataset.faces)));
 $("mobileHomeBtn").onclick=openHome;
 $("mobileCharactersBtn").onclick=openCharacters;
