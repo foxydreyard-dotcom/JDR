@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.9</title>
+<title>JDR Dreyard - V1.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -998,6 +998,108 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   #innerBgShade{background:rgba(4,7,18,.48)}
 }
 
+
+/* V1.5 - UX PARTIE / JOINDRE / FOCUS MJ */
+.game-card{
+  position:relative;
+  transition:.18s ease;
+}
+.game-card:hover{
+  transform:translateY(-2px);
+  border-color:#56679f;
+}
+.game-card.joinable{
+  box-shadow:0 0 0 1px rgba(116,140,230,.08);
+}
+.game-status-row{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.game-status-chip{
+  padding:5px 8px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#101728;
+  color:#bfc8ee;
+  font-size:11px;
+}
+.game-status-chip.in{
+  color:#9ff0bd;
+  border-color:#355a47;
+  background:#102019;
+}
+.join-game{
+  background:linear-gradient(135deg,#dce2ff,#aebaf4)!important;
+  color:#101426!important;
+  font-weight:800;
+}
+.enter-game{
+  background:#173224!important;
+  color:#baf1ce!important;
+}
+.mj-focus-panel{
+  margin-bottom:16px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:rgba(13,20,37,.86);
+  backdrop-filter:blur(7px);
+}
+.mj-focus-empty{
+  color:var(--muted);
+  font-size:13px;
+}
+.mj-focus-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+.mj-focus-avatar{
+  width:58px;height:58px;border-radius:50%;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  background:#222c4b;border:1px solid #50608e;
+  font-size:28px;
+}
+.mj-focus-avatar img{width:100%;height:100%;object-fit:cover}
+.mj-focus-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.mj-focus-stat{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#101728;
+  text-align:center;
+}
+.mj-focus-stat small{display:block;color:var(--muted);margin-bottom:3px}
+.mj-focus-actions{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:12px
+}
+.mj-focus-actions button{
+  flex:1;min-width:120px;
+  padding:9px;border-radius:9px;border:1px solid var(--border);
+  background:#151c31;color:white;
+}
+.mj-member{
+  cursor:pointer;
+}
+.mj-member.focused{
+  border-color:#8c9cff;
+  box-shadow:0 0 0 1px rgba(140,156,255,.20),0 0 22px rgba(110,125,220,.10);
+}
+.mj-member .focus-btn{
+  margin-top:8px;width:100%;
+}
+@media(max-width:700px){
+  .mj-focus-grid{grid-template-columns:repeat(2,1fr)}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1019,7 +1121,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.9</div>
+    <div class="version">VERSION 1.5</div>
   </div>
 </div>
 
@@ -1132,6 +1234,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         <h2 style="margin:0">👥 Groupe</h2>
         <button id="addSessionNoteBtn" class="save-button">＋ Note MJ</button>
       </div>
+
+      <div id="mjFocusPanel" class="mj-focus-panel">
+        <div class="mj-focus-empty">Clique sur un joueur du groupe pour l'afficher ici.</div>
+      </div>
+
       <div id="mjMembers" class="mj-members"></div>
     </section>
 
@@ -1634,6 +1741,7 @@ function getLocalOwnerName(){return (localStorage.getItem("jdrMultiplayerName")|
 
 let currentCharacterId=null,currentEditingItemId=null,currentEditingSpellId=null;
 let currentGameId=null;
+let currentMjFocusCharacterId=null;
 let realtimeChannel=null;
 let currentRoomCode="";
 let multiplayerPlayerId="player_"+Math.random().toString(36).slice(2,10);
@@ -2264,16 +2372,149 @@ function getGames(){
 }
 function saveGames(games){localStorage.setItem("jdrGames",JSON.stringify(games));scheduleRealtimeSync()}
 function openGames(){hideScreens();gamesScreen.classList.remove("hidden");renderGames();window.scrollTo(0,0)}
+function getActivePlayerCharacter(){
+  if(multiplayerCharacterId){
+    const c=getOwnedCharacters().find(x=>x.id===multiplayerCharacterId);
+    if(c)return c;
+  }
+  const owned=getOwnedCharacters();
+  return owned.length===1?owned[0]:null;
+}
+
+function isLocalPlayerInGame(game){
+  const ownedIds=new Set(getOwnedCharacters().map(c=>c.id));
+  return (game.characterIds||[]).some(id=>ownedIds.has(id));
+}
+
+function joinGame(gameId){
+  const game=getGames().find(g=>g.id===gameId);
+  if(!game)return;
+
+  let c=getActivePlayerCharacter();
+  if(!c){
+    const owned=getOwnedCharacters();
+    if(!owned.length){
+      alert("Crée d'abord ton personnage.");
+      return;
+    }
+    const labels=owned.map((x,i)=>`${i+1} - ${x.prenom} ${x.nom}`).join("\n");
+    const choice=Number(prompt("Avec quel personnage veux-tu rejoindre ?\n"+labels));
+    c=owned[choice-1];
+    if(!c)return;
+    multiplayerCharacterId=c.id;
+    if(multiplayerCharacter)multiplayerCharacter.value=c.id;
+    localStorage.setItem("jdrMultiplayerCharacter",c.id);
+    trackCurrentPresence();
+  }
+
+  const games=getGames();
+  const g=games.find(x=>x.id===gameId);
+  g.characterIds ||= [];
+  if(!g.characterIds.includes(c.id)){
+    g.characterIds.push(c.id);
+    g.sessionLog ||= [];
+    g.sessionLog.unshift({
+      date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+      text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
+    });
+    saveGames(games);
+  }
+
+  currentGameId=gameId;
+  if(multiplayerRoleValue==="MJ" || multiplayerIsHost){
+    openMJ(gameId);
+  }else{
+    if(liveSessionActive){
+      openLiveSession();
+    }else{
+      openCharacter(c.id);
+      notice(`🎭 Partie rejointe : ${g.name}`);
+    }
+  }
+}
+
+function enterJoinedGame(gameId){
+  const game=getGames().find(g=>g.id===gameId);
+  if(!game)return;
+  currentGameId=gameId;
+
+  if(multiplayerRoleValue==="MJ" || multiplayerIsHost){
+    openMJ(gameId);
+    return;
+  }
+
+  const ownedIds=new Set(getOwnedCharacters().map(c=>c.id));
+  const charId=(game.characterIds||[]).find(id=>ownedIds.has(id));
+  if(charId){
+    multiplayerCharacterId=charId;
+    localStorage.setItem("jdrMultiplayerCharacter",charId);
+  }
+
+  if(liveSessionActive)openLiveSession();
+  else if(charId)openCharacter(charId);
+  else openGames();
+}
+
 function renderGames(){
   gameGrid.innerHTML="";
   const games=getGames(),chars=getCharacters();
-  if(!games.length){gameGrid.innerHTML='<p style="color:#9099b9">Aucune partie créée.</p>';return}
+
+  if(!games.length){
+    gameGrid.innerHTML='<p style="color:#9099b9">Aucune partie créée.</p>';
+    return;
+  }
+
   games.forEach(g=>{
-    const card=document.createElement("div");card.className="game-card";
+    const card=document.createElement("div");
+    card.className="game-card joinable";
+
     const names=(g.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
-    card.innerHTML=`<h3>${esc(g.name)}</h3><div class="game-meta">MJ : ${esc(g.gm||"Non défini")}<br>Créée le ${esc(g.createdAt||"")}</div><div class="game-player-list">${names.map(c=>`<span class="game-player-chip">${esc(c.prenom)} ${esc(c.nom)}</span>`).join("")||'<span class="game-player-chip">Aucun personnage</span>'}</div><div class="game-actions"><button class="start-game">🎭 Ouvrir mode MJ</button><button class="delete-game danger">Supprimer</button></div>`;
-    card.querySelector(".start-game").onclick=()=>openMJ(g.id);
-    card.querySelector(".delete-game").onclick=()=>deleteGame(g.id);
+    const joined=isLocalPlayerInGame(g);
+    const isMJ=(multiplayerRoleValue==="MJ" || multiplayerIsHost);
+
+    card.innerHTML=`
+      <h3>${esc(g.name)}</h3>
+      <div class="game-meta">MJ : ${esc(g.gm||"Non défini")}<br>Créée le ${esc(g.createdAt||"")}</div>
+
+      <div class="game-status-row">
+        <span class="game-status-chip">${names.length} joueur${names.length>1?"s":""}</span>
+        ${joined?'<span class="game-status-chip in">✓ Tu participes</span>':''}
+      </div>
+
+      <div class="game-player-list">
+        ${names.map(c=>`<span class="game-player-chip">${esc(c.prenom)} ${esc(c.nom)}</span>`).join("")||'<span class="game-player-chip">Aucun personnage</span>'}
+      </div>
+
+      <div class="game-actions">
+        ${joined
+          ? `<button class="enter-game">🎮 Entrer dans la partie</button>`
+          : `<button class="join-game">＋ Rejoindre</button>`}
+        ${isMJ?'<button class="start-game">👑 Vue MJ</button>':""}
+        <button class="delete-game danger">Supprimer</button>
+      </div>
+    `;
+
+    card.querySelector(".join-game")?.addEventListener("click",e=>{
+      e.stopPropagation();
+      joinGame(g.id);
+    });
+    card.querySelector(".enter-game")?.addEventListener("click",e=>{
+      e.stopPropagation();
+      enterJoinedGame(g.id);
+    });
+    card.querySelector(".start-game")?.addEventListener("click",e=>{
+      e.stopPropagation();
+      openMJ(g.id);
+    });
+    card.querySelector(".delete-game").onclick=e=>{
+      e.stopPropagation();
+      deleteGame(g.id);
+    };
+
+    card.onclick=()=>{
+      if(joined)enterJoinedGame(g.id);
+    };
+
     gameGrid.appendChild(card);
   });
 }
@@ -2301,19 +2542,132 @@ function deleteGame(id){
 }
 function openMJ(id){
   const game=getGames().find(g=>g.id===id);if(!game)return;
-  currentGameId=id;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);renderVisualCombat(game);window.scrollTo(0,0);
+  currentGameId=id;currentMjFocusCharacterId=null;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);renderVisualCombat(game);window.scrollTo(0,0);
 }
+function renderMjFocus(game){
+  const panel=$("mjFocusPanel");
+  if(!panel)return;
+
+  const chars=getCharacters();
+  const selected=(game.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
+
+  if(!selected.length){
+    currentMjFocusCharacterId=null;
+    panel.innerHTML='<div class="mj-focus-empty">Aucun joueur dans cette partie.</div>';
+    return;
+  }
+
+  let c=selected.find(x=>x.id===currentMjFocusCharacterId);
+  if(!c){
+    c=selected[0];
+    currentMjFocusCharacterId=c.id;
+  }
+
+  const avatar=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
+  panel.innerHTML=`
+    <div class="mj-focus-head">
+      <div class="mj-focus-avatar">${avatar}</div>
+      <div>
+        <strong style="font-size:18px">${esc(c.prenom)} ${esc(c.nom)}</strong>
+        <div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div>
+      </div>
+    </div>
+
+    <div class="mj-focus-grid">
+      <div class="mj-focus-stat"><small>❤️ PV</small><strong>${Number(c.pv)||0}/10</strong></div>
+      <div class="mj-focus-stat"><small>✨ Esprit</small><strong>${Number(c.esprit)||0}/10</strong></div>
+      <div class="mj-focus-stat"><small>⚔️ CC</small><strong>${Number(c.cc)||0}</strong></div>
+      <div class="mj-focus-stat"><small>🛡️ R</small><strong>${Number(c.r)||0}</strong></div>
+    </div>
+
+    <div class="mj-focus-actions">
+      <button data-focus-action="pv-">❤️ -1</button>
+      <button data-focus-action="pv+">❤️ +1</button>
+      <button data-focus-action="sp-">✨ -1</button>
+      <button data-focus-action="sp+">✨ +1</button>
+      <button data-focus-action="sheet">📄 Ouvrir fiche</button>
+    </div>
+  `;
+
+  panel.querySelectorAll("[data-focus-action]").forEach(btn=>{
+    btn.onclick=()=>{
+      const action=btn.dataset.focusAction;
+      if(action==="sheet"){
+        openCharacter(c.id);
+        return;
+      }
+      mjAdjust(c.id,action);
+      const refreshed=getGames().find(x=>x.id===currentGameId);
+      if(refreshed)renderMjFocus(refreshed);
+    };
+  });
+}
+
+function focusMjCharacter(id,game){
+  currentMjFocusCharacterId=id;
+  renderMJMembers(game);
+  renderMjFocus(game);
+}
+
 function renderMJMembers(game){
   mjMembers.innerHTML="";
   const chars=getCharacters();
   const selected=(game.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
-  if(!selected.length){mjMembers.innerHTML='<p style="color:#9099b9">Aucun personnage dans cette partie.</p>';return}
+
+  renderMjFocus(game);
+
+  if(!selected.length){
+    mjMembers.innerHTML='<p style="color:#9099b9">Aucun personnage dans cette partie.</p>';
+    return;
+  }
+
   selected.forEach(c=>{
-    const box=document.createElement("div");box.className="mj-member";
+    const box=document.createElement("div");
+    box.className="mj-member"+(c.id===currentMjFocusCharacterId?" focused":"");
     const avatar=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
-    box.innerHTML=`<div class="mj-member-head"><div class="mj-avatar">${avatar}</div><div><strong>${esc(c.prenom)} ${esc(c.nom)}</strong><div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div></div></div><div class="mj-resource"><div class="mj-resource-line"><span>❤️ PV</span><span>${Number(c.pv)}/10</span></div><div class="mj-controls"><button data-action="pv-" data-id="${c.id}">-1</button><button data-action="pv+" data-id="${c.id}">+1</button><button data-action="sp-" data-id="${c.id}">✨-1</button><button data-action="sp+" data-id="${c.id}">✨+1</button></div></div><button class="secondary-button open-sheet" data-id="${c.id}" style="width:100%">Ouvrir la fiche</button>`;
-    box.querySelectorAll(".mj-controls button").forEach(btn=>btn.onclick=()=>mjAdjust(btn.dataset.id,btn.dataset.action));
-    box.querySelector(".open-sheet").onclick=()=>openCharacter(c.id);
+
+    box.innerHTML=`
+      <div class="mj-member-head">
+        <div class="mj-avatar">${avatar}</div>
+        <div>
+          <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
+          <div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div>
+        </div>
+      </div>
+
+      <div class="mj-resource">
+        <div class="mj-resource-line"><span>❤️ PV</span><span>${Number(c.pv)}/10</span></div>
+        <div class="mj-controls">
+          <button data-action="pv-" data-id="${c.id}">-1</button>
+          <button data-action="pv+" data-id="${c.id}">+1</button>
+          <button data-action="sp-" data-id="${c.id}">✨-1</button>
+          <button data-action="sp+" data-id="${c.id}">✨+1</button>
+        </div>
+      </div>
+
+      <button class="secondary-button focus-btn">👁 Sélectionner</button>
+    `;
+
+    box.onclick=e=>{
+      if(e.target.closest("button") && !e.target.classList.contains("focus-btn"))return;
+      currentMjFocusCharacterId=c.id;
+      renderMJMembers(game);
+    };
+
+    box.querySelectorAll(".mj-controls button").forEach(btn=>{
+      btn.onclick=e=>{
+        e.stopPropagation();
+        currentMjFocusCharacterId=c.id;
+        mjAdjust(btn.dataset.id,btn.dataset.action);
+      };
+    });
+
+    box.querySelector(".focus-btn").onclick=e=>{
+      e.stopPropagation();
+      currentMjFocusCharacterId=c.id;
+      renderMJMembers(game);
+    };
+
     mjMembers.appendChild(box);
   });
 }
