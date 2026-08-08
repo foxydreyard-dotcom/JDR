@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.8 FIX</title>
+<title>JDR Dreyard - V1.4.9</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -935,6 +935,69 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   #sanctuaryLifeScene{display:none}
 }
 
+
+/* V1.4.9 - VIDEO ANIMEE SUR LES PAGES INTERNES */
+#innerBgVideo{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:0;
+  pointer-events:none;
+}
+#innerBgShade{
+  position:fixed;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(4,7,18,.68),rgba(4,7,18,.44) 46%,rgba(4,7,18,.24)),
+    linear-gradient(180deg,rgba(4,7,18,.18),rgba(4,7,18,.42));
+}
+#homeScreen:not(.hidden) ~ #innerBgVideo,
+#homeScreen:not(.hidden) ~ #innerBgShade{
+  display:none;
+}
+#innerDecor{display:none!important}
+.screen{position:relative;z-index:2}
+
+/* panneaux semi-transparents pour voir la scène derrière */
+.character-card,
+.game-card,
+.mj-member,
+.npc-card{
+  background:linear-gradient(145deg,rgba(21,28,48,.84),rgba(13,18,33,.82))!important;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.card{
+  background:rgba(17,23,39,.82)!important;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.hero-panel,
+.multiplayer-card,
+.combat-stage,
+.combat-console,
+.live-stat-card,
+.group-panel,
+.group-player{
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+}
+.hero-panel{
+  background:linear-gradient(145deg,rgba(24,31,55,.86),rgba(10,15,28,.84))!important;
+}
+.multiplayer-card{
+  background:linear-gradient(145deg,rgba(21,28,48,.86),rgba(13,18,33,.84))!important;
+}
+@media(max-width:700px){
+  #innerBgVideo{opacity:.82}
+  #innerBgShade{background:rgba(4,7,18,.48)}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -956,92 +1019,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.8 FIX</div>
+    <div class="version">VERSION 1.4.9</div>
   </div>
 </div>
 
 
 
-<div id="innerDecor" aria-hidden="true">
-  <div class="inner-moon"></div>
 
-  <span class="moon-drop" style="left:8%;--dur:10s;--delay:-3s;--drift:34px"></span>
-  <span class="moon-drop" style="left:17%;--dur:13s;--delay:-7s;--drift:-18px"></span>
-  <span class="moon-drop" style="left:28%;--dur:11s;--delay:-1s;--drift:20px"></span>
-  <span class="moon-drop" style="left:41%;--dur:14s;--delay:-9s;--drift:-30px"></span>
-  <span class="moon-drop" style="left:53%;--dur:12s;--delay:-5s;--drift:25px"></span>
-  <span class="moon-drop" style="left:67%;--dur:15s;--delay:-11s;--drift:-22px"></span>
-  <span class="moon-drop" style="left:79%;--dur:11.5s;--delay:-6s;--drift:18px"></span>
-  <span class="moon-drop" style="left:91%;--dur:13.5s;--delay:-2s;--drift:-26px"></span>
-
-  <div class="kitsune-runner" style="--bottom:42px;--size:40px;--run:28s;--delay:-8s">🦊</div>
-  <div class="kitsune-runner reverse" style="--bottom:112px;--size:32px;--run:34s;--delay:-19s">🦊</div>
-  <div class="kitsune-runner" style="--bottom:185px;--size:28px;--run:39s;--delay:-25s">🦊</div>
-
-  <div id="sanctuaryLifeScene">
-    <div class="mini-torii"><span></span></div>
-    <div class="stairs"></div>
-    
-<div id="whiteKitsune" class="life-animal">
-<svg viewBox="0 0 82 60" aria-hidden="true">
-<g class="body-bob">
-<ellipse cx="38" cy="36" rx="19" ry="11" fill="#f5f7ff"/>
-<circle cx="20" cy="29" r="9" fill="#fbfcff"/>
-<path class="ear" d="M13 22L15 10L21 22Z" fill="#f9fbff"/>
-<path class="ear" d="M21 21L27 10L28 24Z" fill="#f9fbff"/>
-<circle cx="17" cy="28" r="1.5" fill="#23304a"/>
-<path d="M10 31L5 33L11 35Z" fill="#26324b"/>
-<rect x="28" y="43" width="4" height="10" rx="2" fill="#dfe5f5"/>
-<rect x="43" y="43" width="4" height="10" rx="2" fill="#dfe5f5"/>
-<path class="tail" d="M52 36C68 22 80 27 75 41C70 51 59 50 52 44C61 45 66 39 63 35C60 32 56 33 52 36Z" fill="#fff"/>
-</g></svg></div>
-    
-<div id="orangeFox" class="life-animal">
-<svg viewBox="0 0 82 60" aria-hidden="true">
-<g class="body-bob">
-<ellipse cx="38" cy="36" rx="19" ry="11" fill="#d8782e"/>
-<circle cx="20" cy="29" r="9" fill="#e78636"/>
-<path class="ear" d="M13 22L15 10L21 22Z" fill="#cb6827"/>
-<path class="ear" d="M21 21L27 10L28 24Z" fill="#cb6827"/>
-<circle cx="17" cy="28" r="1.5" fill="#221b1b"/>
-<path d="M10 31L5 33L11 35Z" fill="#2b2020"/>
-<path d="M12 35Q20 40 28 35" stroke="#f5e7d5" stroke-width="3" fill="none"/>
-<rect x="28" y="43" width="4" height="10" rx="2" fill="#7d4024"/>
-<rect x="43" y="43" width="4" height="10" rx="2" fill="#7d4024"/>
-<path class="tail" d="M52 36C68 22 80 27 75 41C70 51 59 50 52 44C61 45 66 39 63 35C60 32 56 33 52 36Z" fill="#d8782e"/>
-<path d="M68 31C75 34 77 40 72 45C69 47 66 47 63 45C67 42 69 37 68 31Z" fill="#f5eee4"/>
-</g></svg></div>
-    
-<div id="grayKitsune" class="life-animal">
-<svg viewBox="0 0 82 60" aria-hidden="true">
-<g class="body-bob">
-<ellipse cx="39" cy="38" rx="18" ry="12" fill="#4a505e"/>
-<circle cx="24" cy="29" r="9" fill="#5b6170"/>
-<path class="ear" d="M17 22L19 10L25 22Z" fill="#323741"/>
-<path class="ear" d="M25 21L30 10L32 24Z" fill="#323741"/>
-<circle cx="21" cy="28" r="1.4" fill="#d8e6ff"/>
-<path d="M14 31L9 33L15 35Z" fill="#1c2027"/>
-<ellipse cx="37" cy="46" rx="8" ry="5" fill="#343944"/>
-<path class="paw" d="M29 39Q24 34 23 28" stroke="#818898" stroke-width="4" stroke-linecap="round" fill="none"/>
-<path class="tail" d="M52 38C68 24 80 29 75 43C70 52 59 51 52 45C61 46 66 40 63 36C60 33 56 35 52 38Z" fill="#2e333c"/>
-<path d="M66 34C72 37 73 42 70 46" stroke="#8b929f" stroke-width="3" fill="none"/>
-</g></svg></div>
-    
-<div id="brownCat" class="life-animal">
-<svg viewBox="0 0 82 60" aria-hidden="true">
-<g class="body-bob">
-<ellipse cx="40" cy="38" rx="18" ry="9" fill="#8a5b39"/>
-<circle cx="24" cy="30" r="8" fill="#976540"/>
-<path class="ear" d="M18 24L19 14L25 23Z" fill="#71462f"/>
-<path class="ear" d="M25 23L30 15L31 26Z" fill="#71462f"/>
-<circle cx="21" cy="29" r="1.4" fill="#d7c78f"/>
-<rect x="29" y="44" width="3" height="9" rx="2" fill="#71462e"/>
-<rect x="44" y="44" width="3" height="9" rx="2" fill="#71462e"/>
-<path class="tail" d="M55 37C69 30 74 21 70 16C67 12 62 14 63 19C64 24 70 25 72 23" stroke="#8a5b39" stroke-width="6" stroke-linecap="round" fill="none"/>
-</g></svg></div>
-  </div>
-
-</div>
+<video id="innerBgVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+  <source src="sanctuaire_interieur_anime.mp4" type="video/mp4">
+</video>
+<div id="innerBgShade" aria-hidden="true"></div>
+<div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
@@ -2830,19 +2819,6 @@ refreshMultiplayerCharacterOptions();
 if(multiplayerCharacter)multiplayerCharacter.value=multiplayerCharacterId;
 
 openHome();
-
-/* V1.4.8 FIX - cycle de toilettage du kitsune gris */
-(function(){
-  const gray=document.getElementById("grayKitsune");
-  if(!gray)return;
-  function cycle(){
-    gray.classList.remove("grooming");
-    setTimeout(()=>gray.classList.add("grooming"),8200);
-    setTimeout(()=>gray.classList.remove("grooming"),17900);
-  }
-  cycle();
-  setInterval(cycle,27000);
-})();
 
 </script>
 </body>
