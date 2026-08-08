@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JDR Dreyard - V0.9</title>
+<style>
+*{box-sizing:border-box}
+:root{--bg:#060812;--panel:#111727;--panel2:#171f34;--panel3:#0c1120;--border:#2b3553;--text:#f3f5ff;--muted:#9099b9;--moon:#dce2ff;--moon2:#aebaf4;--danger:#ff707b;--gold:#efcf78}
+body{margin:0;min-height:100vh;font-family:"Segoe UI",Arial,sans-serif;background:radial-gradient(circle at top,#202b55,transparent 35%),var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+#homeScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 15%,rgba(120,140,255,.25),transparent 30%),linear-gradient(180deg,#080b18,#05060c)}
+.home-content{width:90%;max-width:480px}.moon{font-size:110px;line-height:1;margin-bottom:20px;text-shadow:0 0 20px white,0 0 60px #8597ff}
+.small-title{color:#9fa8ce;font-size:12px;letter-spacing:5px}.main-title{margin:10px 0 5px;font-size:clamp(45px,8vw,70px);letter-spacing:5px}.subtitle{color:var(--muted);margin-bottom:40px}
+.menu{display:flex;flex-direction:column;gap:12px}.menu button{width:100%;padding:17px;border-radius:12px;border:1px solid rgba(255,255,255,.15);color:white;background:rgba(21,28,50,.9);transition:.2s}.menu button:hover{transform:translateY(-2px);background:#202b4d}.menu .primary{background:linear-gradient(135deg,var(--moon),var(--moon2));color:#101426;font-weight:bold}.version{margin-top:35px;color:#535d7d;font-size:10px;letter-spacing:3px}
+.screen{width:94%;max-width:1450px;margin:auto;padding:30px 0 80px}.topbar{display:flex;align-items:center;gap:20px;margin-bottom:25px}.topbar-title{flex:1}.eyebrow{margin:0;color:var(--muted);font-size:11px;letter-spacing:4px;text-transform:uppercase}.topbar h1{margin:5px 0 0;font-size:clamp(28px,5vw,48px)}
+.back-button,.save-button,.secondary-button{padding:12px 17px;border-radius:10px;border:1px solid var(--border)}.back-button,.secondary-button{background:var(--panel);color:white}.save-button{background:var(--moon);color:#101426;font-weight:bold}
+.character-header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:25px}.create-character{border:0;padding:14px 20px;border-radius:12px;background:var(--moon);color:#111627;font-weight:bold}.character-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px}
+.character-card{background:linear-gradient(145deg,#151c30,#0d1221);border:1px solid var(--border);border-radius:20px;padding:22px}.character-avatar{width:130px;height:130px;margin:0 auto 20px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#465282,#151a2c);border:1px solid #59658e}.character-avatar img,.portrait-frame img{width:100%;height:100%;object-fit:cover}.character-avatar-placeholder{font-size:58px}.character-card h2{text-align:center;margin:0 0 5px}.character-info{text-align:center;color:var(--muted);margin-bottom:20px;line-height:1.6}.character-actions{display:flex;gap:8px}.character-actions button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--border)}.open-character{background:var(--moon);color:#111627;font-weight:bold}.delete-character{background:#21151a;color:#ff9099}
+.hero-panel{display:grid;grid-template-columns:230px 1fr;gap:25px;padding:25px;margin-bottom:18px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(145deg,rgba(24,31,55,.95),rgba(10,15,28,.95))}.portrait-block{text-align:center}.portrait-frame{width:190px;height:190px;margin:0 auto 15px;overflow:hidden;border-radius:18px;border:1px solid #6470a1;background:radial-gradient(circle,#435080,#121827);display:flex;align-items:center;justify-content:center;font-size:70px}.portrait-upload{width:100%;color:var(--muted)}.hero-info h2{margin-top:0;font-size:32px}.hero-subtitle{color:var(--muted);margin-bottom:22px}.resource{margin-bottom:18px}.resource-line{display:flex;justify-content:space-between;margin-bottom:7px}.resource-bar{height:14px;overflow:hidden;border-radius:20px;background:#060914;border:1px solid #29324c}.resource-fill{height:100%;transition:width .2s}#lifeFill{background:linear-gradient(90deg,#8d2836,#f16573)}#spiritFill{background:linear-gradient(90deg,#4e4f9a,#a5b0ff)}
+.dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{padding:22px;border:1px solid var(--border);border-radius:18px;background:rgba(17,23,39,.95)}.card h2{margin-top:0}label{display:block;margin-bottom:12px;color:var(--muted);font-size:13px}input,textarea,select{width:100%;margin-top:6px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--panel3);color:white;outline:none}textarea{min-height:120px;resize:vertical}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.stat{padding:10px;text-align:center;border-radius:10px;background:var(--panel2);border:1px solid var(--border)}.stat span{display:block;margin-bottom:7px;font-weight:bold}.stat input{text-align:center}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.item-card,.spell-card{padding:14px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}.item-icon,.spell-icon{font-size:30px;margin-bottom:8px}.item-card h3,.spell-card h3{margin:0 0 5px;font-size:16px}.meta{color:var(--muted);font-size:12px;margin-bottom:8px}.desc{font-size:13px;min-height:38px}.actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.actions button{flex:1;min-width:75px;padding:8px;border-radius:8px;border:1px solid var(--border);background:#151c31;color:white}.danger{background:#241419!important;color:#ff919a!important}.cast{background:#232c59!important}.incantation{margin-top:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,.04);color:#b8c1ef;font-size:12px;font-style:italic}
+.equipment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.equip-slot{min-height:80px;padding:12px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220);display:flex;flex-direction:column;justify-content:center;gap:6px}.equip-title{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px}.equip-value{font-weight:bold}
+.body-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.body-part{padding:14px;border-radius:10px;border:1px solid var(--border);color:white;background:var(--panel2)}.body-part.injured{border-color:var(--danger);background:#401e25;color:#ffadb3}
+.dice-panel{grid-column:span 3}.dice-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}.dice-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.dice-button{min-height:70px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#18203a,#101626);color:white;font-size:18px;font-weight:bold}.dice-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dice-result{padding:18px;border-radius:15px;border:1px solid var(--border);background:#0d1323;text-align:center;margin-top:15px}.dice-result-value{font-size:52px;font-weight:800;color:var(--gold)}.dice-detail{color:var(--muted);font-size:13px}.dice-history{max-height:360px;overflow:auto}.roll-entry{padding:11px;border-radius:10px;border:1px solid var(--border);background:#111829;margin-bottom:8px}.roll-entry strong{color:#f0d784}.roll-entry small{display:block;color:var(--muted);margin-top:4px}.history-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+
+
+
+/* PNJ + ENNEMIS + COMBAT */
+.npc-panel{grid-column:span 2}
+.npc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.npc-card{padding:14px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
+.npc-card h3{margin:0 0 6px}.npc-meta{color:var(--muted);font-size:12px;line-height:1.5}
+.npc-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.npc-actions button{flex:1;min-width:80px;padding:8px;border-radius:8px;border:1px solid var(--border);background:#151c31;color:white}
+.combat-board{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.initiative-list{display:flex;flex-direction:column;gap:8px}
+.init-row{display:grid;grid-template-columns:60px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:10px;border:1px solid var(--border);background:#101728}
+.init-row.active{border-color:#8d9dff;background:#18203a}.init-value{font-size:18px;font-weight:800;color:var(--gold);text-align:center}
+.combat-actions{display:flex;gap:8px;flex-wrap:wrap}.combat-actions button{padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:#151c31;color:white}
+.combat-log{max-height:360px;overflow:auto}.combat-entry{padding:10px;border-radius:10px;border:1px solid var(--border);background:#101728;margin-bottom:8px}.combat-entry small{display:block;color:var(--muted);margin-top:4px}
+.enemy-hp{margin-top:8px}.enemy-hpbar{height:10px;border-radius:20px;background:#080b12;border:1px solid #29324c;overflow:hidden}.enemy-hpfill{height:100%;background:linear-gradient(90deg,#7d2631,#e75c68)}
+@media(max-width:950px){.combat-board{grid-template-columns:1fr}.npc-panel{grid-column:span 2}}
+@media(max-width:700px){.npc-panel{grid-column:span 1!important}}
+
+/* PARTIES + MODE MJ */
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.game-card{padding:18px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
+.game-card h3{margin:0 0 8px}.game-meta{color:var(--muted);font-size:12px;line-height:1.5}.game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.game-actions button{flex:1;min-width:90px;padding:10px;border-radius:9px;border:1px solid var(--border);background:#151c31;color:white}
+.game-player-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.game-player-chip{padding:6px 9px;border-radius:999px;border:1px solid var(--border);background:#101728;font-size:12px}
+.mj-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.mj-members{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.mj-member{padding:14px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
+.mj-member-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.mj-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#222c4b;border:1px solid #50608e}.mj-avatar img{width:100%;height:100%;object-fit:cover}
+.mj-resource{margin:10px 0}.mj-resource-line{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}.mj-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.mj-controls button{padding:8px;border-radius:8px;border:1px solid var(--border);background:#121a2e;color:white}
+.session-log{max-height:420px;overflow:auto}.session-entry{padding:10px;border-radius:10px;border:1px solid var(--border);background:#101728;margin-bottom:8px}.session-entry small{display:block;color:var(--muted);margin-top:4px}
+.party-select-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.party-select-item{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;border:1px solid var(--border);background:#0e1526;color:white}.party-select-item input{width:auto;margin:0}
+@media(max-width:950px){.mj-layout{grid-template-columns:1fr}}
+@media(max-width:700px){.party-select-list{grid-template-columns:1fr}}
+
+/* QUÊTES + JOURNAL */
+.quest-panel{grid-column:span 2}
+.quest-grid,.journal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.quest-card,.journal-card{padding:14px;border-radius:14px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
+.quest-card h3,.journal-card h3{margin:0 0 7px}
+.quest-status{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;margin-bottom:8px;border:1px solid var(--border);color:#dce2ff;background:#131a2d}
+.quest-status.done{color:#9ff0bd;border-color:#355a47;background:#102019}
+.quest-status.progress{color:#f1d77f;border-color:#665727;background:#241f0d}
+.quest-status.todo{color:#bfc8ee}
+.quest-actions,.journal-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.quest-actions button,.journal-actions button{flex:1;min-width:80px;padding:8px;border-radius:8px;border:1px solid var(--border);background:#151c31;color:white}
+.quest-notes,.journal-text{white-space:pre-wrap;color:#d8dced;font-size:13px;line-height:1.45}
+.journal-date{color:var(--muted);font-size:12px;margin-bottom:8px}
+@media(max-width:950px){.quest-panel{grid-column:span 2}}
+@media(max-width:700px){.quest-panel{grid-column:span 1!important}}
+
+.modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75)}.modal-box{width:92%;max-width:520px;max-height:90vh;overflow:auto;padding:25px;border-radius:18px;background:#101626;border:1px solid var(--border)}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.modal-actions button{padding:10px 15px;border-radius:9px;border:1px solid var(--border)}
+#notification{position:fixed;right:25px;bottom:25px;padding:14px 20px;border-radius:10px;background:white;color:#111627;font-weight:bold;opacity:0;pointer-events:none;transform:translateY(15px);transition:.25s;z-index:200}#notification.show{opacity:1;transform:translateY(0)}
+@media(max-width:950px){.hero-panel{grid-template-columns:1fr}.dashboard{grid-template-columns:1fr 1fr}.dice-panel{grid-column:span 2}.dice-layout{grid-template-columns:1fr}}
+@media(max-width:700px){.dashboard{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.character-header{flex-direction:column;align-items:flex-start}.topbar{flex-wrap:wrap}.wide,.dice-panel{grid-column:span 1!important}.dice-buttons{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div id="homeScreen">
+  <div class="home-content">
+    <div class="moon">☾</div>
+    <div class="small-title">LE SANCTUAIRE DE LA LUNE</div>
+    <h1 class="main-title">JDR DREYARD</h1>
+    <p class="subtitle">Gestionnaire de personnages & aventures</p>
+    <div class="menu">
+      <button id="continueBtn" class="primary">▶ Continuer</button>
+      <button id="charactersBtn">👤 Personnages</button>
+      <button id="newGameBtn">✦ Nouvelle partie</button>
+      <button id="settingsBtn">⚙ Paramètres</button>
+    </div>
+    <div class="version">VERSION 0.9</div>
+  </div>
+</div>
+
+
+<div id="gamesScreen" class="screen hidden">
+  <header class="topbar">
+    <button id="gamesBackBtn" class="back-button">← Accueil</button>
+    <div class="topbar-title">
+      <p class="eyebrow">Campagnes & sessions</p>
+      <h1>Parties</h1>
+    </div>
+    <button id="createGameBtn" class="save-button">＋ Nouvelle partie</button>
+  </header>
+  <div id="gameGrid" class="game-grid"></div>
+</div>
+
+<div id="mjScreen" class="screen hidden">
+  <header class="topbar">
+    <button id="mjBackBtn" class="back-button">← Parties</button>
+    <div class="topbar-title">
+      <p class="eyebrow">Mode maître du jeu</p>
+      <h1 id="mjGameTitle">Partie</h1>
+    </div>
+    <button id="endSessionBtn" class="secondary-button">Terminer la session</button>
+  </header>
+
+  <div class="mj-layout">
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin:0">👥 Groupe</h2>
+        <button id="addSessionNoteBtn" class="save-button">＋ Note MJ</button>
+      </div>
+      <div id="mjMembers" class="mj-members"></div>
+    </section>
+
+    <section class="card">
+      <h2>📚 Journal de session</h2>
+      <div id="sessionLog" class="session-log"></div>
+    </section>
+  </div>
+
+
+  <section class="card npc-panel" style="margin-top:18px">
+    <div class="toolbar">
+      <h2 style="margin:0">👹 PNJ & Ennemis</h2>
+      <button id="addNpcBtn" class="save-button">＋ Ajouter</button>
+    </div>
+    <div id="npcGrid" class="npc-grid"></div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <div class="toolbar">
+      <h2 style="margin:0">⚔️ Combat & Initiative</h2>
+      <div class="combat-actions">
+        <button id="buildInitiativeBtn">Créer initiative</button>
+        <button id="nextTurnBtn">Tour suivant</button>
+        <button id="clearCombatBtn" class="danger">Fin du combat</button>
+      </div>
+    </div>
+
+    <div class="combat-board">
+      <div>
+        <h3>Ordre d'initiative</h3>
+        <div id="initiativeList" class="initiative-list"></div>
+      </div>
+
+      <div>
+        <h3>Journal de combat</h3>
+        <div id="combatLog" class="combat-log"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <h2>📝 Notes de la partie</h2>
+    <textarea id="gameNotes" placeholder="Ambiance, PNJ rencontrés, indices, décisions du groupe..."></textarea>
+    <button id="saveGameNotesBtn" class="save-button">💾 Sauvegarder les notes</button>
+  </section>
+</div>
+
+<div id="charactersScreen" class="screen hidden">
+  <header class="topbar">
+    <button id="charactersBackBtn" class="back-button">← Accueil</button>
+    <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
+  </header>
+  <div class="character-header">
+    <div><h2>Tes aventuriers</h2><p style="color:#9099b9">Sélectionne un personnage pour ouvrir sa fiche.</p></div>
+    <button id="createCharacterBtn" class="create-character">＋ Créer un personnage</button>
+  </div>
+  <div id="characterGrid" class="character-grid"></div>
+</div>
+
+<div id="characterScreen" class="screen hidden">
+  <header class="topbar">
+    <button id="backCharactersBtn" class="back-button">← Personnages</button>
+    <div class="topbar-title"><p class="eyebrow">Fiche de personnage</p><h1 id="sheetTitle">Personnage</h1></div>
+    <button id="saveBtn" class="save-button">💾 Sauvegarder</button>
+  </header>
+
+  <section class="hero-panel">
+    <div class="portrait-block">
+      <div id="portraitFrame" class="portrait-frame">🌙</div>
+      <input id="portraitInput" class="portrait-upload" type="file" accept="image/*">
+    </div>
+    <div class="hero-info">
+      <h2 id="heroName">Personnage</h2>
+      <div id="heroSubtitle" class="hero-subtitle">Race • Métier</div>
+      <div class="resource">
+        <div class="resource-line"><strong>❤️ Vie</strong><span id="pvText">10 / 10</span></div>
+        <div class="resource-bar"><div id="lifeFill" class="resource-fill"></div></div>
+        <input id="pv" type="range" min="0" max="10" value="10">
+      </div>
+      <div class="resource">
+        <div class="resource-line"><strong>✨ Esprit</strong><span id="espritText">10 / 10</span></div>
+        <div class="resource-bar"><div id="spiritFill" class="resource-fill"></div></div>
+        <input id="esprit" type="range" min="0" max="10" value="10">
+      </div>
+    </div>
+  </section>
+
+  <main class="dashboard">
+    <section class="card">
+      <h2>👤 Identité</h2>
+      <label>Prénom<input id="prenom"></label>
+      <label>Nom<input id="nom"></label>
+      <label>Âge<input id="age" type="number"></label>
+      <label>Race<input id="race"></label>
+      <label>Origine<input id="origine"></label>
+      <label>Métier<input id="metier"></label>
+    </section>
+
+    <section class="card">
+      <h2>⚔️ Caractéristiques</h2>
+      <div class="stats">
+        <div class="stat"><span>CC</span><input id="cc" type="number" min="0" max="7"></div>
+        <div class="stat"><span>CT</span><input id="ct" type="number" min="0" max="7"></div>
+        <div class="stat"><span>F</span><input id="f" type="number" min="0" max="7"></div>
+        <div class="stat"><span>A</span><input id="a" type="number" min="0" max="7"></div>
+        <div class="stat"><span>R</span><input id="r" type="number" min="0" max="7"></div>
+        <div class="stat"><span>I</span><input id="i" type="number" min="0" max="7"></div>
+        <div class="stat"><span>P</span><input id="p" type="number" min="0" max="7"></div>
+        <div class="stat"><span>S</span><input id="s" type="number" min="0" max="7"></div>
+        <div class="stat"><span>FM</span><input id="fm" type="number" min="0" max="7"></div>
+        <div class="stat"><span>FP</span><input id="fp" type="number" min="0" max="7"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>✨ Mots-clés</h2>
+      <label>Positifs<textarea id="positifs"></textarea></label>
+      <label>Négatifs<textarea id="negatifs"></textarea></label>
+    </section>
+
+    <section class="card wide" style="grid-column:span 2">
+      <div class="toolbar"><h2 style="margin:0">🎒 Inventaire</h2><button id="addItemBtn" class="save-button">＋ Objet</button></div>
+      <div id="inventoryGrid" class="grid-cards"></div>
+    </section>
+
+    <section class="card">
+      <h2>🛡️ Équipement</h2>
+      <div class="equipment-grid">
+        <div class="equip-slot" data-slot="head"><span class="equip-title">Tête</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="neck"><span class="equip-title">Collier</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="chest"><span class="equip-title">Torse</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="rightHand"><span class="equip-title">Main droite</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="leftHand"><span class="equip-title">Main gauche</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="ring1"><span class="equip-title">Anneau 1</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="ring2"><span class="equip-title">Anneau 2</span><span class="equip-value">Vide</span></div>
+        <div class="equip-slot" data-slot="boots"><span class="equip-title">Bottes</span><span class="equip-value">Vide</span></div>
+      </div>
+      <h3>🪙 Argent</h3>
+      <label>PO<input id="po" type="number"></label>
+      <label>PA<input id="pa" type="number"></label>
+      <label>PF<input id="pf" type="number"></label>
+      <label>PB<input id="pb" type="number"></label>
+    </section>
+
+    <section class="card wide" style="grid-column:span 2">
+      <div class="toolbar"><h2 style="margin:0">✨ Magies</h2><button id="addSpellBtn" class="save-button">＋ Sort</button></div>
+      <div id="spellGrid" class="grid-cards"></div>
+    </section>
+
+    <section class="card">
+      <h2>🩹 Blessures</h2>
+      <div class="body-grid">
+        <button class="body-part" data-part="tete">Tête</button>
+        <button class="body-part" data-part="torse">Torse</button>
+        <button class="body-part" data-part="brasD">Bras droit</button>
+        <button class="body-part" data-part="brasG">Bras gauche</button>
+        <button class="body-part" data-part="jambeD">Jambe droite</button>
+        <button class="body-part" data-part="jambeG">Jambe gauche</button>
+      </div>
+    </section>
+
+    <section class="card dice-panel">
+      <h2>🎲 Lanceur de dés</h2>
+      <div class="dice-layout">
+        <div>
+          <div class="dice-options">
+            <label>Nombre de dés<input id="diceCount" type="number" min="1" max="20" value="1"></label>
+            <label>Bonus / Malus<input id="diceModifier" type="number" value="0"></label>
+          </div>
+          <div class="dice-buttons">
+            <button class="dice-button" data-dice="4">D4</button>
+            <button class="dice-button" data-dice="6">D6</button>
+            <button class="dice-button" data-dice="8">D8</button>
+            <button class="dice-button" data-dice="10">D10</button>
+            <button class="dice-button" data-dice="12">D12</button>
+            <button class="dice-button" data-dice="20">D20</button>
+            <button class="dice-button" data-dice="100">D100</button>
+          </div>
+          <div class="dice-result">
+            <div style="color:#9099b9">Dernier résultat</div>
+            <div id="diceResultValue" class="dice-result-value">—</div>
+            <div id="diceResultDetail" class="dice-detail">Choisis un dé.</div>
+          </div>
+        </div>
+        <div>
+          <div class="history-header"><h3 style="margin:0">Historique</h3><button id="clearDiceHistoryBtn" class="secondary-button">Vider</button></div>
+          <div id="diceHistory" class="dice-history"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="card quest-panel">
+      <div class="toolbar">
+        <h2 style="margin:0">📜 Quêtes</h2>
+        <button id="addQuestBtn" class="save-button">＋ Quête</button>
+      </div>
+      <div id="questGrid" class="quest-grid"></div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin:0">📖 Journal d'aventure</h2>
+        <button id="addJournalBtn" class="save-button">＋ Entrée</button>
+      </div>
+      <div id="journalGrid" class="journal-grid"></div>
+    </section>
+
+    <section class="card"><h2>📜 Remarques</h2><textarea id="remarques"></textarea></section>
+    <section class="card"><h2>📖 Passé</h2><textarea id="passe"></textarea></section>
+  </main>
+</div>
+
+<div id="itemModal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="itemModalTitle">Ajouter un objet</h2>
+    <label>Nom<input id="itemName"></label>
+    <label>Type<select id="itemType">
+      <option>Consommable</option><option>Arme</option><option>Armure</option><option>Outil</option><option>Livre</option><option>Bijou</option><option>Objet</option>
+    </select></label>
+    <label>Quantité<input id="itemQuantity" type="number" min="1" value="1"></label>
+    <label>Poids<input id="itemWeight" type="number" step="0.1" value="0"></label>
+    <label>Description<textarea id="itemDescription"></textarea></label>
+    <div class="modal-actions"><button id="cancelItemBtn" class="secondary-button">Annuler</button><button id="confirmItemBtn" class="save-button">Enregistrer</button></div>
+  </div>
+</div>
+
+<div id="spellModal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="spellModalTitle">Ajouter un sort</h2>
+    <label>Nom<input id="spellName"></label>
+    <label>Élément<select id="spellElement">
+      <option value="Feu">🔥 Feu</option><option value="Eau">💧 Eau</option><option value="Air">🌪️ Air</option><option value="Terre">🌍 Terre</option><option value="Lune">🌙 Lune</option><option value="Soin">💚 Soin</option><option value="Ombre">🌑 Ombre</option><option value="Autre">✨ Autre</option>
+    </select></label>
+    <label>Coût en esprit<input id="spellCost" type="number" min="0" value="1"></label>
+    <label>Puissance<input id="spellPower" placeholder="Ex : 2 dégâts / soigne 3 PV"></label>
+    <label>Portée<input id="spellRange" placeholder="Ex : 10 mètres"></label>
+    <label>Description<textarea id="spellDescription"></textarea></label>
+    <label>Incantation<textarea id="spellIncantation"></textarea></label>
+    <div class="modal-actions"><button id="cancelSpellBtn" class="secondary-button">Annuler</button><button id="confirmSpellBtn" class="save-button">Enregistrer</button></div>
+  </div>
+</div>
+
+
+
+
+<div id="npcModal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="npcModalTitle">Ajouter un PNJ / ennemi</h2>
+    <label>Nom<input id="npcName"></label>
+    <label>Type
+      <select id="npcType">
+        <option value="PNJ">PNJ</option>
+        <option value="Ennemi">Ennemi</option>
+        <option value="Boss">Boss</option>
+      </select>
+    </label>
+    <label>PV max<input id="npcMaxHp" type="number" min="1" value="10"></label>
+    <label>Initiative<input id="npcInitiative" type="number" value="0"></label>
+    <label>Description<textarea id="npcDescription"></textarea></label>
+    <div class="modal-actions">
+      <button id="cancelNpcBtn" class="secondary-button">Annuler</button>
+      <button id="confirmNpcBtn" class="save-button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameModal" class="modal hidden">
+  <div class="modal-box">
+    <h2>Créer une partie</h2>
+    <label>Nom de la partie<input id="gameName" placeholder="Ex : Les Secrets de la Vallée Rouge"></label>
+    <label>Maître du jeu<input id="gameMaster" placeholder="Nom du MJ"></label>
+    <label>Personnages participants</label>
+    <div id="partySelectList" class="party-select-list"></div>
+    <div class="modal-actions">
+      <button id="cancelGameBtn" class="secondary-button">Annuler</button>
+      <button id="confirmGameBtn" class="save-button">Créer</button>
+    </div>
+  </div>
+</div>
+
+<div id="questModal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="questModalTitle">Ajouter une quête</h2>
+    <label>Titre<input id="questTitle"></label>
+    <label>Statut
+      <select id="questStatus">
+        <option value="À faire">À faire</option>
+        <option value="En cours">En cours</option>
+        <option value="Terminée">Terminée</option>
+      </select>
+    </label>
+    <label>Objectif<textarea id="questObjective"></textarea></label>
+    <label>Récompense<input id="questReward" placeholder="Ex : 20 PO, objet, information..."></label>
+    <label>Notes<textarea id="questNotes"></textarea></label>
+    <div class="modal-actions">
+      <button id="cancelQuestBtn" class="secondary-button">Annuler</button>
+      <button id="confirmQuestBtn" class="save-button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="journalModal" class="modal hidden">
+  <div class="modal-box">
+    <h2 id="journalModalTitle">Ajouter une entrée</h2>
+    <label>Titre<input id="journalTitle"></label>
+    <label>Date<input id="journalDate" type="date"></label>
+    <label>Texte<textarea id="journalText"></textarea></label>
+    <div class="modal-actions">
+      <button id="cancelJournalBtn" class="secondary-button">Annuler</button>
+      <button id="confirmJournalBtn" class="save-button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="notification">✓ Sauvegardé</div>
+
+<script>
+const emptyEquipment=()=>({head:"",neck:"",chest:"",rightHand:"",leftHand:"",ring1:"",ring2:"",boots:""});
+const emptyInjuries=()=>({tete:false,torse:false,brasD:false,brasG:false,jambeD:false,jambeG:false});
+
+const defaultFoxy={
+  id:"foxy",prenom:"Foxy",nom:"Dreyard",age:23,race:"Kitsune",origine:"Sanctuaire de la Lune",metier:"Mage / Forgeron",portrait:"",
+  pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,
+  positifs:"Protecteur\nFort\nPatient\nMagie feu & soin",negatifs:"Têtu",
+  po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",
+  blessures:emptyInjuries(),
+  equipment:{...emptyEquipment(),neck:"Collier étoile",rightHand:"Épée Lya"},
+  inventory:[
+    {id:"item1",name:"Potion de soin",type:"Consommable",quantity:3,weight:.2,description:"Potion permettant de récupérer des PV."},
+    {id:"item2",name:"Corde",type:"Outil",quantity:1,weight:1,description:"Corde résistante pour l'exploration."}
+  ],
+  spells:[
+    {id:"spell_foxy_1",name:"Souffle Tiède de Vie",element:"Soin",cost:2,power:"Soin léger",range:"Contact",description:"Une flamme verte douce referme les blessures légères.",incantation:"Que la flamme demeure douce et que la vie reprenne son souffle."}
+  ],
+  diceHistory:[],
+  quests:[],
+  journal:[]
+};
+
+const $=id=>document.getElementById(id);
+const gamesScreen=$("gamesScreen"),mjScreen=$("mjScreen"),gameGrid=$("gameGrid"),mjMembers=$("mjMembers"),sessionLog=$("sessionLog");
+const npcGrid=$("npcGrid"),initiativeList=$("initiativeList"),combatLog=$("combatLog");
+const homeScreen=$("homeScreen"),charactersScreen=$("charactersScreen"),characterScreen=$("characterScreen"),characterGrid=$("characterGrid"),inventoryGrid=$("inventoryGrid"),spellGrid=$("spellGrid");
+const sheetTitle=$("sheetTitle"),heroName=$("heroName"),heroSubtitle=$("heroSubtitle"),portraitFrame=$("portraitFrame"),portraitInput=$("portraitInput");
+const pv=$("pv"),esprit=$("esprit"),lifeFill=$("lifeFill"),spiritFill=$("spiritFill");
+let currentCharacterId=null,currentEditingItemId=null,currentEditingSpellId=null;
+let currentGameId=null;
+let currentEditingNpcId=null;
+const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
+
+function clone(obj){return JSON.parse(JSON.stringify(obj))}
+function migrateCharacter(c){
+  c.inventory ||= []; c.spells ||= []; c.equipment ||= emptyEquipment(); c.blessures ||= emptyInjuries(); c.diceHistory ||= []; c.quests ||= []; c.journal ||= [];
+  if(c.portrait===undefined)c.portrait="";
+  return c;
+}
+function getCharacters(){
+  const saved=localStorage.getItem("jdrCharacters");
+  if(!saved){const arr=[clone(defaultFoxy)];saveCharacters(arr);return arr}
+  try{return JSON.parse(saved).map(migrateCharacter)}catch{return [clone(defaultFoxy)]}
+}
+function saveCharacters(chars){localStorage.setItem("jdrCharacters",JSON.stringify(chars))}
+function hideScreens(){homeScreen.classList.add("hidden");charactersScreen.classList.add("hidden");characterScreen.classList.add("hidden");gamesScreen.classList.add("hidden");mjScreen.classList.add("hidden")}
+function openHome(){hideScreens();homeScreen.classList.remove("hidden")}
+function openCharacters(){hideScreens();charactersScreen.classList.remove("hidden");renderCharacters();window.scrollTo(0,0)}
+function openCharacter(id){
+  const c=getCharacters().find(x=>x.id===id);if(!c)return;
+  currentCharacterId=id;fillCharacterSheet(c);hideScreens();characterScreen.classList.remove("hidden");window.scrollTo(0,0);
+}
+
+function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+
+function renderCharacters(){
+  characterGrid.innerHTML="";
+  getCharacters().forEach(c=>{
+    const card=document.createElement("div");card.className="character-card";
+    const avatar=c.portrait?`<img src="${c.portrait}" alt="Portrait">`:`<div class="character-avatar-placeholder">🌙</div>`;
+    card.innerHTML=`<div class="character-avatar">${avatar}</div><h2>${esc(c.prenom)} ${esc(c.nom)}</h2><div class="character-info">${esc(c.race||"Race inconnue")}<br>${esc(c.metier||"Aucun métier")}</div><div class="character-actions"><button class="open-character">Ouvrir</button><button class="delete-character">🗑</button></div>`;
+    card.querySelector(".open-character").onclick=()=>openCharacter(c.id);
+    card.querySelector(".delete-character").onclick=()=>deleteCharacter(c.id);
+    characterGrid.appendChild(card);
+  });
+}
+
+function createCharacter(){
+  const prenom=prompt("Prénom :");if(!prenom)return;
+  const nom=prompt("Nom :")||"",race=prompt("Race :")||"",metier=prompt("Métier / classe :")||"";
+  const c={id:"character_"+Date.now(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
+  const chars=getCharacters();chars.push(c);saveCharacters(chars);renderCharacters();
+}
+function deleteCharacter(id){
+  const chars=getCharacters(),c=chars.find(x=>x.id===id);if(!c)return;
+  if(!confirm(`Supprimer ${c.prenom} ${c.nom} ?`))return;
+  saveCharacters(chars.filter(x=>x.id!==id));renderCharacters();
+}
+
+function fillCharacterSheet(c){
+  fields.forEach(id=>{const el=$(id);if(el&&c[id]!==undefined)el.value=c[id]});
+  sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
+  renderPortrait(c.portrait);
+  document.querySelectorAll(".body-part").forEach(b=>b.classList.toggle("injured",c.blessures?.[b.dataset.part]===true));
+  renderInventory(c);renderEquipment(c);renderSpells(c);renderDiceHistory(c);renderQuests(c);renderJournal(c);updateBars();
+}
+function renderPortrait(p){portraitFrame.innerHTML=p?`<img src="${p}" alt="Portrait">`:"🌙"}
+portraitInput.onchange=()=>{
+  const file=portraitInput.files[0];if(!file||!currentCharacterId)return;
+  const reader=new FileReader();
+  reader.onload=e=>{const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;chars[i].portrait=e.target.result;saveCharacters(chars);renderPortrait(e.target.result);notice("✓ Portrait ajouté")};
+  reader.readAsDataURL(file);
+};
+function updateBars(){
+  const a=Number(pv.value),b=Number(esprit.value);$("pvText").textContent=`${a} / 10`;$("espritText").textContent=`${b} / 10`;lifeFill.style.width=`${a*10}%`;spiritFill.style.width=`${b*10}%`;
+}
+pv.oninput=updateBars;esprit.oninput=updateBars;
+document.querySelectorAll(".body-part").forEach(b=>b.onclick=()=>b.classList.toggle("injured"));
+
+function saveCurrentCharacter(){
+  if(!currentCharacterId)return;
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  fields.forEach(id=>{const el=$(id);if(el)c[id]=el.value});
+  c.blessures={};document.querySelectorAll(".body-part").forEach(b=>c.blessures[b.dataset.part]=b.classList.contains("injured"));
+  saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;notice("✓ Fiche sauvegardée");
+}
+
+/* INVENTAIRE */
+const itemModal=$("itemModal"),itemName=$("itemName"),itemType=$("itemType"),itemQuantity=$("itemQuantity"),itemWeight=$("itemWeight"),itemDescription=$("itemDescription");
+function itemIcon(t){return {Consommable:"🧪",Arme:"⚔️",Armure:"🛡️",Outil:"🧰",Livre:"📖",Bijou:"💍",Objet:"📦"}[t]||"📦"}
+function renderInventory(c){
+  inventoryGrid.innerHTML="";if(!c.inventory.length){inventoryGrid.innerHTML='<p style="color:#9099b9">Inventaire vide.</p>';return}
+  c.inventory.forEach(item=>{
+    const card=document.createElement("div");card.className="item-card";const equip=["Arme","Armure","Bijou"].includes(item.type);
+    card.innerHTML=`<div class="item-icon">${itemIcon(item.type)}</div><h3>${esc(item.name)}</h3><div class="meta">${esc(item.type)} • Qté ${Number(item.quantity)||0} • ${Number(item.weight)||0} kg</div><div class="desc">${esc(item.description||"")}</div><div class="actions">${equip?'<button class="equip">Équiper</button>':""}${item.type==="Consommable"?'<button class="use">Utiliser</button>':""}<button class="edit">Modifier</button><button class="delete danger">Supprimer</button></div>`;
+    card.querySelector(".equip")?.addEventListener("click",()=>equipItem(item.id));
+    card.querySelector(".use")?.addEventListener("click",()=>useItem(item.id));
+    card.querySelector(".edit").onclick=()=>openItemModal(item.id);card.querySelector(".delete").onclick=()=>deleteItem(item.id);inventoryGrid.appendChild(card);
+  });
+}
+function openItemModal(id=null){
+  currentEditingItemId=id;
+  if(!id){$("itemModalTitle").textContent="Ajouter un objet";itemName.value="";itemType.value="Objet";itemQuantity.value=1;itemWeight.value=0;itemDescription.value=""}
+  else{const c=getCharacters().find(x=>x.id===currentCharacterId),item=c?.inventory.find(x=>x.id===id);if(!item)return;$("itemModalTitle").textContent="Modifier l'objet";itemName.value=item.name;itemType.value=item.type;itemQuantity.value=item.quantity;itemWeight.value=item.weight;itemDescription.value=item.description||""}
+  itemModal.classList.remove("hidden");
+}
+function closeItemModal(){itemModal.classList.add("hidden")}
+function confirmItem(){
+  if(!itemName.value.trim()||!currentCharacterId)return alert("Donne un nom à l'objet.");
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  if(currentEditingItemId){const item=c.inventory.find(x=>x.id===currentEditingItemId);if(item)Object.assign(item,{name:itemName.value.trim(),type:itemType.value,quantity:Math.max(1,Number(itemQuantity.value)||1),weight:Math.max(0,Number(itemWeight.value)||0),description:itemDescription.value})}
+  else c.inventory.push({id:"item_"+Date.now(),name:itemName.value.trim(),type:itemType.value,quantity:Math.max(1,Number(itemQuantity.value)||1),weight:Math.max(0,Number(itemWeight.value)||0),description:itemDescription.value});
+  saveCharacters(chars);renderInventory(c);closeItemModal();notice("✓ Inventaire mis à jour");
+}
+function deleteItem(id){
+  if(!confirm("Supprimer cet objet ?"))return;const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i],item=c.inventory.find(x=>x.id===id);
+  if(item)Object.keys(c.equipment).forEach(slot=>{if(c.equipment[slot]===item.name)c.equipment[slot]=""});
+  c.inventory=c.inventory.filter(x=>x.id!==id);saveCharacters(chars);renderInventory(c);renderEquipment(c);
+}
+function useItem(id){
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i],item=c.inventory.find(x=>x.id===id);if(!item)return;
+  item.quantity=Number(item.quantity)-1;if(item.quantity<=0)c.inventory=c.inventory.filter(x=>x.id!==id);saveCharacters(chars);renderInventory(c);notice(`🧪 ${item.name} utilisé`);
+}
+
+/* EQUIPEMENT */
+function renderEquipment(c){document.querySelectorAll(".equip-slot").forEach(s=>s.querySelector(".equip-value").textContent=c.equipment?.[s.dataset.slot]||"Vide")}
+function equipItem(id){
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i],item=c.inventory.find(x=>x.id===id);if(!item)return;
+  const map={Arme:["rightHand","leftHand"],Armure:["head","chest","boots"],Bijou:["neck","ring1","ring2"]},labels={head:"Tête",neck:"Collier",chest:"Torse",rightHand:"Main droite",leftHand:"Main gauche",ring1:"Anneau 1",ring2:"Anneau 2",boots:"Bottes"},allowed=map[item.type];if(!allowed)return;
+  const choice=prompt("Choisis l'emplacement :\n"+allowed.map((s,n)=>`${n+1} - ${labels[s]}`).join("\n")),slot=allowed[Number(choice)-1];if(!slot)return;
+  c.equipment[slot]=item.name;saveCharacters(chars);renderEquipment(c);notice(`🛡️ ${item.name} équipé`);
+}
+
+/* SORTS */
+const spellModal=$("spellModal"),spellName=$("spellName"),spellElement=$("spellElement"),spellCost=$("spellCost"),spellPower=$("spellPower"),spellRange=$("spellRange"),spellDescription=$("spellDescription"),spellIncantation=$("spellIncantation");
+function spellIcon(e){return {Feu:"🔥",Eau:"💧",Air:"🌪️",Terre:"🌍",Lune:"🌙",Soin:"💚",Ombre:"🌑",Autre:"✨"}[e]||"✨"}
+function renderSpells(c){
+  spellGrid.innerHTML="";if(!c.spells.length){spellGrid.innerHTML='<p style="color:#9099b9">Aucun sort appris.</p>';return}
+  c.spells.forEach(s=>{
+    const card=document.createElement("div");card.className="spell-card";
+    card.innerHTML=`<div class="spell-icon">${spellIcon(s.element)}</div><h3>${esc(s.name)}</h3><div class="meta">${esc(s.element)} • Coût ${Number(s.cost)||0} esprit • ${esc(s.range||"Portée inconnue")}</div><div class="desc">${esc(s.description||"")}</div><div class="meta">${esc(s.power||"")}</div>${s.incantation?`<div class="incantation">“${esc(s.incantation)}”</div>`:""}<div class="actions"><button class="cast">Lancer</button><button class="edit">Modifier</button><button class="delete danger">Supprimer</button></div>`;
+    card.querySelector(".cast").onclick=()=>castSpell(s.id);card.querySelector(".edit").onclick=()=>openSpellModal(s.id);card.querySelector(".delete").onclick=()=>deleteSpell(s.id);spellGrid.appendChild(card);
+  });
+}
+function openSpellModal(id=null){
+  currentEditingSpellId=id;
+  if(!id){$("spellModalTitle").textContent="Ajouter un sort";spellName.value="";spellElement.value="Feu";spellCost.value=1;spellPower.value="";spellRange.value="";spellDescription.value="";spellIncantation.value=""}
+  else{const c=getCharacters().find(x=>x.id===currentCharacterId),s=c?.spells.find(x=>x.id===id);if(!s)return;$("spellModalTitle").textContent="Modifier le sort";spellName.value=s.name;spellElement.value=s.element;spellCost.value=s.cost;spellPower.value=s.power||"";spellRange.value=s.range||"";spellDescription.value=s.description||"";spellIncantation.value=s.incantation||""}
+  spellModal.classList.remove("hidden");
+}
+function closeSpellModal(){spellModal.classList.add("hidden")}
+function confirmSpell(){
+  if(!spellName.value.trim()||!currentCharacterId)return alert("Donne un nom au sort.");
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  const data={name:spellName.value.trim(),element:spellElement.value,cost:Math.max(0,Number(spellCost.value)||0),power:spellPower.value,range:spellRange.value,description:spellDescription.value,incantation:spellIncantation.value};
+  if(currentEditingSpellId){const s=c.spells.find(x=>x.id===currentEditingSpellId);if(s)Object.assign(s,data)}else c.spells.push({id:"spell_"+Date.now(),...data});
+  saveCharacters(chars);renderSpells(c);closeSpellModal();notice("✓ Magies mises à jour");
+}
+function deleteSpell(id){
+  if(!confirm("Supprimer ce sort ?"))return;const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;chars[i].spells=chars[i].spells.filter(x=>x.id!==id);saveCharacters(chars);renderSpells(chars[i]);
+}
+function castSpell(id){
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i],s=c.spells.find(x=>x.id===id);if(!s)return;
+  const current=Number(esprit.value),cost=Number(s.cost)||0;if(current<cost)return alert("Pas assez d'esprit pour lancer ce sort.");
+  esprit.value=current-cost;c.esprit=esprit.value;saveCharacters(chars);updateBars();notice(`✨ ${s.name} lancé ! -${cost} esprit`);
+}
+
+/* DES */
+const diceCount=$("diceCount"),diceModifier=$("diceModifier"),diceResultValue=$("diceResultValue"),diceResultDetail=$("diceResultDetail"),diceHistory=$("diceHistory");
+const questGrid=$("questGrid"),journalGrid=$("journalGrid");
+const questModal=$("questModal"),questTitle=$("questTitle"),questStatus=$("questStatus"),questObjective=$("questObjective"),questReward=$("questReward"),questNotes=$("questNotes");
+const journalModal=$("journalModal"),journalTitle=$("journalTitle"),journalDate=$("journalDate"),journalText=$("journalText");
+let currentEditingQuestId=null,currentEditingJournalId=null;
+
+function rollDice(faces){
+  if(!currentCharacterId)return;
+  const count=Math.max(1,Math.min(20,Number(diceCount.value)||1)),mod=Number(diceModifier.value)||0,rolls=[];
+  for(let n=0;n<count;n++)rolls.push(Math.floor(Math.random()*faces)+1);
+  const total=rolls.reduce((a,b)=>a+b,0)+mod,modText=mod>0?` + ${mod}`:mod<0?` - ${Math.abs(mod)}`:"";
+  diceResultValue.textContent=total;diceResultDetail.textContent=`${count}D${faces} : [${rolls.join(", ")}]${modText}`;
+  addRoll({id:"roll_"+Date.now(),date:new Date().toLocaleString("fr-FR"),dice:`${count}D${faces}`,rolls,modifier:mod,total});
+}
+function addRoll(roll){
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;
+  chars[i].diceHistory.unshift(roll);chars[i].diceHistory=chars[i].diceHistory.slice(0,100);saveCharacters(chars);renderDiceHistory(chars[i]);
+}
+function renderDiceHistory(c){
+  diceHistory.innerHTML="";if(!c.diceHistory.length){diceHistory.innerHTML='<p style="color:#9099b9">Aucun jet pour le moment.</p>';return}
+  c.diceHistory.forEach(r=>{const e=document.createElement("div");e.className="roll-entry";const m=Number(r.modifier)||0,mt=m>0?` + ${m}`:m<0?` - ${Math.abs(m)}`:"";e.innerHTML=`<strong>${esc(c.prenom)} lance ${esc(r.dice)}${mt} → ${Number(r.total)}</strong><small>Jets : [${r.rolls.join(", ")}] • ${esc(r.date)}</small>`;diceHistory.appendChild(e)});
+}
+function clearDiceHistory(){
+  if(!currentCharacterId||!confirm("Vider l'historique des jets ?"))return;
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;chars[i].diceHistory=[];saveCharacters(chars);renderDiceHistory(chars[i]);diceResultValue.textContent="—";diceResultDetail.textContent="Choisis un dé.";
+}
+document.querySelectorAll(".dice-button").forEach(b=>b.onclick=()=>rollDice(Number(b.dataset.dice)));
+
+
+
+/* PARTIES + MODE MJ */
+function normalizeGame(g){
+  g.characterIds ||= [];
+  g.sessionLog ||= [];
+  g.npcs ||= [];
+  g.combat ||= {order:[],turnIndex:0,log:[]};
+  return g;
+}
+function getGames(){
+  const saved=localStorage.getItem("jdrGames");
+  if(!saved)return [];
+  try{return JSON.parse(saved).map(normalizeGame)}catch{return []}
+}
+function saveGames(games){localStorage.setItem("jdrGames",JSON.stringify(games))}
+function openGames(){hideScreens();gamesScreen.classList.remove("hidden");renderGames();window.scrollTo(0,0)}
+function renderGames(){
+  gameGrid.innerHTML="";
+  const games=getGames(),chars=getCharacters();
+  if(!games.length){gameGrid.innerHTML='<p style="color:#9099b9">Aucune partie créée.</p>';return}
+  games.forEach(g=>{
+    const card=document.createElement("div");card.className="game-card";
+    const names=(g.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
+    card.innerHTML=`<h3>${esc(g.name)}</h3><div class="game-meta">MJ : ${esc(g.gm||"Non défini")}<br>Créée le ${esc(g.createdAt||"")}</div><div class="game-player-list">${names.map(c=>`<span class="game-player-chip">${esc(c.prenom)} ${esc(c.nom)}</span>`).join("")||'<span class="game-player-chip">Aucun personnage</span>'}</div><div class="game-actions"><button class="start-game">🎭 Ouvrir mode MJ</button><button class="delete-game danger">Supprimer</button></div>`;
+    card.querySelector(".start-game").onclick=()=>openMJ(g.id);
+    card.querySelector(".delete-game").onclick=()=>deleteGame(g.id);
+    gameGrid.appendChild(card);
+  });
+}
+function openGameModal(){
+  $("gameName").value="";$("gameMaster").value="";
+  const list=$("partySelectList");list.innerHTML="";
+  getCharacters().forEach(c=>{
+    const label=document.createElement("label");label.className="party-select-item";
+    label.innerHTML=`<input type="checkbox" value="${esc(c.id)}"> <span>${esc(c.prenom)} ${esc(c.nom)} — ${esc(c.race||"")}</span>`;
+    list.appendChild(label);
+  });
+  $("gameModal").classList.remove("hidden");
+}
+function closeGameModal(){$("gameModal").classList.add("hidden")}
+function confirmGame(){
+  const name=$("gameName").value.trim();if(!name)return alert("Donne un nom à la partie.");
+  const ids=[...$("partySelectList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
+  const games=getGames();
+  games.push({id:"game_"+Date.now(),name,gm:$("gameMaster").value.trim(),characterIds:ids,notes:"",createdAt:new Date().toLocaleDateString("fr-FR"),sessionLog:[],npcs:[],combat:{order:[],turnIndex:0,log:[]}});
+  saveGames(games);closeGameModal();renderGames();notice("✓ Partie créée");
+}
+function deleteGame(id){
+  if(!confirm("Supprimer cette partie ?"))return;
+  saveGames(getGames().filter(g=>g.id!==id));renderGames();
+}
+function openMJ(id){
+  const game=getGames().find(g=>g.id===id);if(!game)return;
+  currentGameId=id;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);window.scrollTo(0,0);
+}
+function renderMJMembers(game){
+  mjMembers.innerHTML="";
+  const chars=getCharacters();
+  const selected=(game.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
+  if(!selected.length){mjMembers.innerHTML='<p style="color:#9099b9">Aucun personnage dans cette partie.</p>';return}
+  selected.forEach(c=>{
+    const box=document.createElement("div");box.className="mj-member";
+    const avatar=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
+    box.innerHTML=`<div class="mj-member-head"><div class="mj-avatar">${avatar}</div><div><strong>${esc(c.prenom)} ${esc(c.nom)}</strong><div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div></div></div><div class="mj-resource"><div class="mj-resource-line"><span>❤️ PV</span><span>${Number(c.pv)}/10</span></div><div class="mj-controls"><button data-action="pv-" data-id="${c.id}">-1</button><button data-action="pv+" data-id="${c.id}">+1</button><button data-action="sp-" data-id="${c.id}">✨-1</button><button data-action="sp+" data-id="${c.id}">✨+1</button></div></div><button class="secondary-button open-sheet" data-id="${c.id}" style="width:100%">Ouvrir la fiche</button>`;
+    box.querySelectorAll(".mj-controls button").forEach(btn=>btn.onclick=()=>mjAdjust(btn.dataset.id,btn.dataset.action));
+    box.querySelector(".open-sheet").onclick=()=>openCharacter(c.id);
+    mjMembers.appendChild(box);
+  });
+}
+function mjAdjust(charId,action){
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===charId);if(i<0)return;
+  const c=chars[i];
+  if(action==="pv-")c.pv=Math.max(0,Number(c.pv)-1);
+  if(action==="pv+")c.pv=Math.min(10,Number(c.pv)+1);
+  if(action==="sp-")c.esprit=Math.max(0,Number(c.esprit)-1);
+  if(action==="sp+")c.esprit=Math.min(10,Number(c.esprit)+1);
+  saveCharacters(chars);
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);
+  if(g){g.sessionLog.unshift({date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:`${c.prenom} : ${action.replace("pv","PV ").replace("sp","Esprit ")}`});saveGames(games);renderMJMembers(g);renderSessionLog(g)}
+}
+function renderSessionLog(game){
+  sessionLog.innerHTML="";
+  if(!(game.sessionLog||[]).length){sessionLog.innerHTML='<p style="color:#9099b9">Aucune action enregistrée.</p>';return}
+  game.sessionLog.forEach(e=>{const d=document.createElement("div");d.className="session-entry";d.innerHTML=`${esc(e.text)}<small>${esc(e.date||"")}</small>`;sessionLog.appendChild(d)});
+}
+function addSessionNote(){
+  if(!currentGameId)return;
+  const note=prompt("Note du MJ :");if(!note)return;
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  g.sessionLog.unshift({date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:"📝 "+note});saveGames(games);renderSessionLog(g);
+}
+function saveGameNotes(){
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  g.notes=$("gameNotes").value;saveGames(games);notice("✓ Notes de partie sauvegardées");
+}
+function endSession(){
+  if(!currentGameId)return openGames();
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);
+  if(g){g.sessionLog.unshift({date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:"⏹ Session terminée"});saveGames(games)}
+  currentGameId=null;openGames();
+}
+
+
+
+/* PNJ + ENNEMIS */
+const npcModal=$("npcModal"),npcName=$("npcName"),npcType=$("npcType"),npcMaxHp=$("npcMaxHp"),npcInitiative=$("npcInitiative"),npcDescription=$("npcDescription");
+
+function renderNpcs(game){
+  npcGrid.innerHTML="";
+  if(!(game.npcs||[]).length){npcGrid.innerHTML='<p style="color:#9099b9">Aucun PNJ ou ennemi ajouté.</p>';return}
+  game.npcs.forEach(n=>{
+    const card=document.createElement("div");card.className="npc-card";
+    const pct=Math.max(0,Math.min(100,(Number(n.hp)/Number(n.maxHp))*100));
+    card.innerHTML=`<h3>${esc(n.name)}</h3><div class="npc-meta">${esc(n.type)} • Initiative ${Number(n.initiative)||0}</div><div class="enemy-hp"><div class="npc-meta">PV ${Number(n.hp)}/${Number(n.maxHp)}</div><div class="enemy-hpbar"><div class="enemy-hpfill" style="width:${pct}%"></div></div></div><div class="desc" style="margin-top:8px">${esc(n.description||"")}</div><div class="npc-actions"><button class="hpminus">PV -1</button><button class="hpplus">PV +1</button><button class="edit">Modifier</button><button class="delete danger">Supprimer</button></div>`;
+    card.querySelector(".hpminus").onclick=()=>adjustNpcHp(n.id,-1);
+    card.querySelector(".hpplus").onclick=()=>adjustNpcHp(n.id,1);
+    card.querySelector(".edit").onclick=()=>openNpcModal(n.id);
+    card.querySelector(".delete").onclick=()=>deleteNpc(n.id);
+    npcGrid.appendChild(card);
+  });
+}
+function openNpcModal(id=null){
+  currentEditingNpcId=id;
+  if(!id){
+    $("npcModalTitle").textContent="Ajouter un PNJ / ennemi";npcName.value="";npcType.value="PNJ";npcMaxHp.value=10;npcInitiative.value=0;npcDescription.value="";
+  }else{
+    const g=getGames().find(x=>x.id===currentGameId),n=g?.npcs.find(x=>x.id===id);if(!n)return;
+    $("npcModalTitle").textContent="Modifier PNJ / ennemi";npcName.value=n.name;npcType.value=n.type;npcMaxHp.value=n.maxHp;npcInitiative.value=n.initiative||0;npcDescription.value=n.description||"";
+  }
+  npcModal.classList.remove("hidden");
+}
+function closeNpcModal(){npcModal.classList.add("hidden")}
+function confirmNpc(){
+  if(!npcName.value.trim()||!currentGameId)return alert("Donne un nom.");
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  if(currentEditingNpcId){
+    const n=g.npcs.find(x=>x.id===currentEditingNpcId);if(n){const oldMax=Number(n.maxHp)||1;const oldHp=Number(n.hp)||oldMax;n.name=npcName.value.trim();n.type=npcType.value;n.maxHp=Math.max(1,Number(npcMaxHp.value)||10);n.hp=Math.min(n.maxHp,oldHp);n.initiative=Number(npcInitiative.value)||0;n.description=npcDescription.value}
+  }else{
+    const max=Math.max(1,Number(npcMaxHp.value)||10);
+    g.npcs.push({id:"npc_"+Date.now(),name:npcName.value.trim(),type:npcType.value,maxHp:max,hp:max,initiative:Number(npcInitiative.value)||0,description:npcDescription.value});
+  }
+  saveGames(games);renderNpcs(g);closeNpcModal();notice("✓ PNJ mis à jour");
+}
+function deleteNpc(id){
+  if(!confirm("Supprimer ce PNJ / ennemi ?"))return;
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  g.npcs=g.npcs.filter(x=>x.id!==id);
+  g.combat.order=(g.combat.order||[]).filter(x=>x.refId!==id);
+  saveGames(games);renderNpcs(g);renderCombat(g);
+}
+function adjustNpcHp(id,delta){
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  const n=g.npcs.find(x=>x.id===id);if(!n)return;
+  n.hp=Math.max(0,Math.min(Number(n.maxHp),Number(n.hp)+delta));
+  g.combat.log.unshift({date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:`${n.name} : PV ${delta>0?"+":""}${delta}`});
+  saveGames(games);renderNpcs(g);renderCombat(g);
+}
+
+/* COMBAT */
+function buildInitiative(){
+  if(!currentGameId)return;
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  const chars=getCharacters();
+  const order=[];
+  (g.characterIds||[]).forEach(id=>{
+    const c=chars.find(x=>x.id===id);if(c)order.push({kind:"character",refId:c.id,name:`${c.prenom} ${c.nom}`.trim(),initiative:Math.floor(Math.random()*20)+1});
+  });
+  (g.npcs||[]).forEach(n=>order.push({kind:"npc",refId:n.id,name:n.name,initiative:Number(n.initiative)||Math.floor(Math.random()*20)+1}));
+  order.sort((a,b)=>b.initiative-a.initiative);
+  g.combat={order,turnIndex:0,log:[{date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:"⚔️ Combat lancé"}]};
+  saveGames(games);renderCombat(g);
+}
+function renderCombat(game){
+  initiativeList.innerHTML="";combatLog.innerHTML="";
+  const combat=game.combat||{order:[],turnIndex:0,log:[]};
+  if(!combat.order.length){initiativeList.innerHTML='<p style="color:#9099b9">Aucune initiative.</p>'}
+  combat.order.forEach((entry,idx)=>{
+    const row=document.createElement("div");row.className="init-row"+(idx===combat.turnIndex?" active":"");
+    row.innerHTML=`<div class="init-value">${Number(entry.initiative)}</div><div><strong>${esc(entry.name)}</strong><div class="meta">${entry.kind==="character"?"Personnage":"PNJ / Ennemi"}</div></div><div>${idx===combat.turnIndex?"▶":""}</div>`;
+    initiativeList.appendChild(row);
+  });
+  if(!(combat.log||[]).length){combatLog.innerHTML='<p style="color:#9099b9">Aucune action de combat.</p>';return}
+  combat.log.forEach(e=>{const d=document.createElement("div");d.className="combat-entry";d.innerHTML=`${esc(e.text)}<small>${esc(e.date||"")}</small>`;combatLog.appendChild(d)});
+}
+function nextTurn(){
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g||!g.combat.order.length)return;
+  g.combat.turnIndex=(Number(g.combat.turnIndex)+1)%g.combat.order.length;
+  const active=g.combat.order[g.combat.turnIndex];
+  g.combat.log.unshift({date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),text:`▶ Tour de ${active.name}`});
+  saveGames(games);renderCombat(g);
+}
+function clearCombat(){
+  if(!currentGameId||!confirm("Terminer le combat ?"))return;
+  const games=getGames(),g=games.find(x=>x.id===currentGameId);if(!g)return;
+  g.combat={order:[],turnIndex:0,log:[]};saveGames(games);renderCombat(g);
+}
+
+
+/* QUÊTES */
+function questStatusClass(status){
+  if(status==="Terminée")return "done";
+  if(status==="En cours")return "progress";
+  return "todo";
+}
+function renderQuests(c){
+  questGrid.innerHTML="";
+  if(!c.quests.length){questGrid.innerHTML='<p style="color:#9099b9">Aucune quête.</p>';return}
+  c.quests.forEach(q=>{
+    const card=document.createElement("div");card.className="quest-card";
+    card.innerHTML=`<span class="quest-status ${questStatusClass(q.status)}">${esc(q.status)}</span><h3>${esc(q.title)}</h3><div class="meta">Objectif</div><div class="quest-notes">${esc(q.objective||"")}</div>${q.reward?`<div class="meta" style="margin-top:8px">Récompense : ${esc(q.reward)}</div>`:""}${q.notes?`<div class="quest-notes" style="margin-top:8px">${esc(q.notes)}</div>`:""}<div class="quest-actions"><button class="edit">Modifier</button><button class="delete danger">Supprimer</button></div>`;
+    card.querySelector(".edit").onclick=()=>openQuestModal(q.id);
+    card.querySelector(".delete").onclick=()=>deleteQuest(q.id);
+    questGrid.appendChild(card);
+  });
+}
+function openQuestModal(id=null){
+  currentEditingQuestId=id;
+  if(!id){
+    $("questModalTitle").textContent="Ajouter une quête";
+    questTitle.value="";questStatus.value="À faire";questObjective.value="";questReward.value="";questNotes.value="";
+  }else{
+    const c=getCharacters().find(x=>x.id===currentCharacterId),q=c?.quests.find(x=>x.id===id);if(!q)return;
+    $("questModalTitle").textContent="Modifier la quête";
+    questTitle.value=q.title;questStatus.value=q.status;questObjective.value=q.objective||"";questReward.value=q.reward||"";questNotes.value=q.notes||"";
+  }
+  questModal.classList.remove("hidden");
+}
+function closeQuestModal(){questModal.classList.add("hidden")}
+function confirmQuest(){
+  if(!questTitle.value.trim()||!currentCharacterId)return alert("Donne un titre à la quête.");
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  const data={title:questTitle.value.trim(),status:questStatus.value,objective:questObjective.value,reward:questReward.value,notes:questNotes.value};
+  if(currentEditingQuestId){const q=c.quests.find(x=>x.id===currentEditingQuestId);if(q)Object.assign(q,data)}
+  else c.quests.push({id:"quest_"+Date.now(),...data});
+  saveCharacters(chars);renderQuests(c);closeQuestModal();notice("✓ Quête mise à jour");
+}
+function deleteQuest(id){
+  if(!confirm("Supprimer cette quête ?"))return;
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;
+  chars[i].quests=chars[i].quests.filter(x=>x.id!==id);saveCharacters(chars);renderQuests(chars[i]);
+}
+
+/* JOURNAL */
+function renderJournal(c){
+  journalGrid.innerHTML="";
+  if(!c.journal.length){journalGrid.innerHTML='<p style="color:#9099b9">Aucune entrée de journal.</p>';return}
+  [...c.journal].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).forEach(j=>{
+    const card=document.createElement("div");card.className="journal-card";
+    card.innerHTML=`<div class="journal-date">${esc(j.date||"Sans date")}</div><h3>${esc(j.title)}</h3><div class="journal-text">${esc(j.text||"")}</div><div class="journal-actions"><button class="edit">Modifier</button><button class="delete danger">Supprimer</button></div>`;
+    card.querySelector(".edit").onclick=()=>openJournalModal(j.id);
+    card.querySelector(".delete").onclick=()=>deleteJournal(j.id);
+    journalGrid.appendChild(card);
+  });
+}
+function openJournalModal(id=null){
+  currentEditingJournalId=id;
+  if(!id){
+    $("journalModalTitle").textContent="Ajouter une entrée";
+    journalTitle.value="";journalDate.value=new Date().toISOString().slice(0,10);journalText.value="";
+  }else{
+    const c=getCharacters().find(x=>x.id===currentCharacterId),j=c?.journal.find(x=>x.id===id);if(!j)return;
+    $("journalModalTitle").textContent="Modifier l'entrée";
+    journalTitle.value=j.title;journalDate.value=j.date||"";journalText.value=j.text||"";
+  }
+  journalModal.classList.remove("hidden");
+}
+function closeJournalModal(){journalModal.classList.add("hidden")}
+function confirmJournal(){
+  if(!journalTitle.value.trim()||!currentCharacterId)return alert("Donne un titre à l'entrée.");
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  const data={title:journalTitle.value.trim(),date:journalDate.value,text:journalText.value};
+  if(currentEditingJournalId){const j=c.journal.find(x=>x.id===currentEditingJournalId);if(j)Object.assign(j,data)}
+  else c.journal.push({id:"journal_"+Date.now(),...data});
+  saveCharacters(chars);renderJournal(c);closeJournalModal();notice("✓ Journal mis à jour");
+}
+function deleteJournal(id){
+  if(!confirm("Supprimer cette entrée ?"))return;
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;
+  chars[i].journal=chars[i].journal.filter(x=>x.id!==id);saveCharacters(chars);renderJournal(chars[i]);
+}
+
+
+/* UTILITAIRES + BOUTONS */
+function notice(text){const n=$("notification");n.textContent=text;n.classList.add("show");setTimeout(()=>n.classList.remove("show"),1600)}
+$("charactersBtn").onclick=openCharacters;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
+$("addItemBtn").onclick=()=>openItemModal();$("cancelItemBtn").onclick=closeItemModal;$("confirmItemBtn").onclick=confirmItem;
+$("addSpellBtn").onclick=()=>openSpellModal();$("cancelSpellBtn").onclick=closeSpellModal;$("confirmSpellBtn").onclick=confirmSpell;
+$("clearDiceHistoryBtn").onclick=clearDiceHistory;
+$("gamesBackBtn").onclick=openHome;$("createGameBtn").onclick=openGameModal;$("cancelGameBtn").onclick=closeGameModal;$("confirmGameBtn").onclick=confirmGame;
+$("mjBackBtn").onclick=openGames;$("addSessionNoteBtn").onclick=addSessionNote;$("saveGameNotesBtn").onclick=saveGameNotes;$("endSessionBtn").onclick=endSession;
+$("addNpcBtn").onclick=()=>openNpcModal();$("cancelNpcBtn").onclick=closeNpcModal;$("confirmNpcBtn").onclick=confirmNpc;
+$("buildInitiativeBtn").onclick=buildInitiative;$("nextTurnBtn").onclick=nextTurn;$("clearCombatBtn").onclick=clearCombat;
+
+
+$("addQuestBtn").onclick=()=>openQuestModal();$("cancelQuestBtn").onclick=closeQuestModal;$("confirmQuestBtn").onclick=confirmQuest;
+$("addJournalBtn").onclick=()=>openJournalModal();$("cancelJournalBtn").onclick=closeJournalModal;$("confirmJournalBtn").onclick=confirmJournal;
+
+$("continueBtn").onclick=()=>{const chars=getCharacters();chars.length?openCharacter(chars[0].id):openCharacters()};
+$("newGameBtn").onclick=openGames;
+$("settingsBtn").onclick=()=>alert("Les paramètres seront ajoutés plus tard.");
+openHome();
+</script>
+</body>
+</html>
