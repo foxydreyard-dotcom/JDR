@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.5</title>
+<title>JDR Dreyard - V1.4.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -17,7 +17,7 @@
   isolation:isolate;
   background:
     linear-gradient(rgba(4,8,20,.24),rgba(4,8,20,.48)),
-    url("sanctuaire_lune_anime.gif") center center / cover no-repeat fixed;
+    linear-gradient(#071023,#02040b);
 
   background-attachment:fixed;
 }
@@ -616,12 +616,30 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   #homeScreen{background-attachment:scroll}
 }
 
+
+/* V1.4.6 - MP4 COMPRESSE POUR GITHUB PAGES */
+#homeBgVideo{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:0;
+  pointer-events:none;
+}
+#homeScreen::before{z-index:1 !important}
+#homeScreen .home-content{position:relative;z-index:2}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <div id="homeScreen">
+  <video id="homeBgVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+    <source src="sanctuaire_lune_anime.mp4" type="video/mp4">
+  </video>
 <div class="home-content">
     <div class="moon">☾</div>
     <div class="small-title">LE SANCTUAIRE DE LA LUNE</div>
@@ -634,7 +652,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.5</div>
+    <div class="version">VERSION 1.4.6</div>
   </div>
 </div>
 
