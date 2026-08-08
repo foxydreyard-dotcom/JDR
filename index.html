@@ -731,6 +731,13 @@ const sheetTitle=$("sheetTitle"),heroName=$("heroName"),heroSubtitle=$("heroSubt
 const pv=$("pv"),esprit=$("esprit"),lifeFill=$("lifeFill"),spiritFill=$("spiritFill");
 let currentCharacterId=null,currentEditingItemId=null,currentEditingSpellId=null;
 let currentGameId=null;
+let realtimeChannel=null;
+let currentRoomCode="";
+let multiplayerPlayerId="player_"+Math.random().toString(36).slice(2,10);
+let multiplayerPlayerName="";
+let multiplayerIsHost=false;
+let applyingRemoteState=false;
+let syncTimer=null;
 let realtimeChannel=null,currentRoomCode="",multiplayerPlayerId="player_"+Math.random().toString(36).slice(2,10),multiplayerPlayerName="",multiplayerIsHost=false,applyingRemoteState=false,syncTimer=null;
 let currentEditingNpcId=null;
 const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
@@ -1448,7 +1455,14 @@ function deleteJournal(id){
 
 /* UTILITAIRES + BOUTONS */
 function notice(text){const n=$("notification");n.textContent=text;n.classList.add("show");setTimeout(()=>n.classList.remove("show"),1600)}
-$("charactersBtn").onclick=openCharacters;$("multiplayerBtn").onclick=openMultiplayer;$("multiplayerBackBtn").onclick=openHome;$("createRoomBtn").onclick=createRoom;$("joinRoomBtn").onclick=joinRoom;$("leaveRoomBtn").onclick=()=>leaveRealtimeRoom(true);$("syncNowBtn").onclick=()=>broadcastFullState("manual");$("openMultiplayerGameBtn").onclick=openGames;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
+$("charactersBtn").onclick=openCharacters;
+$("multiplayerBtn").onclick=openMultiplayer;
+$("multiplayerBackBtn").onclick=openHome;
+$("createRoomBtn").onclick=createRoom;
+$("joinRoomBtn").onclick=joinRoom;
+$("leaveRoomBtn").onclick=()=>leaveRealtimeRoom(true);
+$("syncNowBtn").onclick=()=>broadcastFullState("manual");
+$("openMultiplayerGameBtn").onclick=openGames;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
 $("addItemBtn").onclick=()=>openItemModal();$("cancelItemBtn").onclick=closeItemModal;$("confirmItemBtn").onclick=confirmItem;
 $("addSpellBtn").onclick=()=>openSpellModal();$("cancelSpellBtn").onclick=closeSpellModal;$("confirmSpellBtn").onclick=confirmSpell;
 $("clearDiceHistoryBtn").onclick=clearDiceHistory;
