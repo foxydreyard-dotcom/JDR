@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.6</title>
+<title>JDR Dreyard - V1.5.7</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1300,6 +1300,24 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   .mj-selected-resources{grid-template-columns:1fr}
 }
 
+
+/* V1.5.7 - RETOUR VISUEL GARANTI DES RESSOURCES */
+.mj-resource-controls button{
+  transition:transform .08s ease,filter .12s ease;
+}
+.mj-resource-controls button:active{
+  transform:scale(.96);
+  filter:brightness(1.25);
+}
+.fighter-card.mj-selected::after{
+  content:"JOUEUR SÉLECTIONNÉ";
+  display:block;
+  margin-top:9px;
+  font-size:10px;
+  letter-spacing:1px;
+  color:#b9c2ff;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1498,7 +1516,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <aside class="combat-console">
         <h3>Gestion du joueur</h3>
 
-        <div id="mjCombatSelected" class="mj-combat-selected">
+        <div id="mjCombatSelected" class="mj-combat-selected" data-character-id="">
           <div class="mj-combat-avatar">🌙</div>
           <div style="flex:1">
             <strong id="mjCombatSelectedName">Aucun joueur sélectionné</strong>
@@ -1529,10 +1547,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         </div>
 
         <div class="mj-resource-controls">
-          <button type="button" id="mjPvMinus" class="minus">❤️ PV -1</button>
-          <button type="button" id="mjPvPlus" class="plus">❤️ PV +1</button>
-          <button type="button" id="mjSpiritMinus" class="minus">✨ Esprit -1</button>
-          <button type="button" id="mjSpiritPlus" class="plus">✨ Esprit +1</button>
+          <button type="button" id="mjPvMinus" class="minus">❤️ PV -1 <span id="mjPvMinusNow"></span></button>
+          <button type="button" id="mjPvPlus" class="plus">❤️ PV +1 <span id="mjPvPlusNow"></span></button>
+          <button type="button" id="mjSpiritMinus" class="minus">✨ Esprit -1 <span id="mjSpiritMinusNow"></span></button>
+          <button type="button" id="mjSpiritPlus" class="plus">✨ Esprit +1 <span id="mjSpiritPlusNow"></span></button>
         </div>
 
         <div class="kitsune-body-wrap">
@@ -3075,19 +3093,23 @@ function getMjCombatSelectedCharacter(){
 }
 
 function renderMjCombatPanel(){
-  const c=getMjCombatSelectedCharacter();
+  const holder=$("mjCombatSelected");
   const name=$("mjCombatSelectedName");
   const meta=$("mjCombatSelectedMeta");
-  const holder=$("mjCombatSelected");
-
-  if(!name||!meta||!holder)return;
-
   const pvText=$("mjSelectedPvText");
   const spiritText=$("mjSelectedSpiritText");
   const pvFill=$("mjSelectedPvFill");
   const spiritFill=$("mjSelectedSpiritFill");
 
+  if(!holder||!name||!meta)return;
+
+  let c=null;
+  if(mjCombatSelectedCharacterId){
+    c=getCharacters().find(x=>x.id===mjCombatSelectedCharacterId)||null;
+  }
+
   if(!c){
+    holder.dataset.characterId="";
     name.textContent="Aucun joueur sélectionné";
     meta.textContent="Clique sur un personnage à gauche.";
     holder.querySelector(".mj-combat-avatar").innerHTML="🌙";
@@ -3098,6 +3120,8 @@ function renderMjCombatPanel(){
     document.querySelectorAll(".injury-zone").forEach(b=>b.classList.remove("injured"));
     return;
   }
+
+  holder.dataset.characterId=c.id;
 
   const currentPv=Math.max(0,Math.min(10,Number(c.pv)||0));
   const currentSpirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
@@ -3119,53 +3143,77 @@ function renderMjCombatPanel(){
 function selectMjCombatCharacter(id){
   const c=getCharacters().find(x=>x.id===id);
   if(!c)return;
+
   mjCombatSelectedCharacterId=id;
+
+  const holder=$("mjCombatSelected");
+  if(holder)holder.dataset.characterId=id;
+
   const game=getGames().find(g=>g.id===currentGameId);
   if(game)renderVisualCombat(game);
+
   renderMjCombatPanel();
 }
 
+function getSelectedCombatCharacterId(){
+  const holder=$("mjCombatSelected");
+  return holder?.dataset?.characterId || mjCombatSelectedCharacterId || "";
+}
+
 function commitMjCharacterChange(characterId, mutator, logText){
+  if(!characterId){
+    alert("Sélectionne d'abord un joueur à gauche.");
+    return false;
+  }
+
   const chars=getCharacters();
   const i=chars.findIndex(c=>c.id===characterId);
+
   if(i<0){
     alert("Personnage introuvable.");
     return false;
   }
 
   mutator(chars[i]);
-  localStorage.setItem("jdrCharacters",JSON.stringify(chars));
+
+  // Sauvegarde immédiatement les vraies valeurs du personnage.
+  saveCharacters(chars);
+
+  // Relecture après sauvegarde pour afficher exactement les valeurs persistées.
+  const saved=getCharacters().find(c=>c.id===characterId);
+  if(saved){
+    mjCombatSelectedCharacterId=saved.id;
+  }
 
   const games=getGames();
   const game=games.find(g=>g.id===currentGameId);
+
   if(game){
     game.combat ||= {order:[],turnIndex:0,log:[]};
     game.combat.log ||= [];
-    if(logText){
+
+    if(logText && saved){
       game.combat.log.unshift({
         date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
-        text:logText(chars[i])
+        text:logText(saved)
       });
     }
-    localStorage.setItem("jdrGames",JSON.stringify(games));
 
+    saveGames(games);
+
+    // Rafraîchissement visuel immédiat, sans attendre Supabase.
     renderCombat(game);
-    renderMJMembers(game);
     renderVisualCombat(game);
   }
 
   renderMjCombatPanel();
-
-  if(realtimeChannel && currentRoomCode){
-    setTimeout(()=>broadcastFullState("mj-combat-change"),20);
-  }
   return true;
 }
 
 function toggleMjInjury(part){
-  const c=getMjCombatSelectedCharacter();
-  if(!c){
-    alert("Sélectionne d'abord un joueur.");
+  const id=getSelectedCombatCharacterId();
+  if(!id){
+    alert("Sélectionne d'abord un joueur à gauche.");
     return;
   }
 
@@ -3179,7 +3227,7 @@ function toggleMjInjury(part){
   };
 
   commitMjCharacterChange(
-    c.id,
+    id,
     target=>{
       target.blessures ||= emptyInjuries();
       target.blessures[part]=!target.blessures[part];
@@ -3189,19 +3237,23 @@ function toggleMjInjury(part){
 }
 
 function mjCombatAdjust(resource,delta){
-  const c=getMjCombatSelectedCharacter();
-  if(!c){
-    alert("Sélectionne d'abord un joueur.");
+  const id=getSelectedCombatCharacterId();
+  if(!id){
+    alert("Sélectionne d'abord un joueur à gauche.");
     return;
   }
 
   commitMjCharacterChange(
-    c.id,
+    id,
     target=>{
       if(resource==="hp"){
-        target.pv=Math.max(0,Math.min(10,Number(target.pv||0)+delta));
-      }else if(resource==="spirit"){
-        target.esprit=Math.max(0,Math.min(10,Number(target.esprit||0)+delta));
+        const current=Number(target.pv);
+        target.pv=Math.max(0,Math.min(10,(Number.isFinite(current)?current:10)+delta));
+      }
+
+      if(resource==="spirit"){
+        const current=Number(target.esprit);
+        target.esprit=Math.max(0,Math.min(10,(Number.isFinite(current)?current:10)+delta));
       }
     },
     target=>{
