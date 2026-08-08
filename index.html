@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.3</title>
+<title>JDR Dreyard - V1.4.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -608,22 +608,27 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   height:100%;
   object-fit:cover;
   object-position:center center;
-  z-index:-2;
+  z-index:0;
   pointer-events:none;
   filter:saturate(1.05) brightness(.82);
 }
 #homeScreen::before{
-  z-index:-1 !important;
+  z-index:1 !important;
   background:
     linear-gradient(90deg,rgba(2,5,14,.18),transparent 20%,transparent 80%,rgba(2,5,14,.18)),
     linear-gradient(180deg,rgba(2,5,14,.10),transparent 28%,transparent 70%,rgba(2,5,14,.34)) !important;
 }
 #homeScreen .home-content{
+  position:relative;
   z-index:2;
 }
 @media (prefers-reduced-motion: reduce){
   #homeBgVideo{display:none}
 }
+
+
+#homeScreen{position:relative;isolation:isolate}
+#homeScreen .home-content{position:relative;z-index:2}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -646,7 +651,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.3</div>
+    <div class="version">VERSION 1.4.4</div>
   </div>
 </div>
 
