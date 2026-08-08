@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.2</title>
+<title>JDR Dreyard - V1.3.1</title>
 <style>
 *{box-sizing:border-box}
 :root{--bg:#060812;--panel:#111727;--panel2:#171f34;--panel3:#0c1120;--border:#2b3553;--text:#f3f5ff;--muted:#9099b9;--moon:#dce2ff;--moon2:#aebaf4;--danger:#ff707b;--gold:#efcf78}
@@ -28,6 +28,34 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
+
+
+/* V1.3 - SESSION JDR EN DIRECT */
+.live-session-bar{
+  margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#0d1425
+}
+.live-session-status{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.live-session-status strong{font-size:15px}
+.live-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.live-actions button{flex:1;min-width:150px}
+.live-player-dashboard{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+.live-stat-card{padding:14px;border:1px solid var(--border);border-radius:14px;background:#0d1425}
+.live-big-name{font-size:26px;font-weight:900;margin:4px 0 12px}
+.live-resources{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.live-resource{padding:12px;border:1px solid var(--border);border-radius:12px;background:#11192b}
+.live-resource .value{font-size:24px;font-weight:900;margin-top:4px}
+.live-controls{display:flex;gap:6px;margin-top:8px}
+.live-controls button{padding:7px 10px;border-radius:9px;border:1px solid var(--border);background:#172139;color:#fff;cursor:pointer}
+.live-dice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.live-dice-grid button{padding:12px;border-radius:11px;border:1px solid var(--border);background:#151e34;color:#fff;font-weight:800;cursor:pointer}
+.live-log{max-height:300px;overflow:auto;padding:10px;border:1px solid var(--border);border-radius:12px;background:#090f1c}
+.live-log-entry{padding:8px 4px;border-bottom:1px solid #202a42;font-size:13px}
+.live-log-entry:last-child{border-bottom:0}
+.mj-live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.mj-live-player{padding:12px;border:1px solid var(--border);border-radius:12px;background:#11192b}
+.mj-live-player .numbers{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.mj-live-player .numbers span{padding:5px 8px;border:1px solid var(--border);border-radius:999px;font-size:12px}
+@media(max-width:800px){.live-player-dashboard{grid-template-columns:1fr}.live-resources{grid-template-columns:1fr}}
 
 /* V1.2 - GROUPE MULTIJOUEUR */
 .group-panel{
@@ -266,6 +294,149 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 @media(max-width:950px){.combat-board{grid-template-columns:1fr}.npc-panel{grid-column:span 2}}
 @media(max-width:700px){.npc-panel{grid-column:span 1!important}}
 
+
+/* V1.3 - SESSION JDR EN DIRECT */
+function getControlledCharacter(){
+  if(!multiplayerCharacterId)return null;
+  return getCharacters().find(c=>c.id===multiplayerCharacterId)||null;
+}
+function addLiveEvent(textValue){
+  liveSessionEvents.push({time:new Date().toISOString(),text:textValue});
+  if(liveSessionEvents.length>100)liveSessionEvents=liveSessionEvents.slice(-100);
+  renderLiveSession();
+  if(realtimeChannel)broadcastLiveSession("event");
+}
+function launchLiveSession(){
+  if(multiplayerRoleValue!=="MJ"){
+    alert("Seul le Maître du jeu peut lancer la session.");
+    return;
+  }
+  liveSessionActive=true;
+  liveSessionStartedAt=Date.now();
+  liveSessionEvents=[];
+  addLiveEvent(`${multiplayerPlayerName} a lancé la session.`);
+  updateLiveSessionLabel();
+  broadcastLiveSession("launch");
+  openLiveSession();
+}
+function stopLiveSession(){
+  if(multiplayerRoleValue!=="MJ"){
+    alert("Seul le Maître du jeu peut arrêter la session.");
+    return;
+  }
+  liveSessionActive=false;
+  addLiveEvent(`${multiplayerPlayerName} a arrêté la session.`);
+  updateLiveSessionLabel();
+  broadcastLiveSession("stop");
+}
+function updateLiveSessionLabel(){
+  const label=$("liveSessionLabel");
+  if(!label)return;
+  label.textContent=liveSessionActive?"🟢 Session en cours":"Aucune session lancée";
+}
+function openLiveSession(){
+  if(!liveSessionActive){
+    alert("Aucune session JDR n'est actuellement lancée.");
+    return;
+  }
+  hideScreens();
+  liveSessionScreen.classList.remove("hidden");
+  renderLiveSession();
+  window.scrollTo(0,0);
+}
+function renderLiveSession(){
+  updateLiveSessionLabel();
+  $("liveSessionTitle").textContent=currentRoomCode?`Salon ${currentRoomCode}`:"Session";
+
+  const c=getControlledCharacter();
+  $("liveCharacterName").textContent=c?`${c.prenom} ${c.nom}`.trim():"Aucun personnage attribué";
+  $("livePvValue").textContent=c?`${c.pv} / ${Number(c.pvMax||10)}`:"—";
+  $("liveEspritValue").textContent=c?`${c.esprit} / ${Number(c.espritMax||10)}`:"—";
+  $("liveHand").textContent=c?(c.main||"Rien"):"Choisis ton personnage depuis le salon.";
+
+  $("playerLivePanel").classList.toggle("hidden",multiplayerRoleValue==="MJ"&&!c);
+  $("mjLivePanel").classList.toggle("hidden",multiplayerRoleValue!=="MJ");
+
+  const log=$("liveSessionLog");
+  log.innerHTML="";
+  if(!liveSessionEvents.length){
+    log.innerHTML='<div style="color:#9099b9">Aucun événement pour le moment.</div>';
+  }else{
+    [...liveSessionEvents].reverse().forEach(e=>{
+      const d=document.createElement("div");
+      d.className="live-log-entry";
+      const t=new Date(e.time).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+      d.textContent=`${t} — ${e.text}`;
+      log.appendChild(d);
+    });
+  }
+  renderMJLiveRoster();
+}
+function renderMJLiveRoster(){
+  const box=$("mjLiveRoster");
+  if(!box||multiplayerRoleValue!=="MJ")return;
+  box.innerHTML="";
+  if(!realtimeChannel)return;
+  const state=realtimeChannel.presenceState();
+  const players=[];
+  Object.values(state).forEach(entries=>(entries||[]).forEach(p=>players.push(p)));
+  players.forEach(p=>{
+    const c=p.characterId?getCharacters().find(x=>x.id===p.characterId):null;
+    const card=document.createElement("div");
+    card.className="mj-live-player";
+    card.innerHTML=`
+      <strong>🟢 ${esc(p.name||"Joueur")}</strong>
+      <div style="color:#9099b9;font-size:12px;margin-top:3px">${esc(p.role||"Joueur")}</div>
+      <div style="margin-top:8px">🎭 ${esc(c?`${c.prenom} ${c.nom}`:p.characterName||"Aucun personnage")}</div>
+      <div class="numbers">
+        <span>❤️ ${c?`${c.pv}/${Number(c.pvMax||10)}`:"—"}</span>
+        <span>✨ ${c?`${c.esprit}/${Number(c.espritMax||10)}`:"—"}</span>
+      </div>`;
+    box.appendChild(card);
+  });
+}
+function changeLiveResource(field,delta){
+  const c=getControlledCharacter();
+  if(!c){alert("Aucun personnage attribué.");return}
+  const chars=getCharacters();
+  const target=chars.find(x=>x.id===c.id);
+  if(!target)return;
+  const maxValue=field==="pv"?Number(target.pvMax||10):Number(target.espritMax||10);
+  target[field]=Math.max(0,Math.min(maxValue,Number(target[field]||0)+delta));
+  saveCharacters(chars);
+  addLiveEvent(`${multiplayerPlayerName} : ${field==="pv"?"PV":"Esprit"} ${delta>0?"+":""}${delta} (${target[field]}/${target[maxField]}).`);
+  renderLiveSession();
+}
+function rollLiveDice(sides){
+  const value=Math.floor(Math.random()*sides)+1;
+  $("liveDiceResult").textContent=`D${sides} → ${value}`;
+  addLiveEvent(`${multiplayerPlayerName} lance un D${sides} : ${value}.`);
+}
+async function broadcastLiveSession(reason="sync"){
+  if(!realtimeChannel)return;
+  try{
+    await realtimeChannel.send({
+      type:"broadcast",
+      event:"live-session",
+      payload:{
+        senderId:multiplayerPlayerId,
+        active:liveSessionActive,
+        startedAt:liveSessionStartedAt,
+        events:liveSessionEvents,
+        reason
+      }
+    });
+  }catch(err){console.error("Live session broadcast:",err)}
+}
+function applyRemoteLiveSession(payload){
+  if(!payload||payload.senderId===multiplayerPlayerId)return;
+  liveSessionActive=!!payload.active;
+  liveSessionStartedAt=payload.startedAt||null;
+  if(Array.isArray(payload.events))liveSessionEvents=payload.events;
+  updateLiveSessionLabel();
+  if(!liveSessionScreen.classList.contains("hidden"))renderLiveSession();
+}
+
 /* PARTIES + MODE MJ */
 .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
 .game-card{padding:18px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(145deg,#171f34,#0d1220)}
@@ -318,7 +489,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.2</div>
+    <div class="version">VERSION 1.3.1</div>
   </div>
 </div>
 
@@ -370,6 +541,19 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         <button id="syncNowBtn" class="save-button">🔄 Synchroniser</button>
         <button id="openMultiplayerGameBtn" class="save-button">🎭 Ouvrir les parties</button>
         <button id="leaveRoomBtn" class="secondary-button">Quitter le salon</button>
+      </div>
+      <div class="live-session-bar">
+        <div class="live-session-status">
+          <div>
+            <strong>🎲 Session JDR en direct</strong>
+            <div id="liveSessionLabel" style="color:#9099b9;font-size:12px;margin-top:4px">Aucune session lancée</div>
+          </div>
+        </div>
+        <div class="live-actions">
+          <button id="launchLiveSessionBtn" class="save-button">🚀 Lancer la session</button>
+          <button id="openLiveSessionBtn" class="secondary-button">🎮 Ouvrir la session</button>
+          <button id="stopLiveSessionBtn" class="secondary-button">■ Arrêter</button>
+        </div>
       </div>
 
       <p style="color:#9099b9;font-size:12px;margin-top:15px">
@@ -825,7 +1009,7 @@ const defaultFoxy={
 
 const $=id=>document.getElementById(id);
 const gamesScreen=$("gamesScreen"),mjScreen=$("mjScreen"),gameGrid=$("gameGrid"),mjMembers=$("mjMembers"),sessionLog=$("sessionLog");
-const multiplayerScreen=$("multiplayerScreen"),onlinePlayers=$("onlinePlayers");
+const multiplayerScreen=$("multiplayerScreen"),onlinePlayers=$("onlinePlayers"),liveSessionScreen=$("liveSessionScreen");
 const groupRoster=$("groupRoster"),multiplayerRole=$("multiplayerRole"),multiplayerCharacter=$("multiplayerCharacter");
 const npcGrid=$("npcGrid"),initiativeList=$("initiativeList"),combatLog=$("combatLog");
 const fighterZone=$("fighterZone"),turnBanner=$("turnBanner"),actionSource=$("actionSource"),actionTarget=$("actionTarget"),actionAmount=$("actionAmount"),actionType=$("actionType");
@@ -842,6 +1026,9 @@ let multiplayerPlayerName="";
 let multiplayerIsHost=false;
 let multiplayerRoleValue="Joueur";
 let multiplayerCharacterId="";
+let liveSessionActive=false;
+let liveSessionStartedAt=null;
+let liveSessionEvents=[];
 let applyingRemoteState=false;
 let syncTimer=null;
 
@@ -860,7 +1047,7 @@ function getCharacters(){
   try{return JSON.parse(saved).map(migrateCharacter)}catch{return [clone(defaultFoxy)]}
 }
 function saveCharacters(chars){localStorage.setItem("jdrCharacters",JSON.stringify(chars));scheduleRealtimeSync()}
-function hideScreens(){homeScreen.classList.add("hidden");charactersScreen.classList.add("hidden");characterScreen.classList.add("hidden");gamesScreen.classList.add("hidden");mjScreen.classList.add("hidden");multiplayerScreen.classList.add("hidden")}
+function hideScreens(){homeScreen.classList.add("hidden");charactersScreen.classList.add("hidden");characterScreen.classList.add("hidden");gamesScreen.classList.add("hidden");mjScreen.classList.add("hidden");multiplayerScreen.classList.add("hidden");liveSessionScreen.classList.add("hidden")}
 function openHome(){hideScreens();homeScreen.classList.remove("hidden")}
 function openCharacters(){hideScreens();charactersScreen.classList.remove("hidden");renderCharacters();window.scrollTo(0,0)}
 function openCharacter(id){
@@ -1082,7 +1269,7 @@ async function updatePlayerProfile(){
 
 async function createRoom(){const name=$("multiplayerName").value.trim();if(!name)return alert("Entre ton nom.");multiplayerPlayerName=name;multiplayerIsHost=true;multiplayerRoleValue="MJ";multiplayerRole.value="MJ";refreshMultiplayerCharacterOptions();await joinRealtimeRoom(randomRoomCode())}
 async function joinRoom(){const name=$("multiplayerName").value.trim(),code=normalizeRoomCode($("joinRoomCode").value);if(!name)return alert("Entre ton nom.");if(code.length<4)return alert("Entre un code de salon valide.");multiplayerPlayerName=name;multiplayerIsHost=false;multiplayerRoleValue=localStorage.getItem("jdrMultiplayerRole")||"Joueur";multiplayerRole.value=multiplayerRoleValue;refreshMultiplayerCharacterOptions();await joinRealtimeRoom(code)}
-async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>broadcastFullState("join"),250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await trackCurrentPresence();updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
+async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>{broadcastFullState("join");broadcastLiveSession("join")},250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).on("broadcast",{event:"live-session"},({payload})=>applyRemoteLiveSession(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await trackCurrentPresence();updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
 async function leaveRealtimeRoom(goHome=true){if(realtimeChannel){try{await realtimeChannel.untrack()}catch{}try{await realtimeClient.removeChannel(realtimeChannel)}catch{}}realtimeChannel=null;currentRoomCode="";multiplayerIsHost=false;onlinePlayers.innerHTML="";if(groupRoster)groupRoster.innerHTML="";updateMultiplayerUI();if(goHome)openHome()}
 function renderPresence(){
   if(!realtimeChannel)return;
@@ -1130,6 +1317,99 @@ function renderPresence(){
     groupRoster.appendChild(card);
   });
 }
+
+
+function buildSharedState(){
+  return {
+    room:currentRoomCode,
+    senderId:multiplayerPlayerId,
+    sentAt:Date.now(),
+    characters:getCharacters(),
+    games:getGames()
+  };
+}
+
+function scheduleRealtimeSync(){
+  if(applyingRemoteState || !realtimeChannel || !currentRoomCode)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>broadcastFullState("change"),120);
+}
+
+async function broadcastFullState(reason="manual"){
+  if(!realtimeChannel || !currentRoomCode || applyingRemoteState)return;
+
+  try{
+    await realtimeChannel.send({
+      type:"broadcast",
+      event:"state-sync",
+      payload:{
+        ...buildSharedState(),
+        reason
+      }
+    });
+  }catch(err){
+    console.error("Erreur Broadcast:",err);
+  }
+}
+
+async function requestFullState(){
+  if(!realtimeChannel)return;
+
+  await realtimeChannel.send({
+    type:"broadcast",
+    event:"request-state",
+    payload:{
+      senderId:multiplayerPlayerId,
+      sentAt:Date.now()
+    }
+  });
+}
+
+function applyRemoteState(payload){
+  if(!payload || payload.senderId===multiplayerPlayerId)return;
+
+  applyingRemoteState=true;
+
+  try{
+    if(Array.isArray(payload.characters)){
+      localStorage.setItem("jdrCharacters",JSON.stringify(payload.characters));
+    }
+
+    if(Array.isArray(payload.games)){
+      localStorage.setItem("jdrGames",JSON.stringify(payload.games));
+    }
+
+    refreshVisibleScreenAfterSync();
+    notice("🌐 Partie synchronisée");
+  }finally{
+    setTimeout(()=>{applyingRemoteState=false},50);
+  }
+}
+
+function refreshVisibleScreenAfterSync(){
+  if(!characterScreen.classList.contains("hidden") && currentCharacterId){
+    const c=getCharacters().find(x=>x.id===currentCharacterId);
+    if(c)fillCharacterSheet(c);
+  }
+
+  if(!charactersScreen.classList.contains("hidden"))renderCharacters();
+  if(!gamesScreen.classList.contains("hidden"))renderGames();
+  if(!liveSessionScreen.classList.contains("hidden"))renderLiveSession();
+
+  if(!mjScreen.classList.contains("hidden") && currentGameId){
+    const g=getGames().find(x=>x.id===currentGameId);
+    if(g){
+      $("mjGameTitle").textContent=g.name;
+      $("gameNotes").value=g.notes||"";
+      renderMJMembers(g);
+      renderSessionLog(g);
+      renderNpcs(g);
+      renderCombat(g);
+      renderVisualCombat(g);
+    }
+  }
+}
+
 function getGames(){
   const saved=localStorage.getItem("jdrGames");
   if(!saved)return [];
@@ -1637,7 +1917,18 @@ $("joinRoomBtn").onclick=joinRoom;
 $("leaveRoomBtn").onclick=()=>leaveRealtimeRoom(true);
 $("syncNowBtn").onclick=()=>broadcastFullState("manual");
 $("openMultiplayerGameBtn").onclick=openGames;
-$("updatePlayerProfileBtn").onclick=updatePlayerProfile;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
+$("updatePlayerProfileBtn").onclick=updatePlayerProfile;
+$("launchLiveSessionBtn").onclick=launchLiveSession;
+$("openLiveSessionBtn").onclick=openLiveSession;
+$("stopLiveSessionBtn").onclick=stopLiveSession;
+$("liveBackBtn").onclick=openMultiplayer;
+$("liveSyncBtn").onclick=()=>{broadcastFullState("live-manual");broadcastLiveSession("live-manual");notice("🔄 Synchronisation envoyée")};
+$("livePvMinus").onclick=()=>changeLiveResource("pv",-1);
+$("livePvPlus").onclick=()=>changeLiveResource("pv",1);
+$("liveEspritMinus").onclick=()=>changeLiveResource("esprit",-1);
+$("liveEspritPlus").onclick=()=>changeLiveResource("esprit",1);
+document.querySelectorAll("[data-live-dice]").forEach(btn=>btn.onclick=()=>rollLiveDice(Number(btn.dataset.liveDice)));
+$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
 $("addItemBtn").onclick=()=>openItemModal();$("cancelItemBtn").onclick=closeItemModal;$("confirmItemBtn").onclick=confirmItem;
 $("addSpellBtn").onclick=()=>openSpellModal();$("cancelSpellBtn").onclick=closeSpellModal;$("confirmSpellBtn").onclick=confirmSpell;
 $("clearDiceHistoryBtn").onclick=clearDiceHistory;
