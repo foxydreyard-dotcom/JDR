@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.3</title>
+<title>JDR Dreyard - V1.5.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1223,6 +1223,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   .combat-stage-grid{grid-template-columns:1fr}
 }
 
+
+/* V1.5.4 - PERSONNAGE KITSUNE REEL POUR LES BLESSURES */
+.kitsune-injury-character{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:155px;
+  height:225px;
+  object-fit:contain;
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 7px 12px rgba(0,0,0,.34));
+  pointer-events:none;
+  user-select:none;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1439,22 +1454,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         <div class="kitsune-body-wrap">
           <div class="kitsune-body-title">Blessures du joueur sélectionné — clique sur une zone</div>
           <div class="kitsune-body">
-            <svg viewBox="0 0 210 250" aria-hidden="true">
-              <!-- silhouette kitsune simple -->
-              <path d="M85 42 L72 15 L91 29 Q105 20 119 29 L138 15 L126 44
-                       Q139 58 135 77 Q131 91 118 97
-                       L124 130 Q141 144 143 168
-                       L139 211 L125 232 L112 232 L108 177
-                       L102 145 L96 177 L92 232 L79 232 L65 211
-                       L67 168 Q69 144 86 130 L92 97
-                       Q79 90 75 77 Q71 58 85 42Z"
-                    fill="#dfe5ff" opacity=".88"/>
-              <path d="M127 123 Q170 120 186 151 Q197 174 174 190 Q183 162 159 151 Q143 143 127 149Z"
-                    fill="#dfe5ff" opacity=".78"/>
-              <circle cx="94" cy="60" r="3" fill="#1c2740"/>
-              <circle cx="116" cy="60" r="3" fill="#1c2740"/>
-              <path d="M100 70 Q105 75 110 70" stroke="#1c2740" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
+            <img class="kitsune-injury-character" src="kitsune_blessures.png" alt="Silhouette kitsune pour localiser les blessures">
 
             <button class="injury-zone injury-head" data-injury="tete">Tête</button>
             <button class="injury-zone injury-torso" data-injury="torse">Torse</button>
