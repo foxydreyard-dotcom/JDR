@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.1</title>
+<title>JDR Dreyard - V1.2</title>
 <style>
 *{box-sizing:border-box}
 :root{--bg:#060812;--panel:#111727;--panel2:#171f34;--panel3:#0c1120;--border:#2b3553;--text:#f3f5ff;--muted:#9099b9;--moon:#dce2ff;--moon2:#aebaf4;--danger:#ff707b;--gold:#efcf78}
@@ -27,6 +27,66 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
+
+
+/* V1.2 - GROUPE MULTIJOUEUR */
+.group-panel{
+  margin-top:18px;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:#0d1425;
+}
+.group-settings{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:12px 0 16px;
+}
+.group-roster{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;
+}
+.group-player{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#11192b;
+}
+.group-player.me{
+  border-color:#5d6fb5;
+  box-shadow:0 0 0 1px rgba(93,111,181,.18);
+}
+.group-player-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.group-player-name{
+  font-weight:800;
+}
+.group-player-role{
+  font-size:11px;
+  color:var(--muted);
+  padding:3px 7px;
+  border-radius:999px;
+  border:1px solid var(--border);
+}
+.group-player-character{
+  margin-top:8px;
+  color:#dce2ff;
+  font-size:13px;
+}
+.group-player-status{
+  margin-top:5px;
+  font-size:11px;
+  color:#79e0aa;
+}
+@media(max-width:700px){
+  .group-settings{grid-template-columns:1fr}
+}
 
 /* V1.1 - MULTIJOUEUR */
 .multiplayer-card{max-width:760px;margin:0 auto;padding:24px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(145deg,#151c30,#0d1221)}
@@ -258,7 +318,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.1</div>
+    <div class="version">VERSION 1.2</div>
   </div>
 </div>
 
@@ -272,7 +332,50 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <div class="multiplayer-grid"><div><h3>Créer un salon</h3><button id="createRoomBtn" class="save-button" style="width:100%">Créer un code</button></div><div><h3>Rejoindre</h3><label>Code du salon<input id="joinRoomCode" maxlength="10" placeholder="LUNE4827"></label><button id="joinRoomBtn" class="save-button" style="width:100%">Rejoindre</button></div></div>
       <div id="multiConnectionMessage" class="multiplayer-status">Hors ligne.</div>
     </div>
-    <div id="multiplayerConnected" class="hidden"><div class="multiplayer-status online"><span class="sync-dot"></span>Connecté au salon</div><div style="color:#9099b9;text-align:center">CODE DU SALON</div><div id="currentRoomCode" class="room-code-box">--------</div><h3>Joueurs connectés</h3><div id="onlinePlayers" class="player-list"></div><div class="multiplayer-actions"><button id="syncNowBtn" class="save-button">🔄 Synchroniser</button><button id="openMultiplayerGameBtn" class="save-button">🎭 Ouvrir les parties</button><button id="leaveRoomBtn" class="secondary-button">Quitter le salon</button></div><p style="color:#9099b9;font-size:12px;margin-top:15px">Les personnages, PV, Esprit, parties, ennemis, initiatives et journaux sont synchronisés entre les navigateurs connectés.</p></div>
+    <div id="multiplayerConnected" class="hidden">
+      <div class="multiplayer-status online"><span class="sync-dot"></span>Connecté au salon</div>
+      <div style="color:#9099b9;text-align:center">CODE DU SALON</div>
+      <div id="currentRoomCode" class="room-code-box">--------</div>
+
+      <div class="group-panel">
+        <h3 style="margin-top:0">👥 Ton profil dans le groupe</h3>
+
+        <div class="group-settings">
+          <label>Rôle
+            <select id="multiplayerRole">
+              <option value="Joueur">Joueur</option>
+              <option value="MJ">Maître du jeu</option>
+            </select>
+          </label>
+
+          <label>Personnage contrôlé
+            <select id="multiplayerCharacter">
+              <option value="">Aucun personnage</option>
+            </select>
+          </label>
+        </div>
+
+        <button id="updatePlayerProfileBtn" class="save-button" style="width:100%">
+          ✓ Mettre à jour mon profil
+        </button>
+
+        <h3 style="margin-bottom:8px">Groupe du salon</h3>
+        <div id="groupRoster" class="group-roster"></div>
+      </div>
+
+      <h3>Présence rapide</h3>
+      <div id="onlinePlayers" class="player-list"></div>
+
+      <div class="multiplayer-actions">
+        <button id="syncNowBtn" class="save-button">🔄 Synchroniser</button>
+        <button id="openMultiplayerGameBtn" class="save-button">🎭 Ouvrir les parties</button>
+        <button id="leaveRoomBtn" class="secondary-button">Quitter le salon</button>
+      </div>
+
+      <p style="color:#9099b9;font-size:12px;margin-top:15px">
+        Chaque joueur peut maintenant choisir son rôle et le personnage qu'il contrôle dans le même salon.
+      </p>
+    </div>
   </div>
 </div>
 
@@ -723,6 +826,7 @@ const defaultFoxy={
 const $=id=>document.getElementById(id);
 const gamesScreen=$("gamesScreen"),mjScreen=$("mjScreen"),gameGrid=$("gameGrid"),mjMembers=$("mjMembers"),sessionLog=$("sessionLog");
 const multiplayerScreen=$("multiplayerScreen"),onlinePlayers=$("onlinePlayers");
+const groupRoster=$("groupRoster"),multiplayerRole=$("multiplayerRole"),multiplayerCharacter=$("multiplayerCharacter");
 const npcGrid=$("npcGrid"),initiativeList=$("initiativeList"),combatLog=$("combatLog");
 const fighterZone=$("fighterZone"),turnBanner=$("turnBanner"),actionSource=$("actionSource"),actionTarget=$("actionTarget"),actionAmount=$("actionAmount"),actionType=$("actionType");
 
@@ -736,6 +840,8 @@ let currentRoomCode="";
 let multiplayerPlayerId="player_"+Math.random().toString(36).slice(2,10);
 let multiplayerPlayerName="";
 let multiplayerIsHost=false;
+let multiplayerRoleValue="Joueur";
+let multiplayerCharacterId="";
 let applyingRemoteState=false;
 let syncTimer=null;
 
@@ -936,25 +1042,93 @@ function randomRoomCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let out
 function normalizeRoomCode(v){return String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,10)}
 function updateMultiMessage(t,on=false){const e=$("multiConnectionMessage");e.textContent=t;e.classList.toggle("online",on)}
 function updateMultiplayerUI(){const connected=!!realtimeChannel&&!!currentRoomCode;$("multiplayerDisconnected").classList.toggle("hidden",connected);$("multiplayerConnected").classList.toggle("hidden",!connected);$("currentRoomCode").textContent=currentRoomCode||"--------"}
-async function createRoom(){const name=$("multiplayerName").value.trim();if(!name)return alert("Entre ton nom.");multiplayerPlayerName=name;multiplayerIsHost=true;await joinRealtimeRoom(randomRoomCode())}
-async function joinRoom(){const name=$("multiplayerName").value.trim(),code=normalizeRoomCode($("joinRoomCode").value);if(!name)return alert("Entre ton nom.");if(code.length<4)return alert("Entre un code de salon valide.");multiplayerPlayerName=name;multiplayerIsHost=false;await joinRealtimeRoom(code)}
-async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>broadcastFullState("join"),250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await channel.track({id:multiplayerPlayerId,name:multiplayerPlayerName,joinedAt:new Date().toISOString()});updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
-async function leaveRealtimeRoom(goHome=true){if(realtimeChannel){try{await realtimeChannel.untrack()}catch{}try{await realtimeClient.removeChannel(realtimeChannel)}catch{}}realtimeChannel=null;currentRoomCode="";multiplayerIsHost=false;onlinePlayers.innerHTML="";updateMultiplayerUI();if(goHome)openHome()}
-function renderPresence(){if(!realtimeChannel)return;const state=realtimeChannel.presenceState(),players=[];Object.values(state).forEach(entries=>(entries||[]).forEach(p=>players.push({id:p.id||"",name:p.name||"Joueur"})));onlinePlayers.innerHTML="";if(!players.length){onlinePlayers.innerHTML='<span style="color:#9099b9">Connexion…</span>';return}players.forEach(p=>{const chip=document.createElement("span");chip.className="player-chip";chip.textContent="🟢 "+p.name+(p.id===multiplayerPlayerId?" (toi)":"");onlinePlayers.appendChild(chip)})}
-function buildSharedState(){return{room:currentRoomCode,senderId:multiplayerPlayerId,sentAt:Date.now(),characters:getCharacters(),games:getGames()}}
-function scheduleRealtimeSync(){if(applyingRemoteState||!realtimeChannel||!currentRoomCode)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>broadcastFullState("change"),120)}
-async function broadcastFullState(reason="manual"){if(!realtimeChannel||!currentRoomCode||applyingRemoteState)return;try{await realtimeChannel.send({type:"broadcast",event:"state-sync",payload:{...buildSharedState(),reason}})}catch(err){console.error("Erreur Broadcast:",err)}}
-async function requestFullState(){if(!realtimeChannel)return;await realtimeChannel.send({type:"broadcast",event:"request-state",payload:{senderId:multiplayerPlayerId,sentAt:Date.now()}})}
-function applyRemoteState(payload){if(!payload||payload.senderId===multiplayerPlayerId)return;applyingRemoteState=true;try{if(Array.isArray(payload.characters))localStorage.setItem("jdrCharacters",JSON.stringify(payload.characters));if(Array.isArray(payload.games))localStorage.setItem("jdrGames",JSON.stringify(payload.games));refreshVisibleScreenAfterSync();notice("🌐 Partie synchronisée")}finally{setTimeout(()=>applyingRemoteState=false,50)}}
-function refreshVisibleScreenAfterSync(){if(!characterScreen.classList.contains("hidden")&&currentCharacterId){const c=getCharacters().find(x=>x.id===currentCharacterId);if(c)fillCharacterSheet(c)}if(!charactersScreen.classList.contains("hidden"))renderCharacters();if(!gamesScreen.classList.contains("hidden"))renderGames();if(!mjScreen.classList.contains("hidden")&&currentGameId){const g=getGames().find(x=>x.id===currentGameId);if(g){$("mjGameTitle").textContent=g.name;$("gameNotes").value=g.notes||"";renderMJMembers(g);renderSessionLog(g);renderNpcs(g);renderCombat(g);renderVisualCombat(g)}}}
+function refreshMultiplayerCharacterOptions(){
+  if(!multiplayerCharacter)return;
+  const current=multiplayerCharacterId||multiplayerCharacter.value||"";
+  multiplayerCharacter.innerHTML='<option value="">Aucun personnage</option>';
+  getCharacters().forEach(c=>{
+    const opt=document.createElement("option");
+    opt.value=c.id;
+    opt.textContent=`${c.prenom} ${c.nom}`.trim();
+    multiplayerCharacter.appendChild(opt);
+  });
+  multiplayerCharacter.value=[...multiplayerCharacter.options].some(o=>o.value===current)?current:"";
+}
+function getCharacterNameById(id){
+  if(!id)return "Aucun personnage";
+  const c=getCharacters().find(x=>x.id===id);
+  return c?`${c.prenom} ${c.nom}`.trim():"Personnage inconnu";
+}
+async function trackCurrentPresence(){
+  if(!realtimeChannel)return;
+  await realtimeChannel.track({
+    id:multiplayerPlayerId,
+    name:multiplayerPlayerName,
+    role:multiplayerRoleValue,
+    characterId:multiplayerCharacterId,
+    characterName:getCharacterNameById(multiplayerCharacterId),
+    joinedAt:new Date().toISOString()
+  });
+}
+async function updatePlayerProfile(){
+  multiplayerRoleValue=multiplayerRole.value||"Joueur";
+  multiplayerCharacterId=multiplayerCharacter.value||"";
+  localStorage.setItem("jdrMultiplayerRole",multiplayerRoleValue);
+  localStorage.setItem("jdrMultiplayerCharacter",multiplayerCharacterId);
+  await trackCurrentPresence();
+  renderPresence();
+  notice("👥 Profil multijoueur mis à jour");
+}
 
-/* PARTIES + MODE MJ */
-function normalizeGame(g){
-  g.characterIds ||= [];
-  g.sessionLog ||= [];
-  g.npcs ||= [];
-  g.combat ||= {order:[],turnIndex:0,log:[]};
-  return g;
+async function createRoom(){const name=$("multiplayerName").value.trim();if(!name)return alert("Entre ton nom.");multiplayerPlayerName=name;multiplayerIsHost=true;multiplayerRoleValue="MJ";multiplayerRole.value="MJ";refreshMultiplayerCharacterOptions();await joinRealtimeRoom(randomRoomCode())}
+async function joinRoom(){const name=$("multiplayerName").value.trim(),code=normalizeRoomCode($("joinRoomCode").value);if(!name)return alert("Entre ton nom.");if(code.length<4)return alert("Entre un code de salon valide.");multiplayerPlayerName=name;multiplayerIsHost=false;multiplayerRoleValue=localStorage.getItem("jdrMultiplayerRole")||"Joueur";multiplayerRole.value=multiplayerRoleValue;refreshMultiplayerCharacterOptions();await joinRealtimeRoom(code)}
+async function joinRealtimeRoom(code){if(realtimeChannel)await leaveRealtimeRoom(false);currentRoomCode=normalizeRoomCode(code);updateMultiMessage("Connexion au salon…");const channel=realtimeClient.channel("jdr-room-"+currentRoomCode,{config:{presence:{key:multiplayerPlayerId},broadcast:{self:false}}});realtimeChannel=channel;channel.on("presence",{event:"sync"},renderPresence).on("presence",{event:"join"},()=>{renderPresence();if(multiplayerIsHost)setTimeout(()=>broadcastFullState("join"),250)}).on("presence",{event:"leave"},renderPresence).on("broadcast",{event:"request-state"},()=>broadcastFullState("request")).on("broadcast",{event:"state-sync"},({payload})=>applyRemoteState(payload)).subscribe(async status=>{console.log("Realtime status:",status);if(status==="SUBSCRIBED"){await trackCurrentPresence();updateMultiMessage("Connecté au salon.",true);updateMultiplayerUI();renderPresence();if(!multiplayerIsHost)setTimeout(requestFullState,350);else setTimeout(()=>broadcastFullState("host-created"),350)}if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED")updateMultiMessage("Impossible de se connecter au salon.")})}
+async function leaveRealtimeRoom(goHome=true){if(realtimeChannel){try{await realtimeChannel.untrack()}catch{}try{await realtimeClient.removeChannel(realtimeChannel)}catch{}}realtimeChannel=null;currentRoomCode="";multiplayerIsHost=false;onlinePlayers.innerHTML="";if(groupRoster)groupRoster.innerHTML="";updateMultiplayerUI();if(goHome)openHome()}
+function renderPresence(){
+  if(!realtimeChannel)return;
+
+  refreshMultiplayerCharacterOptions();
+
+  const state=realtimeChannel.presenceState();
+  const players=[];
+
+  Object.values(state).forEach(entries=>{
+    (entries||[]).forEach(p=>players.push({
+      id:p.id||"",
+      name:p.name||"Joueur",
+      role:p.role||"Joueur",
+      characterId:p.characterId||"",
+      characterName:p.characterName||getCharacterNameById(p.characterId||"")
+    }));
+  });
+
+  onlinePlayers.innerHTML="";
+  groupRoster.innerHTML="";
+
+  if(!players.length){
+    onlinePlayers.innerHTML='<span style="color:#9099b9">Connexion…</span>';
+    groupRoster.innerHTML='<span style="color:#9099b9">Aucun joueur détecté.</span>';
+    return;
+  }
+
+  players.forEach(p=>{
+    const chip=document.createElement("span");
+    chip.className="player-chip";
+    chip.textContent="🟢 "+p.name+(p.id===multiplayerPlayerId?" (toi)":"");
+    onlinePlayers.appendChild(chip);
+
+    const card=document.createElement("div");
+    card.className="group-player"+(p.id===multiplayerPlayerId?" me":"");
+    card.innerHTML=`
+      <div class="group-player-head">
+        <span class="group-player-name">🟢 ${esc(p.name)}</span>
+        <span class="group-player-role">${esc(p.role)}</span>
+      </div>
+      <div class="group-player-character">🎭 ${esc(p.characterName||"Aucun personnage")}</div>
+      <div class="group-player-status">${p.id===multiplayerPlayerId?"Toi":"Connecté"}</div>
+    `;
+    groupRoster.appendChild(card);
+  });
 }
 function getGames(){
   const saved=localStorage.getItem("jdrGames");
@@ -1462,7 +1636,8 @@ $("createRoomBtn").onclick=createRoom;
 $("joinRoomBtn").onclick=joinRoom;
 $("leaveRoomBtn").onclick=()=>leaveRealtimeRoom(true);
 $("syncNowBtn").onclick=()=>broadcastFullState("manual");
-$("openMultiplayerGameBtn").onclick=openGames;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
+$("openMultiplayerGameBtn").onclick=openGames;
+$("updatePlayerProfileBtn").onclick=updatePlayerProfile;$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
 $("addItemBtn").onclick=()=>openItemModal();$("cancelItemBtn").onclick=closeItemModal;$("confirmItemBtn").onclick=confirmItem;
 $("addSpellBtn").onclick=()=>openSpellModal();$("cancelSpellBtn").onclick=closeSpellModal;$("confirmSpellBtn").onclick=confirmSpell;
 $("clearDiceHistoryBtn").onclick=clearDiceHistory;
@@ -1489,6 +1664,13 @@ $("continueBtn").onclick=()=>{const chars=getCharacters();chars.length?openChara
 $("newGameBtn").onclick=openGames;
 $("settingsBtn").onclick=()=>alert("Les paramètres seront ajoutés plus tard.");
 const savedMultiName=localStorage.getItem("jdrMultiplayerName");if(savedMultiName)$("multiplayerName").value=savedMultiName;$("multiplayerName").addEventListener("input",()=>localStorage.setItem("jdrMultiplayerName",$("multiplayerName").value));
+const savedMultiRole=localStorage.getItem("jdrMultiplayerRole");
+if(savedMultiRole){multiplayerRoleValue=savedMultiRole;if(multiplayerRole)multiplayerRole.value=savedMultiRole}
+const savedMultiCharacter=localStorage.getItem("jdrMultiplayerCharacter");
+if(savedMultiCharacter)multiplayerCharacterId=savedMultiCharacter;
+refreshMultiplayerCharacterOptions();
+if(multiplayerCharacter)multiplayerCharacter.value=multiplayerCharacterId;
+
 openHome();
 </script>
 </body>
