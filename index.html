@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5</title>
+<title>JDR Dreyard - V1.5.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1121,7 +1121,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.5</div>
+    <div class="version">VERSION 1.5.1</div>
   </div>
 </div>
 
@@ -1742,6 +1742,8 @@ function getLocalOwnerName(){return (localStorage.getItem("jdrMultiplayerName")|
 let currentCharacterId=null,currentEditingItemId=null,currentEditingSpellId=null;
 let currentGameId=null;
 let currentMjFocusCharacterId=null;
+let characterOpenedFromMJ=false;
+let mjReturnGameId=null;
 let realtimeChannel=null;
 let currentRoomCode="";
 let multiplayerPlayerId="player_"+Math.random().toString(36).slice(2,10);
@@ -1792,7 +1794,33 @@ function canEditCharacter(c){
 function saveCharacters(chars){localStorage.setItem("jdrCharacters",JSON.stringify(chars));scheduleRealtimeSync()}
 function hideScreens(){homeScreen.classList.add("hidden");charactersScreen.classList.add("hidden");characterScreen.classList.add("hidden");gamesScreen.classList.add("hidden");mjScreen.classList.add("hidden");multiplayerScreen.classList.add("hidden");liveSessionScreen.classList.add("hidden")}
 function openHome(){hideScreens();homeScreen.classList.remove("hidden")}
-function openCharacters(){hideScreens();charactersScreen.classList.remove("hidden");renderCharacters();window.scrollTo(0,0)}
+function openCharacters(){
+  characterOpenedFromMJ=false;
+  mjReturnGameId=null;
+  const backBtn=$("backCharactersBtn");
+  if(backBtn)backBtn.textContent="← Personnages";
+  hideScreens();
+  charactersScreen.classList.remove("hidden");
+  renderCharacters();
+  window.scrollTo(0,0);
+}
+
+function openCharacterFromMJ(id){
+  if(!currentGameId){
+    openCharacter(id);
+    return;
+  }
+
+  characterOpenedFromMJ=true;
+  mjReturnGameId=currentGameId;
+  currentMjFocusCharacterId=id;
+
+  openCharacter(id);
+
+  const backBtn=$("backCharactersBtn");
+  if(backBtn)backBtn.textContent="← Retour à la partie MJ";
+}
+
 function openCharacter(id){
   const c=getCharacters().find(x=>x.id===id);if(!c)return;
   if(!canEditCharacter(c)){
@@ -2542,7 +2570,7 @@ function deleteGame(id){
 }
 function openMJ(id){
   const game=getGames().find(g=>g.id===id);if(!game)return;
-  currentGameId=id;currentMjFocusCharacterId=null;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);renderVisualCombat(game);window.scrollTo(0,0);
+  currentGameId=id;if(!characterOpenedFromMJ)currentMjFocusCharacterId=null;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);renderVisualCombat(game);window.scrollTo(0,0);
 }
 function renderMjFocus(game){
   const panel=$("mjFocusPanel");
@@ -2593,7 +2621,7 @@ function renderMjFocus(game){
     btn.onclick=()=>{
       const action=btn.dataset.focusAction;
       if(action==="sheet"){
-        openCharacter(c.id);
+        openCharacterFromMJ(c.id);
         return;
       }
       mjAdjust(c.id,action);
@@ -3135,7 +3163,23 @@ $("livePvPlus").onclick=()=>changeLiveResource("pv",1);
 $("liveEspritMinus").onclick=()=>changeLiveResource("esprit",-1);
 $("liveEspritPlus").onclick=()=>changeLiveResource("esprit",1);
 document.querySelectorAll("[data-live-dice]").forEach(btn=>btn.onclick=()=>rollLiveDice(Number(btn.dataset.liveDice)));
-$("charactersBackBtn").onclick=openHome;$("backCharactersBtn").onclick=openCharacters;$("createCharacterBtn").onclick=createCharacter;$("saveBtn").onclick=saveCurrentCharacter;
+$("charactersBackBtn").onclick=openHome;
+$("backCharactersBtn").onclick=()=>{
+  if(characterOpenedFromMJ && mjReturnGameId){
+    const gameId=mjReturnGameId;
+    characterOpenedFromMJ=false;
+    mjReturnGameId=null;
+
+    const backBtn=$("backCharactersBtn");
+    if(backBtn)backBtn.textContent="← Personnages";
+
+    openMJ(gameId);
+    return;
+  }
+  openCharacters();
+};
+$("createCharacterBtn").onclick=createCharacter;
+$("saveBtn").onclick=saveCurrentCharacter;
 $("addItemBtn").onclick=()=>openItemModal();$("cancelItemBtn").onclick=closeItemModal;$("confirmItemBtn").onclick=confirmItem;
 $("addSpellBtn").onclick=()=>openSpellModal();$("cancelSpellBtn").onclick=closeSpellModal;$("confirmSpellBtn").onclick=confirmSpell;
 $("clearDiceHistoryBtn").onclick=clearDiceHistory;
