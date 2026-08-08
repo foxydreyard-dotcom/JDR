@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.6</title>
+<title>JDR Dreyard - V1.4.7</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -631,6 +631,123 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 #homeScreen::before{z-index:1 !important}
 #homeScreen .home-content{position:relative;z-index:2}
 
+
+/* V1.4.7 - DECOR LUNAIRE SUR LES ECRANS INTERNES */
+#innerDecor{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+#homeScreen:not(.hidden) ~ #innerDecor{
+  display:none;
+}
+.inner-moon{
+  position:absolute;
+  top:28px;
+  right:34px;
+  width:108px;
+  height:108px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 5%,transparent 6%),
+    radial-gradient(circle at 62% 58%,rgba(155,166,215,.22) 0 8%,transparent 9%),
+    radial-gradient(circle at 68% 34%,rgba(155,166,215,.18) 0 6%,transparent 7%),
+    radial-gradient(circle,#f8f9ff 0%,#dfe5ff 58%,#aab7ea 100%);
+  box-shadow:
+    0 0 18px rgba(235,240,255,.95),
+    0 0 48px rgba(153,169,255,.55),
+    0 0 92px rgba(100,118,205,.30);
+  opacity:.9;
+}
+.inner-moon::after{
+  content:"";
+  position:absolute;
+  inset:-16px;
+  border-radius:50%;
+  border:1px solid rgba(211,219,255,.15);
+  box-shadow:0 0 35px rgba(166,180,255,.16);
+}
+.moon-drop{
+  position:absolute;
+  top:-40px;
+  width:8px;
+  height:22px;
+  border-radius:50% 50% 58% 58%;
+  background:linear-gradient(180deg,#ffffff 0%,#cfd8ff 55%,rgba(139,158,255,.2) 100%);
+  box-shadow:0 0 10px rgba(213,223,255,.85),0 0 22px rgba(141,160,255,.42);
+  opacity:0;
+  animation:moonDropFall var(--dur,9s) linear var(--delay,0s) infinite;
+}
+.moon-drop::after{
+  content:"";
+  position:absolute;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:white;
+  left:50%;
+  bottom:-8px;
+  transform:translateX(-50%);
+  box-shadow:0 0 8px white;
+}
+@keyframes moonDropFall{
+  0%{transform:translate3d(0,-40px,0) scale(.7);opacity:0}
+  8%{opacity:.78}
+  70%{opacity:.54}
+  100%{transform:translate3d(var(--drift,22px),110vh,0) scale(1);opacity:0}
+}
+.kitsune-runner{
+  position:absolute;
+  left:-120px;
+  bottom:var(--bottom,55px);
+  font-size:var(--size,38px);
+  filter:drop-shadow(0 0 10px rgba(255,183,93,.28));
+  opacity:.72;
+  transform:scaleX(1);
+  animation:kitsuneRun var(--run,24s) linear var(--delay,0s) infinite;
+}
+.kitsune-runner.reverse{
+  left:auto;
+  right:-120px;
+  transform:scaleX(-1);
+  animation-name:kitsuneRunReverse;
+}
+@keyframes kitsuneRun{
+  0%{left:-120px;transform:translateY(0) scaleX(1)}
+  12%{transform:translateY(-4px) scaleX(1)}
+  25%{transform:translateY(1px) scaleX(1)}
+  38%{transform:translateY(-5px) scaleX(1)}
+  50%{transform:translateY(0) scaleX(1)}
+  100%{left:calc(100vw + 120px);transform:translateY(-2px) scaleX(1)}
+}
+@keyframes kitsuneRunReverse{
+  0%{right:-120px;transform:translateY(0) scaleX(-1)}
+  18%{transform:translateY(-4px) scaleX(-1)}
+  35%{transform:translateY(1px) scaleX(-1)}
+  55%{transform:translateY(-5px) scaleX(-1)}
+  100%{right:calc(100vw + 120px);transform:translateY(0) scaleX(-1)}
+}
+.screen{
+  position:relative;
+  z-index:2;
+}
+#homeScreen{z-index:2}
+@media(max-width:700px){
+  .inner-moon{
+    width:76px;
+    height:76px;
+    top:18px;
+    right:16px;
+    opacity:.72;
+  }
+  .kitsune-runner{font-size:30px}
+}
+@media(prefers-reduced-motion:reduce){
+  .moon-drop,.kitsune-runner{animation:none!important;display:none}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -652,10 +769,28 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.6</div>
+    <div class="version">VERSION 1.4.7</div>
   </div>
 </div>
 
+
+
+<div id="innerDecor" aria-hidden="true">
+  <div class="inner-moon"></div>
+
+  <span class="moon-drop" style="left:8%;--dur:10s;--delay:-3s;--drift:34px"></span>
+  <span class="moon-drop" style="left:17%;--dur:13s;--delay:-7s;--drift:-18px"></span>
+  <span class="moon-drop" style="left:28%;--dur:11s;--delay:-1s;--drift:20px"></span>
+  <span class="moon-drop" style="left:41%;--dur:14s;--delay:-9s;--drift:-30px"></span>
+  <span class="moon-drop" style="left:53%;--dur:12s;--delay:-5s;--drift:25px"></span>
+  <span class="moon-drop" style="left:67%;--dur:15s;--delay:-11s;--drift:-22px"></span>
+  <span class="moon-drop" style="left:79%;--dur:11.5s;--delay:-6s;--drift:18px"></span>
+  <span class="moon-drop" style="left:91%;--dur:13.5s;--delay:-2s;--drift:-26px"></span>
+
+  <div class="kitsune-runner" style="--bottom:42px;--size:40px;--run:28s;--delay:-8s">🦊</div>
+  <div class="kitsune-runner reverse" style="--bottom:112px;--size:32px;--run:34s;--delay:-19s">🦊</div>
+  <div class="kitsune-runner" style="--bottom:185px;--size:28px;--run:39s;--delay:-25s">🦊</div>
+</div>
 
 <div id="multiplayerScreen" class="screen hidden">
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
