@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.1</title>
+<title>JDR Dreyard - V1.5.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1100,6 +1100,23 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   .mj-focus-grid{grid-template-columns:repeat(2,1fr)}
 }
 
+
+/* V1.5.2 — Participants MJ uniquement */
+#mjMembers{display:flex;flex-direction:column;gap:10px}
+#mjMembers .mj-member{width:100%;max-width:none;box-sizing:border-box}
+#mjMembers .mj-member-head{display:flex;gap:12px}
+#mjMembers button:disabled{opacity:.35;cursor:not-allowed}
+.danger-button{
+  border:1px solid rgba(255,90,110,.42);
+  background:rgba(80,18,30,.32);
+  color:#ff9aaa;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.danger-button:hover{background:rgba(115,22,39,.5)}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1231,14 +1248,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   <div class="mj-layout">
     <section class="card">
       <div class="toolbar">
-        <h2 style="margin:0">👥 Groupe</h2>
-        <button id="addSessionNoteBtn" class="save-button">＋ Note MJ</button>
+        <h2 style="margin:0">👥 Participants & ordre de passage</h2>
       </div>
-
-      <div id="mjFocusPanel" class="mj-focus-panel">
-        <div class="mj-focus-empty">Clique sur un joueur du groupe pour l'afficher ici.</div>
-      </div>
-
+      <p style="color:#9099b9;margin-top:6px">Le MJ définit l'ordre des tours. Utilise ↑ et ↓ pour déplacer un participant.</p>
       <div id="mjMembers" class="mj-members"></div>
     </section>
 
@@ -2573,62 +2585,7 @@ function openMJ(id){
   currentGameId=id;if(!characterOpenedFromMJ)currentMjFocusCharacterId=null;hideScreens();mjScreen.classList.remove("hidden");$("mjGameTitle").textContent=game.name;$("gameNotes").value=game.notes||"";renderMJMembers(game);renderSessionLog(game);renderNpcs(game);renderCombat(game);renderVisualCombat(game);window.scrollTo(0,0);
 }
 function renderMjFocus(game){
-  const panel=$("mjFocusPanel");
-  if(!panel)return;
-
-  const chars=getCharacters();
-  const selected=(game.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
-
-  if(!selected.length){
-    currentMjFocusCharacterId=null;
-    panel.innerHTML='<div class="mj-focus-empty">Aucun joueur dans cette partie.</div>';
-    return;
-  }
-
-  let c=selected.find(x=>x.id===currentMjFocusCharacterId);
-  if(!c){
-    c=selected[0];
-    currentMjFocusCharacterId=c.id;
-  }
-
-  const avatar=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
-  panel.innerHTML=`
-    <div class="mj-focus-head">
-      <div class="mj-focus-avatar">${avatar}</div>
-      <div>
-        <strong style="font-size:18px">${esc(c.prenom)} ${esc(c.nom)}</strong>
-        <div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div>
-      </div>
-    </div>
-
-    <div class="mj-focus-grid">
-      <div class="mj-focus-stat"><small>❤️ PV</small><strong>${Number(c.pv)||0}/10</strong></div>
-      <div class="mj-focus-stat"><small>✨ Esprit</small><strong>${Number(c.esprit)||0}/10</strong></div>
-      <div class="mj-focus-stat"><small>⚔️ CC</small><strong>${Number(c.cc)||0}</strong></div>
-      <div class="mj-focus-stat"><small>🛡️ R</small><strong>${Number(c.r)||0}</strong></div>
-    </div>
-
-    <div class="mj-focus-actions">
-      <button data-focus-action="pv-">❤️ -1</button>
-      <button data-focus-action="pv+">❤️ +1</button>
-      <button data-focus-action="sp-">✨ -1</button>
-      <button data-focus-action="sp+">✨ +1</button>
-      <button data-focus-action="sheet">📄 Ouvrir fiche</button>
-    </div>
-  `;
-
-  panel.querySelectorAll("[data-focus-action]").forEach(btn=>{
-    btn.onclick=()=>{
-      const action=btn.dataset.focusAction;
-      if(action==="sheet"){
-        openCharacterFromMJ(c.id);
-        return;
-      }
-      mjAdjust(c.id,action);
-      const refreshed=getGames().find(x=>x.id===currentGameId);
-      if(refreshed)renderMjFocus(refreshed);
-    };
-  });
+  // V1.5.2 : la zone Groupe affiche uniquement les participants et l'ordre de passage.
 }
 
 function focusMjCharacter(id,game){
@@ -2637,68 +2594,107 @@ function focusMjCharacter(id,game){
   renderMjFocus(game);
 }
 
+function ensureTurnOrder(game){
+  const ids=[...(game.characterIds||[])];
+  const current=Array.isArray(game.turnOrder)?game.turnOrder.filter(id=>ids.includes(id)):[];
+  ids.forEach(id=>{if(!current.includes(id))current.push(id)});
+  game.turnOrder=current;
+  return current;
+}
+
+function saveTurnOrder(game){
+  const games=getGames();
+  const g=games.find(x=>x.id===game.id);
+  if(!g)return;
+  g.turnOrder=[...(game.turnOrder||[])];
+  saveGames(games);
+  broadcastFullState("turn-order");
+}
+
+function moveTurnParticipant(game,charId,direction){
+  const order=ensureTurnOrder(game);
+  const i=order.indexOf(charId);
+  const j=i+direction;
+  if(i<0||j<0||j>=order.length)return;
+  [order[i],order[j]]=[order[j],order[i]];
+  game.turnOrder=order;
+  saveTurnOrder(game);
+  renderMJMembers(game);
+}
+
+function excludeParticipant(game,charId){
+  const chars=getCharacters();
+  const c=chars.find(x=>x.id===charId);
+  if(!c)return;
+
+  const reason=prompt(`Motif d'exclusion de ${c.prenom} ${c.nom} :`);
+  if(reason===null)return;
+  if(!reason.trim()){
+    alert("Indique un motif d'exclusion.");
+    return;
+  }
+  if(!confirm(`Exclure ${c.prenom} ${c.nom} de la partie ?\n\nMotif : ${reason.trim()}`))return;
+
+  const games=getGames();
+  const g=games.find(x=>x.id===game.id);
+  if(!g)return;
+
+  g.characterIds=(g.characterIds||[]).filter(id=>id!==charId);
+  g.turnOrder=(g.turnOrder||[]).filter(id=>id!==charId);
+  g.sessionLog=g.sessionLog||[];
+  g.sessionLog.unshift({
+    date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+    text:`⛔ ${c.prenom} ${c.nom} exclu de la partie — Motif : ${reason.trim()}`
+  });
+
+  saveGames(games);
+  currentMjFocusCharacterId=null;
+  broadcastFullState("participant-excluded");
+  renderMJMembers(g);
+  renderSessionLog(g);
+  notice(`⛔ ${c.prenom} a été exclu de la partie.`);
+}
+
 function renderMJMembers(game){
   mjMembers.innerHTML="";
   const chars=getCharacters();
-  const selected=(game.characterIds||[]).map(id=>chars.find(c=>c.id===id)).filter(Boolean);
-
-  renderMjFocus(game);
+  const order=ensureTurnOrder(game);
+  const selected=order.map(id=>chars.find(c=>c.id===id)).filter(Boolean);
 
   if(!selected.length){
-    mjMembers.innerHTML='<p style="color:#9099b9">Aucun personnage dans cette partie.</p>';
+    mjMembers.innerHTML='<p style="color:#9099b9">Aucun participant dans cette partie.</p>';
     return;
   }
 
-  selected.forEach(c=>{
+  selected.forEach((c,index)=>{
     const box=document.createElement("div");
-    box.className="mj-member"+(c.id===currentMjFocusCharacterId?" focused":"");
+    box.className="mj-member";
     const avatar=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
 
     box.innerHTML=`
-      <div class="mj-member-head">
+      <div class="mj-member-head" style="width:100%;align-items:center">
+        <div style="font-size:24px;font-weight:800;min-width:38px;text-align:center">${index+1}</div>
         <div class="mj-avatar">${avatar}</div>
-        <div>
+        <div style="flex:1">
           <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
-          <div class="meta">${esc(c.race||"")} • ${esc(c.metier||"")}</div>
+          <div class="meta">${esc(c.race||"")} ${c.metier?`• ${esc(c.metier)}`:""}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="secondary-button" data-turn-up="${c.id}" ${index===0?"disabled":""}>↑</button>
+          <button class="secondary-button" data-turn-down="${c.id}" ${index===selected.length-1?"disabled":""}>↓</button>
+          <button class="danger-button" data-kick="${c.id}">⛔ Exclure</button>
         </div>
       </div>
-
-      <div class="mj-resource">
-        <div class="mj-resource-line"><span>❤️ PV</span><span>${Number(c.pv)}/10</span></div>
-        <div class="mj-controls">
-          <button data-action="pv-" data-id="${c.id}">-1</button>
-          <button data-action="pv+" data-id="${c.id}">+1</button>
-          <button data-action="sp-" data-id="${c.id}">✨-1</button>
-          <button data-action="sp+" data-id="${c.id}">✨+1</button>
-        </div>
-      </div>
-
-      <button class="secondary-button focus-btn">👁 Sélectionner</button>
     `;
 
-    box.onclick=e=>{
-      if(e.target.closest("button") && !e.target.classList.contains("focus-btn"))return;
-      currentMjFocusCharacterId=c.id;
-      renderMJMembers(game);
-    };
-
-    box.querySelectorAll(".mj-controls button").forEach(btn=>{
-      btn.onclick=e=>{
-        e.stopPropagation();
-        currentMjFocusCharacterId=c.id;
-        mjAdjust(btn.dataset.id,btn.dataset.action);
-      };
-    });
-
-    box.querySelector(".focus-btn").onclick=e=>{
-      e.stopPropagation();
-      currentMjFocusCharacterId=c.id;
-      renderMJMembers(game);
-    };
+    box.querySelector(`[data-turn-up="${c.id}"]`).onclick=()=>moveTurnParticipant(game,c.id,-1);
+    box.querySelector(`[data-turn-down="${c.id}"]`).onclick=()=>moveTurnParticipant(game,c.id,1);
+    box.querySelector(`[data-kick="${c.id}"]`).onclick=()=>excludeParticipant(game,c.id);
 
     mjMembers.appendChild(box);
   });
 }
+
 function mjAdjust(charId,action){
   const chars=getCharacters(),i=chars.findIndex(c=>c.id===charId);if(i<0)return;
   const c=chars[i];
