@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.3.3</title>
+<title>JDR Dreyard - V1.4</title>
 <style>
 *{box-sizing:border-box}
 :root{--bg:#060812;--panel:#111727;--panel2:#171f34;--panel3:#0c1120;--border:#2b3553;--text:#f3f5ff;--muted:#9099b9;--moon:#dce2ff;--moon2:#aebaf4;--danger:#ff707b;--gold:#efcf78}
@@ -28,6 +28,28 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
+
+
+/* V1.4 - PROPRIÉTÉ DES PERSONNAGES */
+.ownership-note{
+  margin:12px 0;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0d1425;
+  color:#aeb7d8;
+  font-size:13px;
+}
+.owner-badge{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#11192b;
+  color:#9ff0bd;
+  font-size:11px;
+}
 
 /* V1.2 - GROUPE MULTIJOUEUR */
 .group-panel{
@@ -441,7 +463,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.3.3</div>
+    <div class="version">VERSION 1.4</div>
   </div>
 </div>
 
@@ -462,6 +484,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
       <div class="group-panel">
         <h3 style="margin-top:0">👥 Ton profil dans le groupe</h3>
+        <div class="ownership-note">
+          🔒 Tu peux sélectionner uniquement un personnage que tu as créé. Les personnages des autres joueurs restent privés.
+        </div>
 
         <div class="group-settings">
           <label>Rôle
@@ -664,7 +689,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
   </header>
   <div class="character-header">
-    <div><h2>Tes aventuriers</h2><p style="color:#9099b9">Sélectionne un personnage pour ouvrir sa fiche.</p></div>
+    <div><h2>Tes aventuriers</h2><p style="color:#9099b9">Seuls les personnages créés sur ton compte navigateur apparaissent ici.</p></div>
     <button id="createCharacterBtn" class="create-character">＋ Créer un personnage</button>
   </div>
   <div id="characterGrid" class="character-grid"></div>
@@ -1040,6 +1065,9 @@ const fighterZone=$("fighterZone"),turnBanner=$("turnBanner"),actionSource=$("ac
 const homeScreen=$("homeScreen"),charactersScreen=$("charactersScreen"),characterScreen=$("characterScreen"),characterGrid=$("characterGrid"),inventoryGrid=$("inventoryGrid"),spellGrid=$("spellGrid");
 const sheetTitle=$("sheetTitle"),heroName=$("heroName"),heroSubtitle=$("heroSubtitle"),portraitFrame=$("portraitFrame"),portraitInput=$("portraitInput");
 const pv=$("pv"),esprit=$("esprit"),lifeFill=$("lifeFill"),spiritFill=$("spiritFill");
+const LOCAL_OWNER_ID=(()=>{let id=localStorage.getItem("jdrOwnerId");if(!id){id="owner_"+crypto.randomUUID();localStorage.setItem("jdrOwnerId",id)}return id})();
+function getLocalOwnerName(){return (localStorage.getItem("jdrMultiplayerName")||"Joueur").trim()||"Joueur"}
+
 let currentCharacterId=null,currentEditingItemId=null,currentEditingSpellId=null;
 let currentGameId=null;
 let realtimeChannel=null;
@@ -1059,15 +1087,35 @@ let currentEditingNpcId=null;
 const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
 
 function clone(obj){return JSON.parse(JSON.stringify(obj))}
-function migrateCharacter(c){
-  c.inventory ||= []; c.spells ||= []; c.equipment ||= emptyEquipment(); c.blessures ||= emptyInjuries(); c.diceHistory ||= []; c.quests ||= []; c.journal ||= [];
+function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=getLocalOwnerName()){
+  c.inventory ||= [];
+  c.spells ||= [];
+  c.equipment ||= emptyEquipment();
+  c.blessures ||= emptyInjuries();
+  c.diceHistory ||= [];
+  c.quests ||= [];
+  c.journal ||= [];
   if(c.portrait===undefined)c.portrait="";
+  if(!c.ownerId)c.ownerId=fallbackOwnerId;
+  if(!c.ownerName)c.ownerName=fallbackOwnerName;
   return c;
 }
 function getCharacters(){
   const saved=localStorage.getItem("jdrCharacters");
-  if(!saved){const arr=[clone(defaultFoxy)];saveCharacters(arr);return arr}
-  try{return JSON.parse(saved).map(migrateCharacter)}catch{return [clone(defaultFoxy)]}
+  if(!saved)return [];
+  try{
+    const chars=JSON.parse(saved).map(c=>migrateCharacter(c));
+    localStorage.setItem("jdrCharacters",JSON.stringify(chars));
+    return chars;
+  }catch{
+    return [];
+  }
+}
+function getOwnedCharacters(){
+  return getCharacters().filter(c=>c.ownerId===LOCAL_OWNER_ID);
+}
+function canEditCharacter(c){
+  return !!c && (c.ownerId===LOCAL_OWNER_ID || multiplayerRoleValue==="MJ");
 }
 function saveCharacters(chars){localStorage.setItem("jdrCharacters",JSON.stringify(chars));scheduleRealtimeSync()}
 function hideScreens(){homeScreen.classList.add("hidden");charactersScreen.classList.add("hidden");characterScreen.classList.add("hidden");gamesScreen.classList.add("hidden");mjScreen.classList.add("hidden");multiplayerScreen.classList.add("hidden");liveSessionScreen.classList.add("hidden")}
@@ -1075,6 +1123,10 @@ function openHome(){hideScreens();homeScreen.classList.remove("hidden")}
 function openCharacters(){hideScreens();charactersScreen.classList.remove("hidden");renderCharacters();window.scrollTo(0,0)}
 function openCharacter(id){
   const c=getCharacters().find(x=>x.id===id);if(!c)return;
+  if(!canEditCharacter(c)){
+    alert("Ce personnage appartient à un autre joueur.");
+    return;
+  }
   currentCharacterId=id;fillCharacterSheet(c);hideScreens();characterScreen.classList.remove("hidden");window.scrollTo(0,0);
 }
 
@@ -1082,10 +1134,15 @@ function esc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt
 
 function renderCharacters(){
   characterGrid.innerHTML="";
-  getCharacters().forEach(c=>{
+  const owned=getOwnedCharacters();
+  if(!owned.length){
+    characterGrid.innerHTML='<div class="character-card"><div class="character-avatar"><div class="character-avatar-placeholder">🌙</div></div><h2>Aucun personnage</h2><div class="character-info">Crée ton premier personnage pour rejoindre une aventure.<br><span class="owner-badge">🔒 Il restera associé à toi</span></div></div>';
+    return;
+  }
+  owned.forEach(c=>{
     const card=document.createElement("div");card.className="character-card";
     const avatar=c.portrait?`<img src="${c.portrait}" alt="Portrait">`:`<div class="character-avatar-placeholder">🌙</div>`;
-    card.innerHTML=`<div class="character-avatar">${avatar}</div><h2>${esc(c.prenom)} ${esc(c.nom)}</h2><div class="character-info">${esc(c.race||"Race inconnue")}<br>${esc(c.metier||"Aucun métier")}</div><div class="character-actions"><button class="open-character">Ouvrir</button><button class="delete-character">🗑</button></div>`;
+    card.innerHTML=`<div class="character-avatar">${avatar}</div><h2>${esc(c.prenom)} ${esc(c.nom)}</h2><div class="character-info">${esc(c.race||"Race inconnue")}<br>${esc(c.metier||"Aucun métier")}<br><span class="owner-badge">🔒 Ton personnage</span></div><div class="character-actions"><button class="open-character">Ouvrir</button><button class="delete-character">🗑</button></div>`;
     card.querySelector(".open-character").onclick=()=>openCharacter(c.id);
     card.querySelector(".delete-character").onclick=()=>deleteCharacter(c.id);
     characterGrid.appendChild(card);
@@ -1095,11 +1152,15 @@ function renderCharacters(){
 function createCharacter(){
   const prenom=prompt("Prénom :");if(!prenom)return;
   const nom=prompt("Nom :")||"",race=prompt("Race :")||"",metier=prompt("Métier / classe :")||"";
-  const c={id:"character_"+Date.now(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
+  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
   const chars=getCharacters();chars.push(c);saveCharacters(chars);renderCharacters();
 }
 function deleteCharacter(id){
   const chars=getCharacters(),c=chars.find(x=>x.id===id);if(!c)return;
+  if(c.ownerId!==LOCAL_OWNER_ID){
+    alert("Tu ne peux pas supprimer le personnage d'un autre joueur.");
+    return;
+  }
   if(!confirm(`Supprimer ${c.prenom} ${c.nom} ?`))return;
   saveCharacters(chars.filter(x=>x.id!==id));renderCharacters();
 }
@@ -1126,7 +1187,7 @@ document.querySelectorAll(".body-part").forEach(b=>b.onclick=()=>b.classList.tog
 
 function saveCurrentCharacter(){
   if(!currentCharacterId)return;
-  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];
+  const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];if(!canEditCharacter(c))return alert("Ce personnage appartient à un autre joueur.");
   fields.forEach(id=>{const el=$(id);if(el)c[id]=el.value});
   c.blessures={};document.querySelectorAll(".body-part").forEach(b=>c.blessures[b.dataset.part]=b.classList.contains("injured"));
   saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;notice("✓ Fiche sauvegardée");
@@ -1427,7 +1488,7 @@ function refreshMultiplayerCharacterOptions(){
   if(!multiplayerCharacter)return;
   const current=multiplayerCharacterId||multiplayerCharacter.value||"";
   multiplayerCharacter.innerHTML='<option value="">Aucun personnage</option>';
-  getCharacters().forEach(c=>{
+  getOwnedCharacters().forEach(c=>{
     const opt=document.createElement("option");
     opt.value=c.id;
     opt.textContent=`${c.prenom} ${c.nom}`.trim();
@@ -1454,6 +1515,14 @@ async function trackCurrentPresence(){
 async function updatePlayerProfile(){
   multiplayerRoleValue=multiplayerRole.value||"Joueur";
   multiplayerCharacterId=multiplayerCharacter.value||"";
+  if(multiplayerCharacterId){
+    const selected=getCharacters().find(c=>c.id===multiplayerCharacterId);
+    if(!selected || selected.ownerId!==LOCAL_OWNER_ID){
+      multiplayerCharacterId="";
+      multiplayerCharacter.value="";
+      alert("Tu peux uniquement choisir un personnage que tu as créé.");
+    }
+  }
   localStorage.setItem("jdrMultiplayerRole",multiplayerRoleValue);
   localStorage.setItem("jdrMultiplayerCharacter",multiplayerCharacterId);
   await trackCurrentPresence();
@@ -1566,7 +1635,17 @@ function applyRemoteState(payload){
 
   try{
     if(Array.isArray(payload.characters)){
-      localStorage.setItem("jdrCharacters",JSON.stringify(payload.characters));
+      const localChars=getCharacters();
+      const merged=new Map(localChars.map(c=>[c.id,c]));
+      payload.characters.forEach(remoteChar=>{
+        const safe=migrateCharacter(
+          remoteChar,
+          remoteChar.ownerId || payload.senderId || "remote",
+          remoteChar.ownerName || "Joueur distant"
+        );
+        merged.set(safe.id,safe);
+      });
+      localStorage.setItem("jdrCharacters",JSON.stringify([...merged.values()]));
     }
 
     if(Array.isArray(payload.games)){
@@ -2161,7 +2240,7 @@ $("mobileSaveBtn").onclick=()=>{ if(currentCharacterId){saveCurrentCharacter()} 
 $("addQuestBtn").onclick=()=>openQuestModal();$("cancelQuestBtn").onclick=closeQuestModal;$("confirmQuestBtn").onclick=confirmQuest;
 $("addJournalBtn").onclick=()=>openJournalModal();$("cancelJournalBtn").onclick=closeJournalModal;$("confirmJournalBtn").onclick=confirmJournal;
 
-$("continueBtn").onclick=()=>{const chars=getCharacters();chars.length?openCharacter(chars[0].id):openCharacters()};
+$("continueBtn").onclick=()=>{const chars=getOwnedCharacters();chars.length?openCharacter(chars[0].id):openCharacters()};
 $("newGameBtn").onclick=openGames;
 $("settingsBtn").onclick=()=>alert("Les paramètres seront ajoutés plus tard.");
 const savedMultiName=localStorage.getItem("jdrMultiplayerName");if(savedMultiName)$("multiplayerName").value=savedMultiName;$("multiplayerName").addEventListener("input",()=>localStorage.setItem("jdrMultiplayerName",$("multiplayerName").value));
@@ -2169,6 +2248,9 @@ const savedMultiRole=localStorage.getItem("jdrMultiplayerRole");
 if(savedMultiRole){multiplayerRoleValue=savedMultiRole;if(multiplayerRole)multiplayerRole.value=savedMultiRole}
 const savedMultiCharacter=localStorage.getItem("jdrMultiplayerCharacter");
 if(savedMultiCharacter)multiplayerCharacterId=savedMultiCharacter;
+// Associe automatiquement les anciens personnages de ce navigateur à son propriétaire local.
+const bootCharacters=getCharacters();
+if(bootCharacters.length)localStorage.setItem("jdrCharacters",JSON.stringify(bootCharacters));
 refreshMultiplayerCharacterOptions();
 if(multiplayerCharacter)multiplayerCharacter.value=multiplayerCharacterId;
 
