@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.4.7</title>
+<title>JDR Dreyard - V1.4.8 FIX</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -748,6 +748,193 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   .moon-drop,.kitsune-runner{animation:none!important;display:none}
 }
 
+
+/* V1.4.8 FIX - SANCTUAIRE VIVANT */
+.kitsune-runner{display:none!important}
+
+#sanctuaryLifeScene{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:300px;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:1;
+  opacity:.82;
+}
+
+/* marches du sanctuaire */
+#sanctuaryLifeScene .stairs{
+  position:absolute;
+  left:50%;
+  bottom:-6px;
+  width:min(760px,76vw);
+  height:220px;
+  transform:translateX(-50%);
+  clip-path:polygon(28% 0,72% 0,88% 100%,12% 100%);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(89,102,150,.10) 0 14px,
+      rgba(135,151,214,.28) 14px 17px,
+      rgba(31,39,67,.22) 17px 31px
+    );
+  filter:drop-shadow(0 -10px 22px rgba(112,132,220,.08));
+}
+
+/* torii léger au-dessus des marches */
+#sanctuaryLifeScene .mini-torii{
+  position:absolute;
+  left:50%;
+  bottom:190px;
+  width:310px;
+  height:92px;
+  transform:translateX(-50%);
+  opacity:.30;
+}
+#sanctuaryLifeScene .mini-torii::before,
+#sanctuaryLifeScene .mini-torii::after{
+  content:"";
+  position:absolute;
+  top:12px;
+  width:18px;
+  height:80px;
+  background:#8a1e28;
+  border-radius:2px;
+}
+#sanctuaryLifeScene .mini-torii::before{left:34px}
+#sanctuaryLifeScene .mini-torii::after{right:34px}
+#sanctuaryLifeScene .mini-torii span{
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:14px;
+  background:#9b232f;
+  border-radius:3px;
+  box-shadow:0 22px 0 #771923;
+}
+
+/* animaux */
+.life-animal{
+  position:absolute;
+  width:78px;
+  height:58px;
+  pointer-events:none;
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.30));
+}
+.life-animal svg{width:100%;height:100%;overflow:visible}
+.life-animal .body-bob{
+  transform-origin:center;
+  animation:lifeBob .55s ease-in-out infinite alternate;
+}
+.life-animal .tail{
+  transform-origin:55px 33px;
+  animation:lifeTail 1s ease-in-out infinite alternate;
+}
+.life-animal .ear{
+  transform-origin:center;
+  animation:lifeEar 2.7s ease-in-out infinite;
+}
+@keyframes lifeBob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes lifeTail{from{transform:rotate(-7deg)}to{transform:rotate(10deg)}}
+@keyframes lifeEar{
+  0%,80%,100%{transform:rotate(0)}
+  84%{transform:rotate(-7deg)}
+  90%{transform:rotate(3deg)}
+}
+
+/* blanc : descend les marches, puis file à droite */
+#whiteKitsune{
+  left:50%;
+  bottom:188px;
+  opacity:0;
+  animation:whiteJourney 18s linear infinite;
+}
+@keyframes whiteJourney{
+  0%{left:50%;bottom:188px;opacity:0;transform:translateX(-50%) scale(.68)}
+  5%{opacity:.95}
+  18%{left:50.5%;bottom:150px;transform:translateX(-50%) scale(.76)}
+  32%{left:51.5%;bottom:112px;transform:translateX(-50%) scale(.84)}
+  44%{left:53%;bottom:72px;transform:translateX(-50%) scale(.92)}
+  53%{left:56%;bottom:34px;transform:translateX(-50%) scale(1)}
+  93%{left:108%;bottom:24px;opacity:.9;transform:translateX(-50%) scale(1.03)}
+  100%{left:112%;bottom:24px;opacity:0;transform:translateX(-50%) scale(1.03)}
+}
+
+/* orange : monte les marches */
+#orangeFox{
+  left:28%;
+  bottom:16px;
+  opacity:0;
+  transform:scaleX(-1);
+  animation:orangeClimb 23s linear infinite 2s;
+}
+@keyframes orangeClimb{
+  0%{left:27%;bottom:14px;opacity:0;transform:scaleX(-1) scale(1)}
+  6%{opacity:.95}
+  24%{left:37%;bottom:42px;transform:scaleX(-1) scale(.94)}
+  46%{left:45%;bottom:84px;transform:scaleX(-1) scale(.86)}
+  68%{left:49%;bottom:132px;transform:scaleX(-1) scale(.78)}
+  88%{left:50%;bottom:177px;opacity:.82;transform:scaleX(-1) scale(.70)}
+  100%{left:50%;bottom:202px;opacity:0;transform:scaleX(-1) scale(.64)}
+}
+
+/* gris/noir : arrive, s'assoit, se toilette, repart */
+#grayKitsune{
+  left:-90px;
+  bottom:40px;
+  opacity:0;
+  animation:grayRoutine 27s linear infinite 5s;
+}
+#grayKitsune .paw{
+  transform-origin:31px 38px;
+  animation:groomPaw 1s ease-in-out infinite;
+  opacity:0;
+}
+#grayKitsune.grooming .paw{opacity:1}
+@keyframes grayRoutine{
+  0%{left:-90px;opacity:0}
+  5%{opacity:.92}
+  23%{left:18%}
+  31%{left:20%}
+  68%{left:20%;opacity:.92}
+  76%{left:22%}
+  96%{left:104%;opacity:.86}
+  100%{left:108%;opacity:0}
+}
+@keyframes groomPaw{
+  0%,100%{transform:rotate(0deg) translateY(0)}
+  50%{transform:rotate(-42deg) translateY(-5px)}
+}
+
+/* petit chat marron devant les marches */
+#brownCat{
+  left:-80px;
+  bottom:9px;
+  opacity:0;
+  animation:catDash 15s linear infinite 8s;
+}
+#brownCat .body-bob{animation-duration:.35s}
+#brownCat .tail{animation-duration:.55s}
+@keyframes catDash{
+  0%{left:-80px;opacity:0;transform:scale(.72)}
+  5%{opacity:.95}
+  96%{left:104%;opacity:.92;transform:scale(.72)}
+  100%{left:108%;opacity:0;transform:scale(.72)}
+}
+
+@media(max-width:800px){
+  #sanctuaryLifeScene{height:220px;opacity:.68}
+  #sanctuaryLifeScene .stairs{width:94vw;height:165px}
+  #sanctuaryLifeScene .mini-torii{bottom:140px;transform:translateX(-50%) scale(.76)}
+  .life-animal{width:60px;height:46px}
+}
+@media(prefers-reduced-motion:reduce){
+  #sanctuaryLifeScene{display:none}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -769,7 +956,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.4.7</div>
+    <div class="version">VERSION 1.4.8 FIX</div>
   </div>
 </div>
 
@@ -790,6 +977,70 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   <div class="kitsune-runner" style="--bottom:42px;--size:40px;--run:28s;--delay:-8s">🦊</div>
   <div class="kitsune-runner reverse" style="--bottom:112px;--size:32px;--run:34s;--delay:-19s">🦊</div>
   <div class="kitsune-runner" style="--bottom:185px;--size:28px;--run:39s;--delay:-25s">🦊</div>
+
+  <div id="sanctuaryLifeScene">
+    <div class="mini-torii"><span></span></div>
+    <div class="stairs"></div>
+    
+<div id="whiteKitsune" class="life-animal">
+<svg viewBox="0 0 82 60" aria-hidden="true">
+<g class="body-bob">
+<ellipse cx="38" cy="36" rx="19" ry="11" fill="#f5f7ff"/>
+<circle cx="20" cy="29" r="9" fill="#fbfcff"/>
+<path class="ear" d="M13 22L15 10L21 22Z" fill="#f9fbff"/>
+<path class="ear" d="M21 21L27 10L28 24Z" fill="#f9fbff"/>
+<circle cx="17" cy="28" r="1.5" fill="#23304a"/>
+<path d="M10 31L5 33L11 35Z" fill="#26324b"/>
+<rect x="28" y="43" width="4" height="10" rx="2" fill="#dfe5f5"/>
+<rect x="43" y="43" width="4" height="10" rx="2" fill="#dfe5f5"/>
+<path class="tail" d="M52 36C68 22 80 27 75 41C70 51 59 50 52 44C61 45 66 39 63 35C60 32 56 33 52 36Z" fill="#fff"/>
+</g></svg></div>
+    
+<div id="orangeFox" class="life-animal">
+<svg viewBox="0 0 82 60" aria-hidden="true">
+<g class="body-bob">
+<ellipse cx="38" cy="36" rx="19" ry="11" fill="#d8782e"/>
+<circle cx="20" cy="29" r="9" fill="#e78636"/>
+<path class="ear" d="M13 22L15 10L21 22Z" fill="#cb6827"/>
+<path class="ear" d="M21 21L27 10L28 24Z" fill="#cb6827"/>
+<circle cx="17" cy="28" r="1.5" fill="#221b1b"/>
+<path d="M10 31L5 33L11 35Z" fill="#2b2020"/>
+<path d="M12 35Q20 40 28 35" stroke="#f5e7d5" stroke-width="3" fill="none"/>
+<rect x="28" y="43" width="4" height="10" rx="2" fill="#7d4024"/>
+<rect x="43" y="43" width="4" height="10" rx="2" fill="#7d4024"/>
+<path class="tail" d="M52 36C68 22 80 27 75 41C70 51 59 50 52 44C61 45 66 39 63 35C60 32 56 33 52 36Z" fill="#d8782e"/>
+<path d="M68 31C75 34 77 40 72 45C69 47 66 47 63 45C67 42 69 37 68 31Z" fill="#f5eee4"/>
+</g></svg></div>
+    
+<div id="grayKitsune" class="life-animal">
+<svg viewBox="0 0 82 60" aria-hidden="true">
+<g class="body-bob">
+<ellipse cx="39" cy="38" rx="18" ry="12" fill="#4a505e"/>
+<circle cx="24" cy="29" r="9" fill="#5b6170"/>
+<path class="ear" d="M17 22L19 10L25 22Z" fill="#323741"/>
+<path class="ear" d="M25 21L30 10L32 24Z" fill="#323741"/>
+<circle cx="21" cy="28" r="1.4" fill="#d8e6ff"/>
+<path d="M14 31L9 33L15 35Z" fill="#1c2027"/>
+<ellipse cx="37" cy="46" rx="8" ry="5" fill="#343944"/>
+<path class="paw" d="M29 39Q24 34 23 28" stroke="#818898" stroke-width="4" stroke-linecap="round" fill="none"/>
+<path class="tail" d="M52 38C68 24 80 29 75 43C70 52 59 51 52 45C61 46 66 40 63 36C60 33 56 35 52 38Z" fill="#2e333c"/>
+<path d="M66 34C72 37 73 42 70 46" stroke="#8b929f" stroke-width="3" fill="none"/>
+</g></svg></div>
+    
+<div id="brownCat" class="life-animal">
+<svg viewBox="0 0 82 60" aria-hidden="true">
+<g class="body-bob">
+<ellipse cx="40" cy="38" rx="18" ry="9" fill="#8a5b39"/>
+<circle cx="24" cy="30" r="8" fill="#976540"/>
+<path class="ear" d="M18 24L19 14L25 23Z" fill="#71462f"/>
+<path class="ear" d="M25 23L30 15L31 26Z" fill="#71462f"/>
+<circle cx="21" cy="29" r="1.4" fill="#d7c78f"/>
+<rect x="29" y="44" width="3" height="9" rx="2" fill="#71462e"/>
+<rect x="44" y="44" width="3" height="9" rx="2" fill="#71462e"/>
+<path class="tail" d="M55 37C69 30 74 21 70 16C67 12 62 14 63 19C64 24 70 25 72 23" stroke="#8a5b39" stroke-width="6" stroke-linecap="round" fill="none"/>
+</g></svg></div>
+  </div>
+
 </div>
 
 <div id="multiplayerScreen" class="screen hidden">
@@ -2579,6 +2830,20 @@ refreshMultiplayerCharacterOptions();
 if(multiplayerCharacter)multiplayerCharacter.value=multiplayerCharacterId;
 
 openHome();
+
+/* V1.4.8 FIX - cycle de toilettage du kitsune gris */
+(function(){
+  const gray=document.getElementById("grayKitsune");
+  if(!gray)return;
+  function cycle(){
+    gray.classList.remove("grooming");
+    setTimeout(()=>gray.classList.add("grooming"),8200);
+    setTimeout(()=>gray.classList.remove("grooming"),17900);
+  }
+  cycle();
+  setInterval(cycle,27000);
+})();
+
 </script>
 </body>
 </html>
