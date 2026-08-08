@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.5</title>
+<title>JDR Dreyard - V1.5.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1256,6 +1256,50 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   transform:scale(.97);
 }
 
+
+/* V1.5.6 - VISUEL PV / ESPRIT DU JOUEUR SELECTIONNE */
+.mj-selected-resources{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:0 0 10px;
+}
+.mj-selected-resource{
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#101728;
+}
+.mj-selected-resource-line{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  font-size:13px;
+}
+.mj-selected-bar{
+  height:11px;
+  border-radius:999px;
+  overflow:hidden;
+  background:#070a12;
+  border:1px solid #29324c;
+}
+.mj-selected-fill{
+  height:100%;
+  width:0%;
+  transition:width .22s ease;
+}
+.mj-selected-fill.pv{
+  background:linear-gradient(90deg,#8d2836,#f16573);
+}
+.mj-selected-fill.spirit{
+  background:linear-gradient(90deg,#4e4f9a,#a5b0ff);
+}
+@media(max-width:700px){
+  .mj-selected-resources{grid-template-columns:1fr}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1456,9 +1500,31 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
         <div id="mjCombatSelected" class="mj-combat-selected">
           <div class="mj-combat-avatar">🌙</div>
-          <div>
+          <div style="flex:1">
             <strong id="mjCombatSelectedName">Aucun joueur sélectionné</strong>
             <div id="mjCombatSelectedMeta" class="meta">Clique sur un personnage à gauche.</div>
+          </div>
+        </div>
+
+        <div class="mj-selected-resources">
+          <div class="mj-selected-resource">
+            <div class="mj-selected-resource-line">
+              <span>❤️ PV</span>
+              <strong id="mjSelectedPvText">— / 10</strong>
+            </div>
+            <div class="mj-selected-bar">
+              <div id="mjSelectedPvFill" class="mj-selected-fill pv"></div>
+            </div>
+          </div>
+
+          <div class="mj-selected-resource">
+            <div class="mj-selected-resource-line">
+              <span>✨ Esprit</span>
+              <strong id="mjSelectedSpiritText">— / 10</strong>
+            </div>
+            <div class="mj-selected-bar">
+              <div id="mjSelectedSpiritFill" class="mj-selected-fill spirit"></div>
+            </div>
           </div>
         </div>
 
@@ -3016,17 +3082,34 @@ function renderMjCombatPanel(){
 
   if(!name||!meta||!holder)return;
 
+  const pvText=$("mjSelectedPvText");
+  const spiritText=$("mjSelectedSpiritText");
+  const pvFill=$("mjSelectedPvFill");
+  const spiritFill=$("mjSelectedSpiritFill");
+
   if(!c){
     name.textContent="Aucun joueur sélectionné";
     meta.textContent="Clique sur un personnage à gauche.";
     holder.querySelector(".mj-combat-avatar").innerHTML="🌙";
+    if(pvText)pvText.textContent="— / 10";
+    if(spiritText)spiritText.textContent="— / 10";
+    if(pvFill)pvFill.style.width="0%";
+    if(spiritFill)spiritFill.style.width="0%";
     document.querySelectorAll(".injury-zone").forEach(b=>b.classList.remove("injured"));
     return;
   }
 
+  const currentPv=Math.max(0,Math.min(10,Number(c.pv)||0));
+  const currentSpirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
+
   name.textContent=`${c.prenom} ${c.nom}`.trim();
-  meta.textContent=`❤️ ${Number(c.pv)||0}/10 • ✨ ${Number(c.esprit)||0}/10`;
+  meta.textContent=`${c.race||"Personnage"}${c.metier?` • ${c.metier}`:""}`;
   holder.querySelector(".mj-combat-avatar").innerHTML=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
+
+  if(pvText)pvText.textContent=`${currentPv} / 10`;
+  if(spiritText)spiritText.textContent=`${currentSpirit} / 10`;
+  if(pvFill)pvFill.style.width=`${currentPv*10}%`;
+  if(spiritFill)spiritFill.style.width=`${currentSpirit*10}%`;
 
   document.querySelectorAll(".injury-zone").forEach(btn=>{
     btn.classList.toggle("injured",c.blessures?.[btn.dataset.injury]===true);
