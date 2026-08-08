@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.2</title>
+<title>JDR Dreyard - V1.5.3</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1117,6 +1117,112 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 }
 .danger-button:hover{background:rgba(115,22,39,.5)}
 
+
+/* V1.5.3 - COMBAT VISUEL MJ : JOUEUR SELECTIONNE + BLESSURES */
+.combat-stage-grid{
+  grid-template-columns:minmax(0,1fr) 390px;
+}
+.fighter-card{
+  cursor:pointer;
+}
+.fighter-card.mj-selected{
+  outline:2px solid #9aa8ff;
+  box-shadow:0 0 0 1px rgba(154,168,255,.25),0 0 28px rgba(110,125,220,.16);
+}
+.combat-console{
+  min-width:0;
+}
+.mj-combat-selected{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#101728;
+  margin-bottom:12px;
+}
+.mj-combat-avatar{
+  width:48px;height:48px;border-radius:50%;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  background:#222c4b;border:1px solid #50608e;
+}
+.mj-combat-avatar img{width:100%;height:100%;object-fit:cover}
+.mj-resource-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:10px 0 14px;
+}
+.mj-resource-controls button{
+  padding:11px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:#151c31;
+  color:#fff;
+}
+.mj-resource-controls .minus{background:#32161c}
+.mj-resource-controls .plus{background:#123022}
+.kitsune-body-wrap{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#0d1323;
+}
+.kitsune-body-title{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:8px;
+}
+.kitsune-body{
+  position:relative;
+  width:210px;
+  height:250px;
+  margin:0 auto;
+}
+.kitsune-body svg{
+  width:100%;height:100%;
+  overflow:visible;
+}
+.injury-zone{
+  position:absolute;
+  border:1px solid rgba(166,181,255,.35);
+  background:rgba(64,78,126,.16);
+  color:#dce2ff;
+  border-radius:999px;
+  font-size:11px;
+  padding:5px 8px;
+  cursor:pointer;
+  transition:.15s;
+}
+.injury-zone:hover{
+  background:rgba(93,111,181,.30);
+}
+.injury-zone.injured{
+  background:rgba(126,27,43,.72);
+  border-color:#ff7885;
+  color:#fff;
+  box-shadow:0 0 14px rgba(255,85,105,.25);
+}
+.injury-head{top:6px;left:50%;transform:translateX(-50%)}
+.injury-torso{top:92px;left:50%;transform:translateX(-50%)}
+.injury-arm-left{top:98px;left:4px}
+.injury-arm-right{top:98px;right:4px}
+.injury-leg-left{bottom:5px;left:28px}
+.injury-leg-right{bottom:5px;right:28px}
+.mj-dice-only{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+.mj-dice-only .quick-roll{
+  margin-top:8px;
+}
+@media(max-width:950px){
+  .combat-stage-grid{grid-template-columns:1fr}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1313,47 +1419,66 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       </div>
 
       <aside class="combat-console">
-        <h3>Console d'action</h3>
+        <h3>Gestion du joueur</h3>
 
-        <label>Source
-          <select id="actionSource"></select>
-        </label>
-
-        <label>Cible
-          <select id="actionTarget"></select>
-        </label>
-
-        <div class="console-grid">
-          <label>Valeur
-            <input id="actionAmount" type="number" min="0" value="1">
-          </label>
-
-          <label>Type
-            <select id="actionType">
-              <option value="physical">Physique</option>
-              <option value="magic">Magique</option>
-              <option value="heal">Soin</option>
-              <option value="spirit">Esprit</option>
-            </select>
-          </label>
+        <div id="mjCombatSelected" class="mj-combat-selected">
+          <div class="mj-combat-avatar">🌙</div>
+          <div>
+            <strong id="mjCombatSelectedName">Aucun joueur sélectionné</strong>
+            <div id="mjCombatSelectedMeta" class="meta">Clique sur un personnage à gauche.</div>
+          </div>
         </div>
 
-        <div class="console-actions">
-          <button id="dealDamageBtn" class="big-attack">⚔️ Infliger</button>
-          <button id="healTargetBtn" class="big-heal">💚 Soigner</button>
+        <div class="mj-resource-controls">
+          <button id="mjPvMinus" class="minus">❤️ PV -1</button>
+          <button id="mjPvPlus" class="plus">❤️ PV +1</button>
+          <button id="mjSpiritMinus" class="minus">✨ Esprit -1</button>
+          <button id="mjSpiritPlus" class="plus">✨ Esprit +1</button>
         </div>
 
-        <div class="quick-roll">
-          <button class="quick-die" data-faces="6">D6</button>
-          <button class="quick-die" data-faces="10">D10</button>
-          <button class="quick-die" data-faces="20">D20</button>
-          <button class="quick-die" data-faces="100">D100</button>
+        <div class="kitsune-body-wrap">
+          <div class="kitsune-body-title">Blessures du joueur sélectionné — clique sur une zone</div>
+          <div class="kitsune-body">
+            <svg viewBox="0 0 210 250" aria-hidden="true">
+              <!-- silhouette kitsune simple -->
+              <path d="M85 42 L72 15 L91 29 Q105 20 119 29 L138 15 L126 44
+                       Q139 58 135 77 Q131 91 118 97
+                       L124 130 Q141 144 143 168
+                       L139 211 L125 232 L112 232 L108 177
+                       L102 145 L96 177 L92 232 L79 232 L65 211
+                       L67 168 Q69 144 86 130 L92 97
+                       Q79 90 75 77 Q71 58 85 42Z"
+                    fill="#dfe5ff" opacity=".88"/>
+              <path d="M127 123 Q170 120 186 151 Q197 174 174 190 Q183 162 159 151 Q143 143 127 149Z"
+                    fill="#dfe5ff" opacity=".78"/>
+              <circle cx="94" cy="60" r="3" fill="#1c2740"/>
+              <circle cx="116" cy="60" r="3" fill="#1c2740"/>
+              <path d="M100 70 Q105 75 110 70" stroke="#1c2740" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+
+            <button class="injury-zone injury-head" data-injury="tete">Tête</button>
+            <button class="injury-zone injury-torso" data-injury="torse">Torse</button>
+            <button class="injury-zone injury-arm-left" data-injury="brasG">Bras G</button>
+            <button class="injury-zone injury-arm-right" data-injury="brasD">Bras D</button>
+            <button class="injury-zone injury-leg-left" data-injury="jambeG">Jambe G</button>
+            <button class="injury-zone injury-leg-right" data-injury="jambeD">Jambe D</button>
+          </div>
         </div>
 
-        <div id="combatQuickResult" class="dice-result" style="margin-top:12px">
-          <div style="color:#9099b9">Jet rapide</div>
-          <div id="combatQuickValue" class="dice-result-value" style="font-size:36px">—</div>
-          <div id="combatQuickDetail" class="dice-detail">Aucun jet.</div>
+        <div class="mj-dice-only">
+          <div style="color:#9099b9;font-size:12px">🎲 Jets du MJ</div>
+          <div class="quick-roll">
+            <button class="quick-die" data-faces="6">D6</button>
+            <button class="quick-die" data-faces="10">D10</button>
+            <button class="quick-die" data-faces="20">D20</button>
+            <button class="quick-die" data-faces="100">D100</button>
+          </div>
+
+          <div id="combatQuickResult" class="dice-result" style="margin-top:12px">
+            <div style="color:#9099b9">Jet MJ</div>
+            <div id="combatQuickValue" class="dice-result-value" style="font-size:36px">—</div>
+            <div id="combatQuickDetail" class="dice-detail">Aucun jet.</div>
+          </div>
         </div>
       </aside>
     </div>
@@ -1743,7 +1868,7 @@ const gamesScreen=$("gamesScreen"),mjScreen=$("mjScreen"),gameGrid=$("gameGrid")
 const multiplayerScreen=$("multiplayerScreen"),onlinePlayers=$("onlinePlayers"),liveSessionScreen=$("liveSessionScreen");
 const groupRoster=$("groupRoster"),multiplayerRole=$("multiplayerRole"),multiplayerCharacter=$("multiplayerCharacter");
 const npcGrid=$("npcGrid"),initiativeList=$("initiativeList"),combatLog=$("combatLog");
-const fighterZone=$("fighterZone"),turnBanner=$("turnBanner"),actionSource=$("actionSource"),actionTarget=$("actionTarget"),actionAmount=$("actionAmount"),actionType=$("actionType");
+const fighterZone=$("fighterZone"),turnBanner=$("turnBanner");
 
 const homeScreen=$("homeScreen"),charactersScreen=$("charactersScreen"),characterScreen=$("characterScreen"),characterGrid=$("characterGrid"),inventoryGrid=$("inventoryGrid"),spellGrid=$("spellGrid");
 const sheetTitle=$("sheetTitle"),heroName=$("heroName"),heroSubtitle=$("heroSubtitle"),portraitFrame=$("portraitFrame"),portraitInput=$("portraitInput");
@@ -1770,6 +1895,7 @@ let applyingRemoteState=false;
 let syncTimer=null;
 
 let currentEditingNpcId=null;
+let mjCombatSelectedCharacterId=null;
 const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
 
 function clone(obj){return JSON.parse(JSON.stringify(obj))}
@@ -2859,27 +2985,105 @@ function getCombatants(game){
   return list;
 }
 
+function getMjCombatSelectedCharacter(){
+  if(!mjCombatSelectedCharacterId)return null;
+  return getCharacters().find(c=>c.id===mjCombatSelectedCharacterId)||null;
+}
+
+function renderMjCombatPanel(){
+  const c=getMjCombatSelectedCharacter();
+  const name=$("mjCombatSelectedName");
+  const meta=$("mjCombatSelectedMeta");
+  const holder=$("mjCombatSelected");
+
+  if(!name||!meta||!holder)return;
+
+  if(!c){
+    name.textContent="Aucun joueur sélectionné";
+    meta.textContent="Clique sur un personnage à gauche.";
+    holder.querySelector(".mj-combat-avatar").innerHTML="🌙";
+    document.querySelectorAll(".injury-zone").forEach(b=>b.classList.remove("injured"));
+    return;
+  }
+
+  name.textContent=`${c.prenom} ${c.nom}`.trim();
+  meta.textContent=`❤️ ${Number(c.pv)||0}/10 • ✨ ${Number(c.esprit)||0}/10`;
+  holder.querySelector(".mj-combat-avatar").innerHTML=c.portrait?`<img src="${c.portrait}" alt="">`:"🌙";
+
+  document.querySelectorAll(".injury-zone").forEach(btn=>{
+    btn.classList.toggle("injured",c.blessures?.[btn.dataset.injury]===true);
+  });
+}
+
+function selectMjCombatCharacter(id){
+  const c=getCharacters().find(x=>x.id===id);
+  if(!c)return;
+  mjCombatSelectedCharacterId=id;
+  const game=getGames().find(g=>g.id===currentGameId);
+  if(game)renderVisualCombat(game);
+  renderMjCombatPanel();
+}
+
+function toggleMjInjury(part){
+  const c=getMjCombatSelectedCharacter();
+  if(!c)return alert("Sélectionne d'abord un joueur.");
+
+  const chars=getCharacters();
+  const target=chars.find(x=>x.id===c.id);
+  if(!target)return;
+
+  target.blessures ||= emptyInjuries();
+  target.blessures[part]=!target.blessures[part];
+  saveCharacters(chars);
+
+  const games=getGames();
+  const game=games.find(g=>g.id===currentGameId);
+  if(game){
+    const labels={tete:"Tête",torse:"Torse",brasD:"Bras droit",brasG:"Bras gauche",jambeD:"Jambe droite",jambeG:"Jambe gauche"};
+    game.combat.log.unshift({
+      date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+      text:`🩹 ${target.prenom} ${target.nom} — ${labels[part]} : ${target.blessures[part]?"blessé":"soigné"}`
+    });
+    saveGames(games);
+    renderCombat(game);
+    renderVisualCombat(game);
+  }
+  renderMjCombatPanel();
+}
+
+function mjCombatAdjust(resource,delta){
+  const c=getMjCombatSelectedCharacter();
+  if(!c)return alert("Sélectionne d'abord un joueur.");
+  applyCombatDelta("character",c.id,delta,resource);
+  renderMjCombatPanel();
+}
+
 function renderVisualCombat(game){
   fighterZone.innerHTML="";
-  actionSource.innerHTML="";
-  actionTarget.innerHTML="";
-
   const fighters=getCombatants(game);
   const active=game.combat?.order?.[game.combat.turnIndex];
 
   if(!fighters.length){
     fighterZone.innerHTML='<p style="color:#9099b9">Aucun combattant.</p>';
     turnBanner.textContent="Aucun combat actif.";
+    mjCombatSelectedCharacterId=null;
+    renderMjCombatPanel();
     return;
+  }
+
+  const characterFighters=fighters.filter(f=>f.kind==="character");
+  if(!mjCombatSelectedCharacterId && characterFighters.length){
+    mjCombatSelectedCharacterId=characterFighters[0].refId;
   }
 
   fighters.forEach(f=>{
     const hpPct=Math.max(0,Math.min(100,(f.hp/f.maxHp)*100));
     const spPct=f.spirit===null?0:Math.max(0,Math.min(100,(f.spirit/f.maxSpirit)*100));
     const isActive=active && active.refId===f.refId && active.kind===f.kind;
+    const isSelected=f.kind==="character" && f.refId===mjCombatSelectedCharacterId;
 
     const card=document.createElement("div");
-    card.className="fighter-card"+(isActive?" active":"");
+    card.className="fighter-card"+(isActive?" active":"")+(isSelected?" mj-selected":"");
     card.dataset.kind=f.kind;
     card.dataset.id=f.refId;
 
@@ -2905,44 +3109,20 @@ function renderVisualCombat(game){
           <div class="smallbar"><div class="spfill" style="width:${spPct}%"></div></div>
         </div>`:""}
       </div>
-
-      <div class="fighter-actions">
-        <button class="attack-btn">-1 PV</button>
-        <button class="heal-btn">+1 PV</button>
-        ${f.spirit!==null?'<button class="spminus">-1 Esprit</button><button class="spplus">+1 Esprit</button>':""}
-        <button class="target-btn">Cibler</button>
-      </div>
+      ${f.kind==="character"?'<div class="meta" style="margin-top:10px">Clique pour gérer ce joueur</div>':""}
     `;
 
-    card.querySelector(".attack-btn").onclick=()=>applyCombatDelta(f.kind,f.refId,-1,"hp");
-    card.querySelector(".heal-btn").onclick=()=>applyCombatDelta(f.kind,f.refId,1,"hp");
-    card.querySelector(".spminus")?.addEventListener("click",()=>applyCombatDelta(f.kind,f.refId,-1,"spirit"));
-    card.querySelector(".spplus")?.addEventListener("click",()=>applyCombatDelta(f.kind,f.refId,1,"spirit"));
-    card.querySelector(".target-btn").onclick=()=>{
-      actionTarget.value=`${f.kind}:${f.refId}`;
-      document.querySelectorAll(".fighter-card").forEach(x=>x.classList.remove("targeted"));
-      card.classList.add("targeted");
-    };
+    if(f.kind==="character"){
+      card.onclick=()=>selectMjCombatCharacter(f.refId);
+    }
 
     fighterZone.appendChild(card);
-
-    const sourceOpt=document.createElement("option");
-    sourceOpt.value=`${f.kind}:${f.refId}`;
-    sourceOpt.textContent=f.name;
-    actionSource.appendChild(sourceOpt);
-
-    const targetOpt=document.createElement("option");
-    targetOpt.value=`${f.kind}:${f.refId}`;
-    targetOpt.textContent=f.name;
-    actionTarget.appendChild(targetOpt);
   });
 
-  if(active){
-    turnBanner.textContent=`▶ Tour de ${active.name}`;
-    actionSource.value=`${active.kind}:${active.refId}`;
-  } else {
-    turnBanner.textContent="Aucun ordre d'initiative actif.";
-  }
+  if(active)turnBanner.textContent=`▶ Tour de ${active.name}`;
+  else turnBanner.textContent="Aucun ordre d'initiative actif.";
+
+  renderMjCombatPanel();
 }
 
 function applyCombatDelta(kind,refId,delta,resource){
@@ -2977,61 +3157,14 @@ function applyCombatDelta(kind,refId,delta,resource){
   renderNpcs(game);
   renderMJMembers(game);
   renderVisualCombat(game);
-}
-
-function parseCombatRef(value){
-  const [kind,...rest]=String(value).split(":");
-  return {kind,refId:rest.join(":")};
-}
-
-function runCombatAction(mode){
-  if(!currentGameId)return;
-  const amount=Math.max(0,Number(actionAmount.value)||0);
-  if(amount<=0)return alert("Entre une valeur supérieure à 0.");
-
-  const src=parseCombatRef(actionSource.value);
-  const tgt=parseCombatRef(actionTarget.value);
-  const games=getGames(),game=games.find(g=>g.id===currentGameId);
-  if(!game)return;
-
-  const fighters=getCombatants(game);
-  const source=fighters.find(f=>f.kind===src.kind&&f.refId===src.refId);
-  const target=fighters.find(f=>f.kind===tgt.kind&&f.refId===tgt.refId);
-  if(!source||!target)return;
-
-  const type=actionType.value;
-  let resource="hp";
-  let delta=-amount;
-  let verb="inflige";
-
-  if(mode==="heal" || type==="heal"){
-    delta=amount;
-    verb="soigne";
-  }
-
-  if(type==="spirit"){
-    resource="spirit";
-    delta=mode==="heal"?amount:-amount;
-    verb=delta>0?"rend de l'Esprit à":"retire de l'Esprit à";
-  }
-
-  if(resource==="spirit" && target.kind!=="character"){
-    return alert("Les PNJ n'ont pas de jauge d'Esprit dans cette version.");
-  }
-
-  applyCombatDelta(target.kind,target.refId,delta,resource);
-
-  const games2=getGames(),game2=games2.find(g=>g.id===currentGameId);
-  game2.combat.log.unshift({
-    date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
-    text:`${source.name} ${verb} ${amount} ${resource==="hp"?"PV":"Esprit"} à ${target.name}`
-  });
-  saveGames(games2);
-  renderCombat(game2);
-  renderVisualCombat(game2);
+  renderMjCombatPanel();
 }
 
 function quickCombatRoll(faces){
+  if(multiplayerRoleValue!=="MJ" && !multiplayerIsHost){
+    alert("Les jets rapides de cette zone sont réservés au MJ.");
+    return;
+  }
   const result=Math.floor(Math.random()*faces)+1;
   $("combatQuickValue").textContent=result;
   $("combatQuickDetail").textContent=`D${faces} → ${result}`;
@@ -3185,8 +3318,11 @@ $("addNpcBtn").onclick=()=>openNpcModal();$("cancelNpcBtn").onclick=closeNpcModa
 $("buildInitiativeBtn").onclick=buildInitiative;$("nextTurnBtn").onclick=nextTurn;$("clearCombatBtn").onclick=clearCombat;
 $("visualNextTurnBtn").onclick=nextTurn;
 $("visualRollInitBtn").onclick=buildInitiative;
-$("dealDamageBtn").onclick=()=>runCombatAction("damage");
-$("healTargetBtn").onclick=()=>runCombatAction("heal");
+$("mjPvMinus").onclick=()=>mjCombatAdjust("hp",-1);
+$("mjPvPlus").onclick=()=>mjCombatAdjust("hp",1);
+$("mjSpiritMinus").onclick=()=>mjCombatAdjust("spirit",-1);
+$("mjSpiritPlus").onclick=()=>mjCombatAdjust("spirit",1);
+document.querySelectorAll(".injury-zone").forEach(btn=>btn.onclick=()=>toggleMjInjury(btn.dataset.injury));
 document.querySelectorAll(".quick-die").forEach(b=>b.onclick=()=>quickCombatRoll(Number(b.dataset.faces)));
 $("mobileHomeBtn").onclick=openHome;
 $("mobileCharactersBtn").onclick=openCharacters;
