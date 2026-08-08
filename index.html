@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.5.7</title>
+<title>JDR Dreyard - V1.5.8</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1316,6 +1316,20 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   font-size:10px;
   letter-spacing:1px;
   color:#b9c2ff;
+}
+
+
+/* V1.5.8 - JAUGES PV/ESPRIT REACTIVES */
+#mjSelectedPvFill,
+#mjSelectedSpiritFill,
+.fighter-pv-fill,
+.fighter-spirit-fill{
+  transition:width .28s ease!important;
+  min-width:0!important;
+}
+#mjSelectedPvFill[data-value="0"],
+#mjSelectedSpiritFill[data-value="0"]{
+  width:0%!important;
 }
 
 </style>
@@ -3160,6 +3174,49 @@ function getSelectedCombatCharacterId(){
   return holder?.dataset?.characterId || mjCombatSelectedCharacterId || "";
 }
 
+
+function updateCombatCharacterVisual(characterId){
+  const c=getCharacters().find(x=>x.id===characterId);
+  if(!c)return;
+
+  const pv=Math.max(0,Math.min(10,Number(c.pv)||0));
+  const spirit=Math.max(0,Math.min(10,Number(c.esprit)||0));
+
+  // Console de droite
+  if(characterId===getSelectedCombatCharacterId()){
+    const pvText=$("mjSelectedPvText");
+    const spiritText=$("mjSelectedSpiritText");
+    const pvFill=$("mjSelectedPvFill");
+    const spiritFill=$("mjSelectedSpiritFill");
+
+    if(pvText)pvText.textContent=`${pv} / 10`;
+    if(spiritText)spiritText.textContent=`${spirit} / 10`;
+    if(pvFill){
+      pvFill.style.setProperty("width",`${pv*10}%`,"important");
+      pvFill.dataset.value=String(pv);
+    }
+    if(spiritFill){
+      spiritFill.style.setProperty("width",`${spirit*10}%`,"important");
+      spiritFill.dataset.value=String(spirit);
+    }
+  }
+
+  // Carte du joueur à gauche
+  document.querySelectorAll(".fighter-card").forEach(card=>{
+    if(card.dataset.kind!=="character" || card.dataset.id!==characterId)return;
+
+    const pvText=card.querySelector(".fighter-pv-text");
+    const pvFill=card.querySelector(".fighter-pv-fill");
+    const spiritText=card.querySelector(".fighter-spirit-text");
+    const spiritFill=card.querySelector(".fighter-spirit-fill");
+
+    if(pvText)pvText.textContent=`${pv}/10`;
+    if(pvFill)pvFill.style.setProperty("width",`${pv*10}%`,"important");
+    if(spiritText)spiritText.textContent=`${spirit}/10`;
+    if(spiritFill)spiritFill.style.setProperty("width",`${spirit*10}%`,"important");
+  });
+}
+
 function commitMjCharacterChange(characterId, mutator, logText){
   if(!characterId){
     alert("Sélectionne d'abord un joueur à gauche.");
@@ -3168,45 +3225,43 @@ function commitMjCharacterChange(characterId, mutator, logText){
 
   const chars=getCharacters();
   const i=chars.findIndex(c=>c.id===characterId);
-
   if(i<0){
     alert("Personnage introuvable.");
     return false;
   }
 
+  // 1. Modifier la vraie donnée.
   mutator(chars[i]);
 
-  // Sauvegarde immédiatement les vraies valeurs du personnage.
-  saveCharacters(chars);
+  // 2. Écrire immédiatement dans le stockage, sans attendre le réseau.
+  localStorage.setItem("jdrCharacters",JSON.stringify(chars));
+  mjCombatSelectedCharacterId=characterId;
 
-  // Relecture après sauvegarde pour afficher exactement les valeurs persistées.
-  const saved=getCharacters().find(c=>c.id===characterId);
-  if(saved){
-    mjCombatSelectedCharacterId=saved.id;
-  }
+  // 3. Mettre à jour DIRECTEMENT les deux jauges visibles.
+  updateCombatCharacterVisual(characterId);
 
+  // 4. Journal de combat.
   const games=getGames();
   const game=games.find(g=>g.id===currentGameId);
-
   if(game){
     game.combat ||= {order:[],turnIndex:0,log:[]};
     game.combat.log ||= [];
 
-    if(logText && saved){
+    const saved=chars[i];
+    if(logText){
       game.combat.log.unshift({
         date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
         text:logText(saved)
       });
     }
 
-    saveGames(games);
-
-    // Rafraîchissement visuel immédiat, sans attendre Supabase.
+    localStorage.setItem("jdrGames",JSON.stringify(games));
     renderCombat(game);
-    renderVisualCombat(game);
   }
 
-  renderMjCombatPanel();
+  // 5. Synchroniser ensuite avec les autres navigateurs.
+  scheduleRealtimeSync();
+
   return true;
 }
 
@@ -3306,13 +3361,13 @@ function renderVisualCombat(game){
 
       <div class="fighter-bars">
         <div>
-          <div class="smallbar-label"><span>❤️ PV</span><span>${f.hp}/${f.maxHp}</span></div>
-          <div class="smallbar"><div class="hpfill" style="width:${hpPct}%"></div></div>
+          <div class="smallbar-label"><span>❤️ PV</span><span class="fighter-pv-text">${f.hp}/${f.maxHp}</span></div>
+          <div class="smallbar"><div class="hpfill fighter-pv-fill" style="width:${hpPct}%"></div></div>
         </div>
         ${f.spirit!==null?`
         <div>
-          <div class="smallbar-label"><span>✨ Esprit</span><span>${f.spirit}/${f.maxSpirit}</span></div>
-          <div class="smallbar"><div class="spfill" style="width:${spPct}%"></div></div>
+          <div class="smallbar-label"><span>✨ Esprit</span><span class="fighter-spirit-text">${f.spirit}/${f.maxSpirit}</span></div>
+          <div class="smallbar"><div class="spfill fighter-spirit-fill" style="width:${spPct}%"></div></div>
         </div>`:""}
       </div>
       ${f.kind==="character"?'<div class="meta" style="margin-top:10px">Clique pour gérer ce joueur</div>':""}
