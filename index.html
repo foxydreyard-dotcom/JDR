@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.9.3</title>
+<title>JDR Dreyard - V1.9.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2974,6 +2974,94 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* =========================================================
+   V1.9.4 — MOBILE : branche courte, uniquement sous le personnage
+   PC inchangé
+   ========================================================= */
+@media (max-width:760px){
+
+  /* La branche ne traverse plus le titre */
+  .mobile-sakura-branch{
+    position:absolute!important;
+    left:auto!important;
+    right:2px!important;
+    top:92px!important;
+    width:88px!important;
+    height:34px!important;
+    margin:0!important;
+    z-index:28!important;
+    overflow:visible!important;
+    pointer-events:none!important;
+  }
+
+  .mobile-sakura-branch svg{
+    width:100%!important;
+    height:100%!important;
+    transform:scaleX(-1)!important;
+    transform-origin:center!important;
+  }
+
+  /* Branche plus fine et plus discrète */
+  .mobile-sakura-branch .branch-main{
+    stroke-width:5!important;
+  }
+
+  .mobile-sakura-branch .branch-twig{
+    stroke-width:3!important;
+  }
+
+  .mobile-sakura-branch .branch-blossoms circle{
+    r:3px;
+  }
+
+  /* Personnages assis juste au-dessus de la branche */
+  #charactersScreen .sitter-lisanna{
+    right:8px!important;
+    top:8px!important;
+    width:92px!important;
+    max-width:92px!important;
+  }
+
+  #gamesScreen .sitter-aki{
+    right:12px!important;
+    top:14px!important;
+    width:78px!important;
+    max-width:78px!important;
+  }
+
+  #mjScreen .sitter-inari{
+    right:6px!important;
+    top:5px!important;
+    width:96px!important;
+    max-width:96px!important;
+  }
+
+  #multiplayerScreen .sitter-melusine{
+    right:8px!important;
+    top:9px!important;
+    width:90px!important;
+    max-width:90px!important;
+  }
+
+  /* Le header ne réserve plus une largeur excessive */
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    grid-template-columns:auto 1fr 102px!important;
+    min-height:122px!important;
+  }
+
+  /* Empêche tout recouvrement du titre */
+  #charactersScreen .topbar-title,
+  #gamesScreen .topbar-title,
+  #mjScreen .topbar-title,
+  #multiplayerScreen .topbar-title{
+    padding-right:4px!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2995,7 +3083,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.9.3</div>
+    <div class="version">VERSION 1.9.4</div>
   </div>
 </div>
 
