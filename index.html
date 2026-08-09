@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.7.5</title>
+<title>JDR Dreyard - V1.7.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1699,6 +1699,109 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* V1.7.6 — 4 PERSONNAGES ASSIS SUR LE DÉCROCHÉ DE LA VRAIE FENÊTRE JDR */
+#charactersScreen,
+#gamesScreen,
+#mjScreen,
+#multiplayerScreen{
+  overflow:visible!important;
+}
+
+.screen-sitter{
+  position:absolute;
+  z-index:40;
+  right:18px;
+  top:18px;
+  width:auto;
+  height:auto;
+  max-width:300px;
+  max-height:330px;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  opacity:1;
+  mix-blend-mode:normal;
+  filter:
+    drop-shadow(0 14px 22px rgba(0,0,0,.52))
+    drop-shadow(0 0 5px rgba(155,175,255,.10));
+}
+
+/* Lisanna — Personnages */
+.sitter-lisanna{
+  right:10px;
+  top:12px;
+  max-width:285px;
+  max-height:315px;
+}
+
+/* Aki — Parties */
+.sitter-aki{
+  right:24px;
+  top:32px;
+  max-width:210px;
+  max-height:260px;
+}
+
+/* Inari — Vue MJ */
+.sitter-inari{
+  right:10px;
+  top:6px;
+  max-width:300px;
+  max-height:330px;
+}
+
+/* Melusine — Multijoueur */
+.sitter-melusine{
+  right:12px;
+  top:10px;
+  max-width:280px;
+  max-height:320px;
+}
+
+/* Le contenu de l'app reste toujours cliquable */
+#charactersScreen > :not(.screen-sitter),
+#gamesScreen > :not(.screen-sitter),
+#mjScreen > :not(.screen-sitter),
+#multiplayerScreen > :not(.screen-sitter){
+  position:relative;
+  z-index:2;
+}
+
+/* réserve le décroché pour le personnage afin qu'il ne masque pas les titres */
+#charactersScreen .topbar,
+#gamesScreen .topbar,
+#mjScreen .topbar,
+#multiplayerScreen .topbar{
+  padding-right:320px!important;
+}
+
+@media(max-width:1050px){
+  .screen-sitter{
+    max-width:220px!important;
+    max-height:250px!important;
+    right:8px!important;
+  }
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    padding-right:230px!important;
+  }
+}
+
+@media(max-width:760px){
+  .screen-sitter{
+    display:none!important;
+  }
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    padding-right:0!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1720,7 +1823,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.7.5</div>
+    <div class="version">VERSION 1.7.6</div>
   </div>
 </div>
 
@@ -1734,6 +1837,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 <div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
+  <img class="screen-sitter sitter-melusine" src="melusine_assis.png" alt="" aria-hidden="true">
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
   <div class="multiplayer-card jdr-presenter-panel presenter-melusine">
     <div class="jdr-presenter-content">
@@ -1808,6 +1912,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="gamesScreen" class="screen hidden">
+  <img class="screen-sitter sitter-aki" src="aki_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title">
@@ -1824,6 +1929,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="mjScreen" class="screen hidden">
+  <img class="screen-sitter sitter-inari" src="inari_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
     <div class="topbar-title">
@@ -1981,6 +2087,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="charactersScreen" class="screen hidden">
+  <img class="screen-sitter sitter-lisanna" src="lisanna_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
