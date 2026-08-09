@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.6.7</title>
+<title>JDR Dreyard - V1.6.8</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1369,181 +1369,191 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 }
 
 
+/* V1.6.8 — PERSONNAGES PRÉSENTATEURS INTÉGRÉS AUX VRAIES FENÊTRES DU JDR */
 
-
-/* V1.6.7 — FENÊTRES VIVANTES PROPRES, PERSONNAGES NON DÉFORMÉS */
-#charactersScreen,
-#gamesScreen,
-#mjScreen,
-#multiplayerScreen{
+/* panneau existant + colonne personnage intégrée */
+.jdr-presenter-panel{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 230px;
+  gap:22px;
+  align-items:stretch;
   position:relative;
-  isolation:isolate;
 }
 
-.living-window{
-  position:absolute;
-  top:72px;
-  right:18px;
-  width:220px;
-  height:185px;
-  z-index:1;
-  pointer-events:none;
-  user-select:none;
+.jdr-presenter-content{
+  min-width:0;
 }
 
-/* vraie petite alcôve/fenêtre */
-.living-window-scene{
-  position:absolute;
-  right:0;
-  top:0;
-  width:185px;
-  height:128px;
-  overflow:hidden;
-  border:2px solid rgba(105,121,177,.55);
-  border-bottom-width:5px;
-  border-radius:18px 18px 10px 10px;
+.jdr-presenter{
+  position:relative;
+  min-height:360px;
+  border-left:1px solid rgba(95,111,166,.30);
   background:
-    radial-gradient(circle at 76% 23%,rgba(239,244,255,.94) 0 7%,transparent 7.7%),
-    linear-gradient(180deg,rgba(7,15,37,.86),rgba(11,18,39,.52));
-  box-shadow:
-    inset 0 0 28px rgba(90,110,189,.12),
-    0 10px 26px rgba(0,0,0,.22);
-}
-.living-window-scene::before{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:0;
-  bottom:0;
-  width:2px;
-  background:rgba(108,123,179,.22);
-}
-.living-window-scene::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  top:52%;
-  height:2px;
-  background:rgba(108,123,179,.18);
+    radial-gradient(circle at 55% 18%,rgba(139,154,229,.12),transparent 28%),
+    linear-gradient(180deg,rgba(11,17,32,.18),rgba(11,17,32,.02));
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:center;
+  overflow:hidden;
+  border-radius:0 16px 16px 0;
 }
 
-.living-moon{display:none}
-
-.living-star{
-  position:absolute;
-  width:3px;
-  height:3px;
-  border-radius:50%;
-  background:#e9edff;
-  box-shadow:0 0 6px #aabaff;
-  animation:livingTwinkle 2.2s ease-in-out infinite alternate;
-}
-.living-star.st1{left:24px;top:22px}
-.living-star.st2{left:65px;top:45px;animation-delay:.6s}
-.living-star.st3{right:56px;top:72px;animation-delay:1.1s}
-@keyframes livingTwinkle{
-  from{opacity:.28}
-  to{opacity:1}
-}
-
-.living-petal{display:none}
-
-/* IMPORTANT : aucune découpe brutale / aucun étirement */
-.living-character{
-  position:absolute;
-  z-index:3;
-  right:10px;
-  bottom:18px;
-  width:175px;
-  height:170px;
-  overflow:visible;
+.presenter-art{
+  width:100%;
+  flex:1;
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  filter:drop-shadow(0 8px 12px rgba(0,0,0,.34));
+  padding:10px 8px 0;
+  overflow:hidden;
 }
-.living-character img{
+
+.presenter-art img{
   display:block;
   width:auto;
   height:auto;
-  max-width:165px;
-  max-height:170px;
+  max-width:205px;
+  max-height:315px;
   object-fit:contain;
   object-position:center bottom;
-  transform:none!important;
-  animation:livingBreathClean 3.5s ease-in-out infinite alternate;
-}
-@keyframes livingBreathClean{
-  from{translate:0 1px}
-  to{translate:0 -1px}
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.35));
 }
 
-/* tailles adaptées sans déformer les personnages */
-.living-inari .living-character img{max-height:168px;max-width:160px}
-.living-aki .living-character img{max-height:150px;max-width:145px}
-.living-melusine .living-character img{max-height:168px;max-width:155px}
-.living-lisanna .living-character img{max-height:165px;max-width:155px}
-
-.living-sill{
-  position:absolute;
-  z-index:4;
-  right:0;
-  bottom:12px;
-  width:195px;
-  height:13px;
-  border-radius:7px;
-  background:linear-gradient(180deg,#66749e,#303b5b 55%,#222a42);
-  border:1px solid rgba(120,137,190,.58);
-  box-shadow:0 6px 12px rgba(0,0,0,.30);
+.presenter-caption{
+  width:100%;
+  padding:12px 14px 14px;
+  border-top:1px solid rgba(95,111,166,.25);
+  background:linear-gradient(180deg,rgba(16,23,42,.76),rgba(12,18,33,.92));
+  text-align:center;
 }
 
-/* le décor ne touche jamais aux contrôles */
-.living-window,
-.living-window *{
-  pointer-events:none!important;
+.presenter-caption strong{
+  display:block;
+  color:#f3f5ff;
+  font-size:14px;
+  margin-bottom:3px;
 }
 
-#charactersScreen > :not(.living-window),
-#gamesScreen > :not(.living-window),
-#mjScreen > :not(.living-window),
-#multiplayerScreen > :not(.living-window){
-  position:relative;
-  z-index:2;
+.presenter-caption span{
+  display:block;
+  color:#9aa6d5;
+  font-size:11px;
+  line-height:1.4;
 }
 
-/* pas de gros panneau ajouté : on garde ton interface originale */
-#charactersScreen::before,
-#gamesScreen::before,
-#mjScreen::before,
-#multiplayerScreen::before{
-  content:none!important;
+/* Personnages : Lisanna fait partie du panneau où les fiches apparaissent */
+#charactersScreen .jdr-presenter-panel{
+  padding:0;
+}
+#charactersScreen .jdr-presenter-content{
+  min-width:0;
+}
+#charactersScreen .presenter-lisanna .jdr-presenter{
+  min-height:430px;
 }
 
-@media(max-width:980px){
-  .living-window{
-    width:165px;
-    height:145px;
-    right:8px;
-    top:78px;
-    opacity:.78;
+/* Multijoueur : Melusine est dans la même carte que Créer/Rejoindre */
+.multiplayer-card.jdr-presenter-panel{
+  max-width:1040px;
+  grid-template-columns:minmax(0,1fr) 240px;
+  padding:0;
+  overflow:hidden;
+}
+.multiplayer-card.jdr-presenter-panel > .jdr-presenter-content{
+  padding:24px;
+}
+.multiplayer-card.jdr-presenter-panel .jdr-presenter{
+  min-height:100%;
+}
+
+/* Parties : Aki reste dans la vraie zone des cartes de parties */
+#gamesScreen .jdr-presenter-panel{
+  grid-template-columns:minmax(0,1fr) 220px;
+}
+#gamesScreen .jdr-presenter{
+  min-height:350px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(145deg,#151c30,#0d1221);
+}
+#gamesScreen .presenter-art img{
+  max-height:260px;
+  max-width:185px;
+}
+
+/* MJ : Inari est intégrée dans la première carte Groupe */
+.jdr-mj-presenter-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 190px;
+  gap:16px;
+  align-items:stretch;
+}
+.jdr-mj-presenter-content{min-width:0}
+.jdr-mj-presenter{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  min-height:260px;
+  overflow:hidden;
+  border-left:1px solid rgba(95,111,166,.26);
+  background:linear-gradient(180deg,rgba(23,32,56,.35),rgba(12,18,33,.06));
+  border-radius:0 12px 12px 0;
+}
+.jdr-mj-presenter .presenter-art img{
+  max-height:220px;
+  max-width:165px;
+}
+
+/* Aucun personnage ne bloque les contrôles */
+.jdr-presenter,
+.jdr-mj-presenter,
+.presenter-art,
+.presenter-art img{
+  pointer-events:none;
+}
+
+/* Responsive */
+@media(max-width:1000px){
+  .jdr-presenter-panel{
+    grid-template-columns:minmax(0,1fr) 170px;
   }
-  .living-window-scene{
-    width:140px;
-    height:100px;
+  .multiplayer-card.jdr-presenter-panel{
+    grid-template-columns:minmax(0,1fr) 175px;
   }
-  .living-character{
-    width:140px;
-    height:132px;
+  .presenter-art img{
+    max-width:155px;
+    max-height:250px;
   }
-  .living-character img{
-    max-height:130px!important;
-    max-width:125px!important;
+  .jdr-mj-presenter-row{
+    grid-template-columns:minmax(0,1fr) 150px;
   }
-  .living-sill{width:148px}
 }
-@media(max-width:700px){
-  .living-window{display:none}
+
+@media(max-width:760px){
+  .jdr-presenter-panel,
+  .multiplayer-card.jdr-presenter-panel,
+  .jdr-mj-presenter-row{
+    grid-template-columns:1fr;
+  }
+
+  .jdr-presenter,
+  .jdr-mj-presenter{
+    min-height:190px!important;
+    border-left:0;
+    border-top:1px solid rgba(95,111,166,.25);
+    border-radius:0 0 14px 14px;
+  }
+
+  .presenter-art{
+    height:150px;
+    flex:none;
+  }
+
+  .presenter-art img{
+    max-height:165px!important;
+    max-width:145px!important;
+  }
 }
 
 </style>
@@ -1567,7 +1577,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.6.7</div>
+    <div class="version">VERSION 1.6.8</div>
   </div>
 </div>
 
@@ -1581,22 +1591,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 <div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
-  <div class="living-window living-lisanna" aria-hidden="true">
-    <div class="living-window-scene">
-      <span class="living-moon"></span>
-      <span class="living-star st1"></span>
-      <span class="living-star st2"></span>
-      <span class="living-star st3"></span>
-      <span class="living-petal p1"></span>
-      <span class="living-petal p2"></span>
-    </div>
-    <div class="living-character">
-      <img src="lisanna.png" alt="">
-    </div>
-    <div class="living-sill"></div>
-  </div>
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
-  <div class="multiplayer-card">
+  <div class="multiplayer-card jdr-presenter-panel presenter-melusine">
+    <div class="jdr-presenter-content">
     <div id="multiplayerDisconnected">
       <h2>🌙 Créer ou rejoindre un salon</h2><p style="color:#9099b9">Le code du salon permet à plusieurs joueurs d'utiliser la même partie en temps réel.</p>
       <label>Ton nom<input id="multiplayerName" placeholder="Ex : Foxy"></label>
@@ -1663,24 +1660,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         Chaque joueur peut maintenant choisir son rôle et le personnage qu'il contrôle dans le même salon.
       </p>
     </div>
-  </div>
+    </div>
+    <aside class="jdr-presenter">
+      <div class="presenter-art"><img src="melusine.png" alt=""></div>
+      <div class="presenter-caption">
+        <strong>Melusine</strong>
+        <span>« Retrouve les autres joueurs ici. »</span>
+      </div>
+    </aside>
+</div>
 </div>
 
 <div id="gamesScreen" class="screen hidden">
-  <div class="living-window living-aki" aria-hidden="true">
-    <div class="living-window-scene">
-      <span class="living-moon"></span>
-      <span class="living-star st1"></span>
-      <span class="living-star st2"></span>
-      <span class="living-star st3"></span>
-      <span class="living-petal p1"></span>
-      <span class="living-petal p2"></span>
-    </div>
-    <div class="living-character">
-      <img src="aki.png" alt="">
-    </div>
-    <div class="living-sill"></div>
-  </div>
   <header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title">
@@ -1689,24 +1680,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
     <button id="createGameBtn" class="save-button">＋ Nouvelle partie</button>
   </header>
-  <div id="gameGrid" class="game-grid"></div>
+  <section class="jdr-presenter-panel presenter-aki">
+    <div class="jdr-presenter-content">
+      <div id="gameGrid" class="game-grid"></div>
+    </div>
+    <aside class="jdr-presenter">
+      <div class="presenter-art"><img src="aki.png" alt=""></div>
+      <div class="presenter-caption">
+        <strong>Aki</strong>
+        <span>« Choisis une partie à rejoindre. »</span>
+      </div>
+    </aside>
+  </section>
 </div>
 
 <div id="mjScreen" class="screen hidden">
-  <div class="living-window living-melusine" aria-hidden="true">
-    <div class="living-window-scene">
-      <span class="living-moon"></span>
-      <span class="living-star st1"></span>
-      <span class="living-star st2"></span>
-      <span class="living-star st3"></span>
-      <span class="living-petal p1"></span>
-      <span class="living-petal p2"></span>
-    </div>
-    <div class="living-character">
-      <img src="melusine.png" alt="">
-    </div>
-    <div class="living-sill"></div>
-  </div>
   <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
     <div class="topbar-title">
@@ -1717,12 +1705,23 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   </header>
 
   <div class="mj-layout">
-    <section class="card">
-      <div class="toolbar">
-        <h2 style="margin:0">👥 Participants & ordre de passage</h2>
+    <section class="card jdr-mj-presented-card">
+      <div class="jdr-mj-presenter-row">
+        <div class="jdr-mj-presenter-content">
+          <div class="toolbar">
+            <h2 style="margin:0">👥 Participants & ordre de passage</h2>
+          </div>
+          <p style="color:#9099b9;margin-top:6px">Le MJ définit l'ordre des tours. Utilise ↑ et ↓ pour déplacer un participant.</p>
+          <div id="mjMembers" class="mj-members"></div>
+        </div>
+        <aside class="jdr-mj-presenter">
+          <div class="presenter-art"><img src="inari.png" alt=""></div>
+          <div class="presenter-caption">
+            <strong>Inari</strong>
+            <span>« Je garde un œil sur le groupe. »</span>
+          </div>
+        </aside>
       </div>
-      <p style="color:#9099b9;margin-top:6px">Le MJ définit l'ordre des tours. Utilise ↑ et ↓ pour déplacer un participant.</p>
-      <div id="mjMembers" class="mj-members"></div>
     </section>
 
     <section class="card">
@@ -1860,29 +1859,30 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="charactersScreen" class="screen hidden">
-  <div class="living-window living-inari" aria-hidden="true">
-    <div class="living-window-scene">
-      <span class="living-moon"></span>
-      <span class="living-star st1"></span>
-      <span class="living-star st2"></span>
-      <span class="living-star st3"></span>
-      <span class="living-petal p1"></span>
-      <span class="living-petal p2"></span>
-    </div>
-    <div class="living-character">
-      <img src="inari.png" alt="">
-    </div>
-    <div class="living-sill"></div>
-  </div>
   <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
   </header>
-  <div class="character-header">
-    <div><h2>Tes aventuriers</h2><p style="color:#9099b9">Seuls les personnages créés sur ton compte navigateur apparaissent ici.</p></div>
-    <button id="createCharacterBtn" class="create-character">＋ Créer un personnage</button>
-  </div>
-  <div id="characterGrid" class="character-grid"></div>
+  <section class="jdr-presenter-panel presenter-lisanna">
+    <div class="jdr-presenter-content">
+      <div class="character-header">
+        <div>
+          <h2>Tes aventuriers</h2>
+          <p style="color:#9099b9">Seuls les personnages créés sur ton compte navigateur apparaissent ici.</p>
+        </div>
+        <button id="createCharacterBtn" class="create-character">＋ Créer un personnage</button>
+      </div>
+      <div id="characterGrid" class="character-grid"></div>
+    </div>
+
+    <aside class="jdr-presenter">
+      <div class="presenter-art"><img src="lisanna.png" alt=""></div>
+      <div class="presenter-caption">
+        <strong>Lisanna</strong>
+        <span>« Voici tes aventuriers. »</span>
+      </div>
+    </aside>
+  </section>
 </div>
 
 <div id="characterScreen" class="screen hidden">
