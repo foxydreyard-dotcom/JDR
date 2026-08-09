@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.8.0</title>
+<title>JDR Dreyard - V1.8.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2018,106 +2018,95 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 }
 
 
-/* V1.8.0 — forme décorative sûre, contenu V1.7.8 conservé */
-
+/* V1.8.1 — correction ciblée : UNIQUEMENT la silhouette de la fenêtre */
 #charactersScreen,
 #gamesScreen,
 #mjScreen,
-#multiplayerScreen{
-  position:relative!important;
-  overflow:visible!important;
-  isolation:isolate!important;
-
-  /* On enlève seulement le fond/contour rectangulaire de l'écran,
-     la structure interne reste inchangée */
-  background:transparent!important;
+#multiplayerScreen {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201400%20850%22%20preserveAspectRatio%3D%22none%22%3E%0A%3Cdefs%3E%0A%20%3ClinearGradient%20id%3D%22f%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%3Cstop%20stop-color%3D%22%230c1632%22%20stop-opacity%3D%22.97%22%2F%3E%0A%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23060c1f%22%20stop-opacity%3D%22.985%22%2F%3E%0A%20%3C%2FlinearGradient%3E%0A%20%3ClinearGradient%20id%3D%22s%22%3E%0A%20%20%3Cstop%20stop-color%3D%22%236577e8%22%2F%3E%0A%20%20%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%239a73ff%22%2F%3E%0A%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%236577e8%22%2F%3E%0A%20%3C%2FlinearGradient%3E%0A%3C%2Fdefs%3E%0A%3C%21--%0A%20%20FORME%20%3A%0A%20%20haut%20gauche%20normal%0A%20%20-%3E%20descente%20arrondie%20n%C2%B01%0A%20%20-%3E%20plateau%20horizontal%20d%27assise%0A%20%20-%3E%20descente%20arrondie%20n%C2%B02%0A%20%20-%3E%20c%C3%B4t%C3%A9%20droit%0A--%3E%0A%3Cpath%20d%3D%22M30%202%20H820%0A%20Q855%202%20870%2028%0A%20Q885%2055%20920%2055%0A%20H1015%0A%20Q1045%2055%201045%2085%0A%20V255%0A%20Q1045%20292%201082%20292%0A%20H1365%0A%20Q1398%20292%201398%20325%0A%20V820%0A%20Q1398%20848%201370%20848%0A%20H30%20Q2%20848%202%20820%20V30%20Q2%202%2030%202%20Z%22%0A%20fill%3D%22url%28%23f%29%22%20stroke%3D%22url%28%23s%29%22%20stroke-width%3D%222%22%2F%3E%0A%3Cpath%20d%3D%22M38%2012%20H814%0A%20Q846%2012%20859%2035%0A%20Q874%2065%20912%2065%0A%20H1005%0A%20Q1035%2065%201035%2094%0A%20V247%0A%20Q1035%20302%201090%20302%0A%20H1356%0A%20Q1388%20302%201388%20334%0A%20V810%20Q1388%20838%201360%20838%0A%20H38%20Q12%20838%2012%20812%20V38%20Q12%2012%2038%2012%20Z%22%0A%20fill%3D%22none%22%20stroke%3D%22%23a08aff%22%20stroke-opacity%3D%22.23%22%20stroke-width%3D%221%22%2F%3E%0A%3C%2Fsvg%3E")!important;
+  background-size:100% 100%!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
   border:0!important;
   box-shadow:none!important;
   clip-path:none!important;
-}
-
-/* Calque de la nouvelle fenêtre, strictement derrière le contenu */
-.jdr-shape-layer{
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  z-index:0!important;
-  pointer-events:none!important;
+  border-radius:0!important;
   overflow:visible!important;
-}
-
-/* Tous les éléments réels de l'app passent devant */
-#charactersScreen > :not(.jdr-shape-layer):not(.screen-sitter),
-#gamesScreen > :not(.jdr-shape-layer):not(.screen-sitter),
-#mjScreen > :not(.jdr-shape-layer):not(.screen-sitter),
-#multiplayerScreen > :not(.jdr-shape-layer):not(.screen-sitter){
   position:relative!important;
-  z-index:5!important;
 }
 
-/* Les personnages restent encore au-dessus, sur la cassure */
-.screen-sitter{
-  z-index:20!important;
-  pointer-events:none!important;
-}
-
-/* Réglage pour que le point d'assise corresponde au plateau à droite */
-.sitter-lisanna{
-  top:68px!important;
-  right:12px!important;
-  max-width:300px!important;
-  max-height:350px!important;
-}
-.sitter-aki{
-  top:102px!important;
-  right:34px!important;
-  max-width:220px!important;
-  max-height:285px!important;
-}
-.sitter-inari{
-  top:60px!important;
-  right:10px!important;
-  max-width:315px!important;
-  max-height:365px!important;
-}
-.sitter-melusine{
-  top:70px!important;
-  right:14px!important;
-  max-width:295px!important;
-  max-height:350px!important;
-}
-
-/* Aucun menu inférieur ajouté */
-.jdr-bottom-nav{
+/* Neutralise les anciennes silhouettes sans toucher au contenu */
+#charactersScreen::before,#charactersScreen::after,
+#gamesScreen::before,#gamesScreen::after,
+#mjScreen::before,#mjScreen::after,
+#multiplayerScreen::before,#multiplayerScreen::after {
+  content:none!important;
   display:none!important;
 }
 
-/* Le bouton Personnage reste propre, en bas/centre de sa zone fonctionnelle */
-#charactersScreen #createCharacterBtn{
-  position:absolute!important;
-  left:50%!important;
-  right:auto!important;
-  bottom:18px!important;
-  top:auto!important;
-  transform:translateX(-50%)!important;
-  z-index:30!important;
+/* Aucun menu ajouté en bas */
+.jdr-bottom-nav { display:none!important; }
+
+/* Le contenu fonctionnel reste exactement celui de la base */
+#charactersScreen > :not(.screen-sitter),
+#gamesScreen > :not(.screen-sitter),
+#mjScreen > :not(.screen-sitter),
+#multiplayerScreen > :not(.screen-sitter) {
+  position:relative!important;
+  z-index:2!important;
 }
 
-#charactersScreen .jdr-presenter-content{
-  padding-bottom:90px!important;
+/* Le POINT D'ASSISE est aligné sur le plateau de la cassure */
+.screen-sitter {
+  position:absolute!important;
+  z-index:20!important;
+  pointer-events:none!important;
+  opacity:1!important;
+  mix-blend-mode:normal!important;
+}
+
+#charactersScreen .sitter-lisanna {
+  width:300px!important; max-width:300px!important;
+  height:auto!important; max-height:none!important;
+  top:35px!important; right:18px!important;
+}
+#gamesScreen .sitter-aki {
+  width:225px!important; max-width:225px!important;
+  height:auto!important; max-height:none!important;
+  top:82px!important; right:48px!important;
+}
+#mjScreen .sitter-inari {
+  width:310px!important; max-width:310px!important;
+  height:auto!important; max-height:none!important;
+  top:25px!important; right:15px!important;
+}
+#multiplayerScreen .sitter-melusine {
+  width:295px!important; max-width:295px!important;
+  height:auto!important; max-height:none!important;
+  top:38px!important; right:20px!important;
+}
+
+/* Le bouton création ne va PAS sous Lisanna */
+#charactersScreen #createCharacterBtn {
+  position:absolute!important;
+  left:50%!important; right:auto!important;
+  top:auto!important; bottom:20px!important;
+  transform:translateX(-50%)!important;
+  z-index:10!important;
+}
+#charactersScreen .jdr-presenter-content { padding-bottom:90px!important; }
+
+/* On réserve uniquement le coin du personnage */
+#charactersScreen .topbar,
+#gamesScreen .topbar,
+#mjScreen .topbar,
+#multiplayerScreen .topbar {
+  padding-right:330px!important;
 }
 
 @media(max-width:760px){
-  .jdr-shape-layer{display:none!important;}
-  #charactersScreen,
-  #gamesScreen,
-  #mjScreen,
-  #multiplayerScreen{
-    background:linear-gradient(145deg,rgba(8,16,38,.96),rgba(4,10,27,.98))!important;
-    border:1px solid rgba(103,115,214,.70)!important;
-    border-radius:22px!important;
-  }
+  .screen-sitter{display:none!important}
+  #charactersScreen .topbar,#gamesScreen .topbar,#mjScreen .topbar,#multiplayerScreen .topbar{padding-right:0!important}
 }
 
 </style>
@@ -2141,7 +2130,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.8.0</div>
+    <div class="version">VERSION 1.8.1</div>
   </div>
 </div>
 
@@ -2155,76 +2144,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 <div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
-  <svg class="jdr-shape-layer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="shapeFill" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0d1733" stop-opacity="0.97"/>
-        <stop offset="100%" stop-color="#070d20" stop-opacity="0.985"/>
-      </linearGradient>
-      <linearGradient id="shapeStroke" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#6f7cff"/>
-        <stop offset="55%" stop-color="#9876ff"/>
-        <stop offset="100%" stop-color="#6270e8"/>
-      </linearGradient>
-      <filter id="shapeGlow" x="-10%" y="-10%" width="120%" height="120%">
-        <feGaussianBlur stdDeviation="1.6" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <path class="jdr-shape-fill"
-      d="
-        M 28 2
-        H 640
-        Q 675 2 690 30
-        Q 705 58 738 58
-        H 760
-        Q 782 58 782 80
-        V 270
-        Q 782 300 812 300
-        H 968
-        Q 998 300 998 330
-        V 672
-        Q 998 698 972 698
-        H 28
-        Q 2 698 2 672
-        V 28
-        Q 2 2 28 2
-        Z"
-      fill="url(#shapeFill)"
-      stroke="url(#shapeStroke)"
-      stroke-width="2"
-      vector-effect="non-scaling-stroke"
-      filter="url(#shapeGlow)"
-    />
-
-    <path
-      d="
-        M 36 12
-        H 634
-        Q 665 12 678 36
-        Q 692 66 730 66
-        H 752
-        Q 772 66 772 86
-        V 264
-        Q 772 310 818 310
-        H 960
-        Q 988 310 988 338
-        V 662
-        Q 988 688 962 688
-        H 36
-        Q 12 688 12 664
-        V 36
-        Q 12 12 36 12
-        Z"
-      fill="none"
-      stroke="#9384ff"
-      stroke-opacity="0.26"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"
-    />
-  </svg>
-
   <img class="screen-sitter sitter-melusine" src="melusine_assis.png" alt="" aria-hidden="true">
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
   <div class="multiplayer-card jdr-presenter-panel presenter-melusine">
@@ -2300,76 +2219,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="gamesScreen" class="screen hidden">
-  <svg class="jdr-shape-layer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="shapeFill" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0d1733" stop-opacity="0.97"/>
-        <stop offset="100%" stop-color="#070d20" stop-opacity="0.985"/>
-      </linearGradient>
-      <linearGradient id="shapeStroke" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#6f7cff"/>
-        <stop offset="55%" stop-color="#9876ff"/>
-        <stop offset="100%" stop-color="#6270e8"/>
-      </linearGradient>
-      <filter id="shapeGlow" x="-10%" y="-10%" width="120%" height="120%">
-        <feGaussianBlur stdDeviation="1.6" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <path class="jdr-shape-fill"
-      d="
-        M 28 2
-        H 640
-        Q 675 2 690 30
-        Q 705 58 738 58
-        H 760
-        Q 782 58 782 80
-        V 270
-        Q 782 300 812 300
-        H 968
-        Q 998 300 998 330
-        V 672
-        Q 998 698 972 698
-        H 28
-        Q 2 698 2 672
-        V 28
-        Q 2 2 28 2
-        Z"
-      fill="url(#shapeFill)"
-      stroke="url(#shapeStroke)"
-      stroke-width="2"
-      vector-effect="non-scaling-stroke"
-      filter="url(#shapeGlow)"
-    />
-
-    <path
-      d="
-        M 36 12
-        H 634
-        Q 665 12 678 36
-        Q 692 66 730 66
-        H 752
-        Q 772 66 772 86
-        V 264
-        Q 772 310 818 310
-        H 960
-        Q 988 310 988 338
-        V 662
-        Q 988 688 962 688
-        H 36
-        Q 12 688 12 664
-        V 36
-        Q 12 12 36 12
-        Z"
-      fill="none"
-      stroke="#9384ff"
-      stroke-opacity="0.26"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"
-    />
-  </svg>
-
   <img class="screen-sitter sitter-aki" src="aki_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
@@ -2387,76 +2236,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="mjScreen" class="screen hidden">
-  <svg class="jdr-shape-layer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="shapeFill" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0d1733" stop-opacity="0.97"/>
-        <stop offset="100%" stop-color="#070d20" stop-opacity="0.985"/>
-      </linearGradient>
-      <linearGradient id="shapeStroke" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#6f7cff"/>
-        <stop offset="55%" stop-color="#9876ff"/>
-        <stop offset="100%" stop-color="#6270e8"/>
-      </linearGradient>
-      <filter id="shapeGlow" x="-10%" y="-10%" width="120%" height="120%">
-        <feGaussianBlur stdDeviation="1.6" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <path class="jdr-shape-fill"
-      d="
-        M 28 2
-        H 640
-        Q 675 2 690 30
-        Q 705 58 738 58
-        H 760
-        Q 782 58 782 80
-        V 270
-        Q 782 300 812 300
-        H 968
-        Q 998 300 998 330
-        V 672
-        Q 998 698 972 698
-        H 28
-        Q 2 698 2 672
-        V 28
-        Q 2 2 28 2
-        Z"
-      fill="url(#shapeFill)"
-      stroke="url(#shapeStroke)"
-      stroke-width="2"
-      vector-effect="non-scaling-stroke"
-      filter="url(#shapeGlow)"
-    />
-
-    <path
-      d="
-        M 36 12
-        H 634
-        Q 665 12 678 36
-        Q 692 66 730 66
-        H 752
-        Q 772 66 772 86
-        V 264
-        Q 772 310 818 310
-        H 960
-        Q 988 310 988 338
-        V 662
-        Q 988 688 962 688
-        H 36
-        Q 12 688 12 664
-        V 36
-        Q 12 12 36 12
-        Z"
-      fill="none"
-      stroke="#9384ff"
-      stroke-opacity="0.26"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"
-    />
-  </svg>
-
   <img class="screen-sitter sitter-inari" src="inari_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
@@ -2615,76 +2394,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="charactersScreen" class="screen hidden">
-  <svg class="jdr-shape-layer" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true">
-    <defs>
-      <linearGradient id="shapeFill" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0d1733" stop-opacity="0.97"/>
-        <stop offset="100%" stop-color="#070d20" stop-opacity="0.985"/>
-      </linearGradient>
-      <linearGradient id="shapeStroke" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#6f7cff"/>
-        <stop offset="55%" stop-color="#9876ff"/>
-        <stop offset="100%" stop-color="#6270e8"/>
-      </linearGradient>
-      <filter id="shapeGlow" x="-10%" y="-10%" width="120%" height="120%">
-        <feGaussianBlur stdDeviation="1.6" result="b"/>
-        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-
-    <path class="jdr-shape-fill"
-      d="
-        M 28 2
-        H 640
-        Q 675 2 690 30
-        Q 705 58 738 58
-        H 760
-        Q 782 58 782 80
-        V 270
-        Q 782 300 812 300
-        H 968
-        Q 998 300 998 330
-        V 672
-        Q 998 698 972 698
-        H 28
-        Q 2 698 2 672
-        V 28
-        Q 2 2 28 2
-        Z"
-      fill="url(#shapeFill)"
-      stroke="url(#shapeStroke)"
-      stroke-width="2"
-      vector-effect="non-scaling-stroke"
-      filter="url(#shapeGlow)"
-    />
-
-    <path
-      d="
-        M 36 12
-        H 634
-        Q 665 12 678 36
-        Q 692 66 730 66
-        H 752
-        Q 772 66 772 86
-        V 264
-        Q 772 310 818 310
-        H 960
-        Q 988 310 988 338
-        V 662
-        Q 988 688 962 688
-        H 36
-        Q 12 688 12 664
-        V 36
-        Q 12 12 36 12
-        Z"
-      fill="none"
-      stroke="#9384ff"
-      stroke-opacity="0.26"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"
-    />
-  </svg>
-
   <img class="screen-sitter sitter-lisanna" src="lisanna_assis.png" alt="" aria-hidden="true">
   <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
