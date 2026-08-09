@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.9.4</title>
+<title>JDR Dreyard - V1.9.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3062,6 +3062,155 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* =========================================================
+   V1.9.5 — MOBILE : ancienne branche SVG désactivée.
+   Nouvelle mini-branche CSS directement sous le personnage.
+   ========================================================= */
+@media (max-width:760px){
+
+  .mobile-sakura-branch{
+    display:block!important;
+    position:absolute!important;
+    left:auto!important;
+    right:6px!important;
+    top:96px!important;
+    width:82px!important;
+    height:24px!important;
+    margin:0!important;
+    padding:0!important;
+    z-index:28!important;
+    pointer-events:none!important;
+    overflow:visible!important;
+    transform:none!important;
+
+    /* branche principale */
+    background:
+      linear-gradient(174deg,
+        transparent 0 34%,
+        #704238 35% 48%,
+        #4d2b27 49% 58%,
+        transparent 59% 100%)!important;
+  }
+
+  /* On CACHE complètement l'ancien SVG qui causait la longue branche */
+  .mobile-sakura-branch svg{
+    display:none!important;
+  }
+
+  /* petite branche secondaire */
+  .mobile-sakura-branch::before{
+    display:block!important;
+    content:""!important;
+    position:absolute!important;
+    right:24px!important;
+    top:-7px!important;
+    width:32px!important;
+    height:18px!important;
+    border-top:4px solid #63372f!important;
+    border-radius:50%!important;
+    transform:rotate(-25deg)!important;
+    background:transparent!important;
+  }
+
+  /* fleurs concentrées uniquement sous le perso */
+  .mobile-sakura-branch::after{
+    display:block!important;
+    content:"✿  ✿"!important;
+    position:absolute!important;
+    right:8px!important;
+    top:-12px!important;
+    color:#f2a9cb!important;
+    font-size:13px!important;
+    line-height:1!important;
+    letter-spacing:5px!important;
+    text-shadow:0 0 5px rgba(255,194,222,.5)!important;
+    background:transparent!important;
+    width:auto!important;
+    height:auto!important;
+    animation:none!important;
+    transform:none!important;
+    border-radius:0!important;
+  }
+
+  /* Personnages : coin supérieur droit */
+  #charactersScreen .sitter-lisanna{
+    right:8px!important;
+    top:7px!important;
+    width:92px!important;
+    max-width:92px!important;
+    z-index:30!important;
+  }
+
+  #gamesScreen .sitter-aki{
+    right:12px!important;
+    top:12px!important;
+    width:78px!important;
+    max-width:78px!important;
+    z-index:30!important;
+  }
+
+  #mjScreen .sitter-inari{
+    right:6px!important;
+    top:4px!important;
+    width:96px!important;
+    max-width:96px!important;
+    z-index:30!important;
+  }
+
+  #multiplayerScreen .sitter-melusine{
+    right:8px!important;
+    top:8px!important;
+    width:90px!important;
+    max-width:90px!important;
+    z-index:30!important;
+  }
+
+  /* Titres mobiles : une vraie zone à gauche, sans collision avec la déco */
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    display:grid!important;
+    grid-template-columns:150px minmax(0,1fr) 96px!important;
+    align-items:start!important;
+    column-gap:8px!important;
+    min-height:126px!important;
+    padding:0!important;
+  }
+
+  #charactersScreen .topbar-title,
+  #gamesScreen .topbar-title,
+  #mjScreen .topbar-title,
+  #multiplayerScreen .topbar-title{
+    grid-column:2!important;
+    min-width:0!important;
+    padding:0!important;
+    margin:0!important;
+  }
+
+  #charactersScreen .topbar h1,
+  #gamesScreen .topbar h1,
+  #mjScreen .topbar h1,
+  #multiplayerScreen .topbar h1{
+    font-size:25px!important;
+    line-height:1.04!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    word-break:keep-all!important;
+  }
+
+  #charactersScreen .eyebrow,
+  #gamesScreen .eyebrow,
+  #mjScreen .eyebrow,
+  #multiplayerScreen .eyebrow{
+    font-size:8px!important;
+    letter-spacing:2px!important;
+    white-space:normal!important;
+    max-width:140px!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3083,7 +3232,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.9.4</div>
+    <div class="version">VERSION 1.9.5</div>
   </div>
 </div>
 
