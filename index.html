@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.7.1</title>
+<title>JDR Dreyard - V1.7.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1838,6 +1838,93 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   .jdr-nav-btn span{font-size:16px}
 }
 
+
+/* V1.7.2 — PERSONNAGES ASSIS SUR LA VRAIE FENÊTRE DU JDR */
+/* Plus aucune barre artificielle devant eux */
+.jdr-presenter::after,
+.jdr-mj-presenter::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Les personnages sont posés DIRECTEMENT sur le bord/angle de la vraie fenêtre */
+.presenter-art{
+  top:-72px!important;
+  right:-8px!important;
+  width:350px!important;
+  height:470px!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  background:transparent!important;
+  padding:0!important;
+}
+
+.presenter-art img{
+  opacity:1!important;
+  mix-blend-mode:normal!important;
+  object-fit:contain!important;
+  object-position:center top!important;
+  filter:
+    drop-shadow(0 14px 22px rgba(0,0,0,.52))
+    drop-shadow(0 0 5px rgba(166,184,255,.12))!important;
+}
+
+/* Ajustement individuel pour qu'ils paraissent réellement assis sur l'angle */
+.presenter-lisanna .presenter-art{
+  top:-66px!important;
+  right:-14px!important;
+}
+.presenter-lisanna .presenter-art img{
+  max-height:430px!important;
+  max-width:310px!important;
+}
+
+.presenter-aki .presenter-art{
+  top:-36px!important;
+  right:-5px!important;
+}
+.presenter-aki .presenter-art img{
+  max-height:360px!important;
+  max-width:255px!important;
+}
+
+.presenter-melusine .presenter-art{
+  top:-58px!important;
+  right:-6px!important;
+}
+.presenter-melusine .presenter-art img{
+  max-height:425px!important;
+  max-width:300px!important;
+}
+
+#mjScreen .jdr-mj-presenter .presenter-art{
+  top:-50px!important;
+  right:-10px!important;
+  width:300px!important;
+  height:390px!important;
+}
+#mjScreen .jdr-mj-presenter .presenter-art img{
+  max-height:380px!important;
+  max-width:280px!important;
+}
+
+/* Le bord de la fenêtre reste visible derrière le personnage */
+.jdr-presenter-panel::before,
+.multiplayer-card.jdr-presenter-panel::before,
+#mjScreen .jdr-mj-presenter::before{
+  z-index:1!important;
+}
+
+/* Les personnages sont au-dessus du cadre, mais ne bloquent aucun clic */
+.jdr-presenter,
+.jdr-presenter *,
+.jdr-mj-presenter,
+.jdr-mj-presenter *{
+  pointer-events:none!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1859,7 +1946,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.7.1</div>
+    <div class="version">VERSION 1.7.2</div>
   </div>
 </div>
 
@@ -1944,7 +2031,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
     </div>
     <aside class="jdr-presenter">
-      <div class="presenter-art"><img src="melusine.png" alt=""></div>
+      <div class="presenter-art"><img src="melusine_assise.png" alt=""></div>
       
     </aside>
 </div>
@@ -1970,7 +2057,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <div id="gameGrid" class="game-grid"></div>
     </div>
     <aside class="jdr-presenter">
-      <div class="presenter-art"><img src="aki.png" alt=""></div>
+      <div class="presenter-art"><img src="aki_assise.png" alt=""></div>
       
     </aside>
   </section>
@@ -2003,7 +2090,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
           <div id="mjMembers" class="mj-members"></div>
         </div>
         <aside class="jdr-mj-presenter">
-          <div class="presenter-art"><img src="inari.png" alt=""></div>
+          <div class="presenter-art"><img src="inari_assise.png" alt=""></div>
           
         </aside>
       </div>
@@ -2161,7 +2248,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
 
     <aside class="jdr-presenter">
-      <div class="presenter-art"><img src="lisanna.png" alt=""></div>
+      <div class="presenter-art"><img src="lisanna_assise.png" alt=""></div>
       
     </aside>
   </section>
