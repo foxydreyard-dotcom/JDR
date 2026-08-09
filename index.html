@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.6.9</title>
+<title>JDR Dreyard - V1.7.0</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1369,245 +1369,395 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 }
 
 
-/* V1.6.8 — PERSONNAGES PRÉSENTATEURS INTÉGRÉS AUX VRAIES FENÊTRES DU JDR */
 
-/* panneau existant + colonne personnage intégrée */
+/* V1.7.0 — FENÊTRES JDR "SANCTUAIRE DE LA LUNE" AVEC PERSONNAGES INTÉGRÉS */
+
+/* =========================================================
+   STRUCTURE COMMUNE : une vraie grande fenêtre JDR
+   ========================================================= */
 .jdr-presenter-panel{
+  position:relative;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 230px;
-  gap:22px;
-  align-items:stretch;
-  position:relative;
-}
-
-.jdr-presenter-content{
-  min-width:0;
-}
-
-.jdr-presenter{
-  position:relative;
-  min-height:360px;
-  border-left:1px solid rgba(95,111,166,.30);
+  grid-template-columns:minmax(0,1fr) 250px;
+  gap:0;
+  overflow:visible;
+  border:1px solid rgba(92,107,193,.68);
+  border-radius:26px;
   background:
-    radial-gradient(circle at 55% 18%,rgba(139,154,229,.12),transparent 28%),
-    linear-gradient(180deg,rgba(11,17,32,.18),rgba(11,17,32,.02));
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  align-items:center;
-  overflow:hidden;
-  border-radius:0 16px 16px 0;
+    radial-gradient(circle at 86% 2%,rgba(102,117,211,.12),transparent 25%),
+    linear-gradient(160deg,rgba(12,20,43,.96),rgba(7,13,30,.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.015),
+    inset 0 0 44px rgba(49,64,135,.07),
+    0 18px 44px rgba(0,0,0,.24);
+  min-height:520px;
 }
 
-.presenter-art{
-  width:100%;
-  flex:1;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  padding:10px 8px 0;
-  overflow:hidden;
-}
-
-.presenter-art img{
-  display:block;
-  width:auto;
-  height:auto;
-  max-width:205px;
-  max-height:315px;
-  object-fit:contain;
-  object-position:center bottom;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.35));
-}
-
-.presenter-caption{
-  width:100%;
-  padding:12px 14px 14px;
-  border-top:1px solid rgba(95,111,166,.25);
-  background:linear-gradient(180deg,rgba(16,23,42,.76),rgba(12,18,33,.92));
-  text-align:center;
-}
-
-.presenter-caption strong{
-  display:block;
-  color:#f3f5ff;
-  font-size:14px;
-  margin-bottom:3px;
-}
-
-.presenter-caption span{
-  display:block;
-  color:#9aa6d5;
-  font-size:11px;
-  line-height:1.4;
-}
-
-/* Personnages : Lisanna fait partie du panneau où les fiches apparaissent */
-#charactersScreen .jdr-presenter-panel{
-  padding:0;
-}
-#charactersScreen .jdr-presenter-content{
-  min-width:0;
-}
-#charactersScreen .presenter-lisanna .jdr-presenter{
-  min-height:430px;
-}
-
-/* Multijoueur : Melusine est dans la même carte que Créer/Rejoindre */
-.multiplayer-card.jdr-presenter-panel{
-  max-width:1040px;
-  grid-template-columns:minmax(0,1fr) 240px;
-  padding:0;
-  overflow:hidden;
-}
-.multiplayer-card.jdr-presenter-panel > .jdr-presenter-content{
-  padding:24px;
-}
-.multiplayer-card.jdr-presenter-panel .jdr-presenter{
-  min-height:100%;
-}
-
-/* Parties : Aki reste dans la vraie zone des cartes de parties */
-#gamesScreen .jdr-presenter-panel{
-  grid-template-columns:minmax(0,1fr) 220px;
-}
-#gamesScreen .jdr-presenter{
-  min-height:350px;
-  border:1px solid var(--border);
-  border-radius:18px;
-  background:linear-gradient(145deg,#151c30,#0d1221);
-}
-#gamesScreen .presenter-art img{
-  max-height:260px;
-  max-width:185px;
-}
-
-/* MJ : Inari est intégrée dans la première carte Groupe */
-.jdr-mj-presenter-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 190px;
-  gap:16px;
-  align-items:stretch;
-}
-.jdr-mj-presenter-content{min-width:0}
-.jdr-mj-presenter{
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  min-height:260px;
-  overflow:hidden;
-  border-left:1px solid rgba(95,111,166,.26);
-  background:linear-gradient(180deg,rgba(23,32,56,.35),rgba(12,18,33,.06));
-  border-radius:0 12px 12px 0;
-}
-.jdr-mj-presenter .presenter-art img{
-  max-height:220px;
-  max-width:165px;
-}
-
-/* Aucun personnage ne bloque les contrôles */
-.jdr-presenter,
-.jdr-mj-presenter,
-.presenter-art,
-.presenter-art img{
+/* Encoche visuelle haute droite, comme la maquette validée */
+.jdr-presenter-panel::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  right:0;
+  top:0;
+  width:270px;
+  height:165px;
+  border-left:1px solid rgba(92,107,193,.68);
+  border-bottom:1px solid rgba(92,107,193,.68);
+  border-radius:0 25px 0 28px;
+  background:
+    radial-gradient(circle at 72% 25%,rgba(241,245,255,.96) 0 6%,transparent 6.5%),
+    radial-gradient(circle at 12% 80%,rgba(104,75,151,.13),transparent 35%),
+    linear-gradient(180deg,rgba(9,18,45,.90),rgba(8,14,33,.78));
+  box-shadow:inset 0 0 26px rgba(112,127,219,.10);
   pointer-events:none;
 }
 
-/* Responsive */
-@media(max-width:1000px){
-  .jdr-presenter-panel{
-    grid-template-columns:minmax(0,1fr) 170px;
-  }
-  .multiplayer-card.jdr-presenter-panel{
-    grid-template-columns:minmax(0,1fr) 175px;
-  }
-  .presenter-art img{
-    max-width:155px;
-    max-height:250px;
-  }
-  .jdr-mj-presenter-row{
-    grid-template-columns:minmax(0,1fr) 150px;
-  }
-}
-
-@media(max-width:760px){
-  .jdr-presenter-panel,
-  .multiplayer-card.jdr-presenter-panel,
-  .jdr-mj-presenter-row{
-    grid-template-columns:1fr;
-  }
-
-  .jdr-presenter,
-  .jdr-mj-presenter{
-    min-height:190px!important;
-    border-left:0;
-    border-top:1px solid rgba(95,111,166,.25);
-    border-radius:0 0 14px 14px;
-  }
-
-  .presenter-art{
-    height:150px;
-    flex:none;
-  }
-
-  .presenter-art img{
-    max-height:165px!important;
-    max-width:145px!important;
-  }
-}
-
-
-/* V1.6.9 — personnages opaques intégrés à la fenêtre JDR */
-.jdr-presenter,
-.jdr-mj-presenter{
-  background:
-    radial-gradient(circle at 50% 18%,rgba(132,151,235,.18),transparent 34%),
-    linear-gradient(180deg,rgba(18,27,49,.96),rgba(10,16,30,.98))!important;
-  border-left:1px solid rgba(104,124,190,.48)!important;
-  box-shadow:inset 0 0 32px rgba(89,106,177,.08);
-}
-
-.presenter-art{
-  position:relative;
+/* Mini étoiles décoratives dans l'encoche */
+.jdr-presenter-panel::after{
+  content:"✦  ·  ✧  ·  ✦";
+  position:absolute;
   z-index:1;
-  background:
-    linear-gradient(180deg,rgba(20,29,52,.72),rgba(13,20,37,.24));
+  top:22px;
+  right:62px;
+  color:rgba(214,222,255,.76);
+  letter-spacing:9px;
+  font-size:10px;
+  text-shadow:0 0 9px rgba(144,163,255,.72);
+  pointer-events:none;
+}
+
+.jdr-presenter-content{
+  position:relative;
+  z-index:2;
+  min-width:0;
+  padding:28px;
+}
+
+/* Le personnage est réellement dans le bord de la fenêtre JDR */
+.jdr-presenter{
+  position:relative;
+  z-index:4;
+  min-height:500px;
+  pointer-events:none;
+  overflow:visible;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+
+/* La zone image déborde légèrement de la fenêtre comme dans la référence */
+.presenter-art{
+  position:absolute;
+  z-index:5;
+  top:-25px;
+  right:-10px;
+  width:280px;
+  height:455px;
+  overflow:visible;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:0!important;
+  background:transparent!important;
 }
 
 .presenter-art::after{
   content:"";
   position:absolute;
-  left:12%;
-  right:12%;
-  bottom:9px;
-  height:16px;
-  border-radius:50%;
-  background:rgba(3,7,16,.42);
-  filter:blur(8px);
   z-index:-1;
+  left:35px;
+  right:30px;
+  bottom:18px;
+  height:20px;
+  border-radius:50%;
+  background:rgba(0,0,0,.40);
+  filter:blur(11px);
 }
 
 .presenter-art img{
   opacity:1!important;
-  filter:
-    drop-shadow(0 12px 18px rgba(0,0,0,.48))
-    drop-shadow(0 0 5px rgba(184,198,255,.12))!important;
   mix-blend-mode:normal!important;
-  image-rendering:auto;
+  display:block;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  object-position:center top;
+  filter:
+    drop-shadow(0 13px 20px rgba(0,0,0,.52))
+    drop-shadow(0 0 4px rgba(174,190,255,.13))!important;
+  pointer-events:none;
+  user-select:none;
 }
 
-.presenter-caption{
+/* Faux rebord intégré de la fenêtre sous le personnage */
+.jdr-presenter::after{
+  content:"";
+  position:absolute;
+  z-index:6;
+  right:-6px;
+  top:142px;
+  width:252px;
+  height:17px;
+  border-radius:8px 0 0 8px;
+  border:1px solid rgba(110,128,202,.72);
+  background:linear-gradient(180deg,#6875a5,#344166 55%,#222c49);
+  box-shadow:
+    0 7px 15px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+/* =========================================================
+   PERSONNAGES : LISANNA
+   ========================================================= */
+#charactersScreen .presenter-lisanna{
+  margin-top:4px;
+}
+#charactersScreen .presenter-lisanna .presenter-art img{
+  max-height:420px!important;
+  max-width:250px!important;
+}
+#charactersScreen .presenter-lisanna .jdr-presenter::after{
+  top:148px;
+}
+
+/* Le bouton Créer reste dans la vraie zone fonctionnelle */
+#charactersScreen .character-header{
+  margin-bottom:24px;
+  padding-right:0;
+}
+#charactersScreen .character-grid{
   position:relative;
   z-index:3;
-  background:linear-gradient(180deg,rgba(19,28,50,.98),rgba(10,16,30,.99))!important;
-  border-top:1px solid rgba(104,124,190,.40)!important;
 }
 
-/* davantage de présence visuelle, sans masquer les vrais contrôles */
-.presenter-lisanna .presenter-art img{max-height:330px!important;max-width:218px!important}
-.presenter-melusine .presenter-art img{max-height:330px!important;max-width:215px!important}
-.presenter-aki .presenter-art img{max-height:275px!important;max-width:195px!important}
-.jdr-mj-presenter .presenter-art img{max-height:240px!important;max-width:180px!important}
+/* =========================================================
+   PARTIES : AKI
+   ========================================================= */
+#gamesScreen .presenter-aki{
+  min-height:470px;
+}
+#gamesScreen .presenter-aki .presenter-art{
+  top:-6px;
+}
+#gamesScreen .presenter-aki .presenter-art img{
+  max-height:330px!important;
+  max-width:220px!important;
+}
+#gamesScreen .presenter-aki .jdr-presenter::after{
+  top:135px;
+}
+
+/* =========================================================
+   MULTIJOUEUR : MELUSINE
+   ========================================================= */
+.multiplayer-card.jdr-presenter-panel{
+  max-width:1180px!important;
+  margin:0 auto;
+  padding:0!important;
+  min-height:520px;
+  grid-template-columns:minmax(0,1fr) 270px;
+  overflow:visible;
+}
+.multiplayer-card.jdr-presenter-panel > .jdr-presenter-content{
+  padding:30px!important;
+}
+.presenter-melusine .presenter-art img{
+  max-height:420px!important;
+  max-width:245px!important;
+}
+.presenter-melusine .jdr-presenter::after{
+  top:150px;
+}
+
+/* =========================================================
+   MJ : INARI
+   ========================================================= */
+.jdr-mj-presenter-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 215px;
+  gap:0;
+  position:relative;
+  overflow:visible;
+}
+.jdr-mj-presenter-content{
+  min-width:0;
+  padding-right:12px;
+}
+.jdr-mj-presenter{
+  position:relative;
+  min-height:330px;
+  overflow:visible;
+  border:0!important;
+  background:transparent!important;
+  pointer-events:none;
+}
+.jdr-mj-presenter::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  right:-15px;
+  top:-18px;
+  width:225px;
+  height:132px;
+  border-left:1px solid rgba(92,107,193,.52);
+  border-bottom:1px solid rgba(92,107,193,.52);
+  border-radius:0 15px 0 24px;
+  background:
+    radial-gradient(circle at 78% 24%,rgba(240,244,255,.92) 0 6%,transparent 6.5%),
+    linear-gradient(180deg,rgba(10,18,42,.86),rgba(8,14,31,.62));
+}
+.jdr-mj-presenter .presenter-art{
+  top:-48px;
+  right:-18px;
+  width:235px;
+  height:335px;
+}
+.jdr-mj-presenter .presenter-art img{
+  max-height:310px!important;
+  max-width:205px!important;
+}
+.jdr-mj-presenter::after{
+  content:"";
+  position:absolute;
+  z-index:6;
+  right:-15px;
+  top:104px;
+  width:220px;
+  height:15px;
+  border-radius:7px 0 0 7px;
+  border:1px solid rgba(110,128,202,.68);
+  background:linear-gradient(180deg,#66749e,#313e61 58%,#202942);
+  box-shadow:0 6px 14px rgba(0,0,0,.30);
+}
+
+/* =========================================================
+   TITRES / COULEUR, sans casser l'app
+   ========================================================= */
+.jdr-presenter-panel h2,
+.jdr-presenter-panel h3{
+  position:relative;
+  z-index:3;
+}
+.jdr-presenter-panel button,
+.jdr-presenter-panel input,
+.jdr-presenter-panel select,
+.jdr-presenter-panel textarea{
+  position:relative;
+  z-index:8;
+}
+
+/* Tout le décor reste non cliquable */
+.jdr-presenter,
+.jdr-presenter *,
+.jdr-mj-presenter,
+.jdr-mj-presenter *{
+  pointer-events:none!important;
+}
+
+/* Le contenu fonctionnel reste toujours accessible */
+.jdr-presenter-content,
+.jdr-mj-presenter-content{
+  pointer-events:auto;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media(max-width:1050px){
+  .jdr-presenter-panel,
+  .multiplayer-card.jdr-presenter-panel{
+    grid-template-columns:minmax(0,1fr) 190px;
+  }
+
+  .jdr-presenter-panel::before{
+    width:205px;
+    height:140px;
+  }
+
+  .presenter-art{
+    width:205px;
+    height:340px;
+    right:-5px;
+  }
+
+  .presenter-art img{
+    max-height:320px!important;
+    max-width:185px!important;
+  }
+
+  .jdr-presenter::after{
+    width:190px;
+  }
+}
+
+@media(max-width:760px){
+  .jdr-presenter-panel,
+  .multiplayer-card.jdr-presenter-panel{
+    grid-template-columns:1fr;
+    padding-top:150px;
+  }
+
+  .jdr-presenter-panel::before{
+    width:100%;
+    height:140px;
+    border-left:0;
+    border-radius:25px 25px 0 0;
+  }
+
+  .jdr-presenter{
+    position:absolute;
+    right:8px;
+    top:0;
+    width:170px;
+    min-height:145px;
+  }
+
+  .presenter-art{
+    top:-12px;
+    right:0;
+    width:165px;
+    height:160px;
+  }
+
+  .presenter-art img{
+    max-height:160px!important;
+    max-width:150px!important;
+  }
+
+  .jdr-presenter::after{
+    top:112px!important;
+    right:0;
+    width:160px;
+  }
+
+  .jdr-mj-presenter-row{
+    grid-template-columns:1fr;
+    padding-top:125px;
+  }
+
+  .jdr-mj-presenter{
+    position:absolute;
+    right:0;
+    top:0;
+    width:155px;
+    min-height:120px;
+  }
+
+  .jdr-mj-presenter .presenter-art{
+    width:150px;
+    height:140px;
+    top:-15px;
+  }
+
+  .jdr-mj-presenter .presenter-art img{
+    max-height:145px!important;
+    max-width:140px!important;
+  }
+}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1630,7 +1780,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.6.9</div>
+    <div class="version">VERSION 1.7.0</div>
   </div>
 </div>
 
@@ -1716,10 +1866,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
     <aside class="jdr-presenter">
       <div class="presenter-art"><img src="melusine.png" alt=""></div>
-      <div class="presenter-caption">
-        <strong>Melusine</strong>
-        <span>« Retrouve les autres joueurs ici. »</span>
-      </div>
+      
     </aside>
 </div>
 </div>
@@ -1739,10 +1886,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
     <aside class="jdr-presenter">
       <div class="presenter-art"><img src="aki.png" alt=""></div>
-      <div class="presenter-caption">
-        <strong>Aki</strong>
-        <span>« Choisis une partie à rejoindre. »</span>
-      </div>
+      
     </aside>
   </section>
 </div>
@@ -1769,10 +1913,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
         </div>
         <aside class="jdr-mj-presenter">
           <div class="presenter-art"><img src="inari.png" alt=""></div>
-          <div class="presenter-caption">
-            <strong>Inari</strong>
-            <span>« Je garde un œil sur le groupe. »</span>
-          </div>
+          
         </aside>
       </div>
     </section>
@@ -1930,10 +2071,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
     <aside class="jdr-presenter">
       <div class="presenter-art"><img src="lisanna.png" alt=""></div>
-      <div class="presenter-caption">
-        <strong>Lisanna</strong>
-        <span>« Voici tes aventuriers. »</span>
-      </div>
+      
     </aside>
   </section>
 </div>
