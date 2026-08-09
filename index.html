@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.7.6</title>
+<title>JDR Dreyard - V1.7.7</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1802,6 +1802,137 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* V1.7.7 — FIX : le personnage peut dépasser de la fenêtre sans être coupé */
+
+/* IMPORTANT : on ne clippe plus l'écran lui-même */
+#charactersScreen,
+#gamesScreen,
+#multiplayerScreen,
+#mjScreen{
+  clip-path:none!important;
+  overflow:visible!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  isolation:isolate;
+}
+
+/* La FORME de la fenêtre est maintenant portée par un calque derrière le contenu.
+   Ainsi le personnage peut dépasser sans être découpé. */
+#charactersScreen::before,
+#gamesScreen::before,
+#multiplayerScreen::before,
+#mjScreen::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+
+  background:
+    radial-gradient(circle at 80% 8%,rgba(88,78,255,.13),transparent 27%),
+    linear-gradient(145deg,rgba(8,16,38,.96),rgba(4,10,27,.98))!important;
+
+  border:1px solid rgba(103,115,214,.80)!important;
+  border-radius:28px!important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(110,126,255,.10),
+    inset 0 0 42px rgba(73,83,190,.05),
+    0 18px 45px rgba(0,0,0,.24)!important;
+
+  /* le décroché reste sur le CALQUE, pas sur l'écran */
+  clip-path:polygon(
+    0 0,
+    72% 0,
+    72% 16%,
+    100% 16%,
+    100% 100%,
+    0 100%
+  )!important;
+}
+
+/* Le contenu réel reste devant */
+#charactersScreen > :not(.screen-sitter),
+#gamesScreen > :not(.screen-sitter),
+#multiplayerScreen > :not(.screen-sitter),
+#mjScreen > :not(.screen-sitter){
+  position:relative!important;
+  z-index:2!important;
+}
+
+/* Le personnage est au-dessus de tout et n'est plus coupé */
+.screen-sitter{
+  z-index:50!important;
+  pointer-events:none!important;
+  transform:none!important;
+}
+
+/* placement sur le décroché */
+.sitter-lisanna{
+  top:-34px!important;
+  right:8px!important;
+  max-width:300px!important;
+  max-height:350px!important;
+}
+
+.sitter-aki{
+  top:-10px!important;
+  right:24px!important;
+  max-width:220px!important;
+  max-height:285px!important;
+}
+
+.sitter-inari{
+  top:-42px!important;
+  right:6px!important;
+  max-width:315px!important;
+  max-height:365px!important;
+}
+
+.sitter-melusine{
+  top:-34px!important;
+  right:8px!important;
+  max-width:300px!important;
+  max-height:350px!important;
+}
+
+/* on laisse de l'espace dans le header sans masquer le bouton */
+#charactersScreen .topbar,
+#gamesScreen .topbar,
+#multiplayerScreen .topbar,
+#mjScreen .topbar{
+  padding-right:315px!important;
+}
+
+/* garde le responsive propre */
+@media(max-width:1050px){
+  .screen-sitter{
+    max-width:220px!important;
+    max-height:260px!important;
+  }
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #multiplayerScreen .topbar,
+  #mjScreen .topbar{
+    padding-right:225px!important;
+  }
+}
+
+@media(max-width:760px){
+  .screen-sitter{
+    display:none!important;
+  }
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #multiplayerScreen .topbar,
+  #mjScreen .topbar{
+    padding-right:0!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1823,7 +1954,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.7.6</div>
+    <div class="version">VERSION 1.7.7</div>
   </div>
 </div>
 
