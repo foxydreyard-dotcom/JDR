@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.9.1</title>
+<title>JDR Dreyard - V1.9.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2782,6 +2782,57 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* V1.9.2 — MOBILE : branche alignée du MÊME côté que le personnage */
+@media (max-width:760px){
+
+  .mobile-sakura-branch{
+    left:auto!important;
+    right:0!important;
+    top:72px!important;
+    width:145px!important;
+    height:54px!important;
+    transform:none!important;
+    transform-origin:right center!important;
+  }
+
+  /* Lisanna */
+  #charactersScreen .mobile-sakura-branch{
+    right:0!important;
+    top:72px!important;
+  }
+
+  /* Aki */
+  #gamesScreen .mobile-sakura-branch{
+    right:2px!important;
+    top:72px!important;
+  }
+
+  /* Inari */
+  #mjScreen .mobile-sakura-branch{
+    right:0!important;
+    top:72px!important;
+  }
+
+  /* Melusine */
+  #multiplayerScreen .mobile-sakura-branch{
+    right:0!important;
+    top:72px!important;
+  }
+
+  /* Le personnage reste au-dessus de SA branche */
+  #charactersScreen .screen-sitter,
+  #gamesScreen .screen-sitter,
+  #mjScreen .screen-sitter,
+  #multiplayerScreen .screen-sitter{
+    z-index:22!important;
+  }
+
+  .mobile-sakura-branch{
+    z-index:20!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2803,7 +2854,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.9.1</div>
+    <div class="version">VERSION 1.9.2</div>
   </div>
 </div>
 
