@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.8.8</title>
+<title>JDR Dreyard - V1.9.0</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2305,6 +2305,323 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   display:none!important;
 }
 
+
+/* =========================================================
+   V1.9.0 — MODE TÉLÉPHONE UNIQUEMENT
+   Tout ce bloc s'applique SEULEMENT sous 760px.
+   Le rendu PC reste strictement inchangé.
+   ========================================================= */
+@media (max-width: 760px){
+
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:hidden!important;
+  }
+
+  body{
+    min-height:100dvh!important;
+  }
+
+  /* Écrans principaux plein téléphone */
+  #homeScreen,
+  #charactersScreen,
+  #characterScreen,
+  #gamesScreen,
+  #mjScreen,
+  #multiplayerScreen,
+  #settingsScreen{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:14px 12px 28px!important;
+    min-height:100dvh!important;
+    border-radius:0!important;
+    overflow:visible!important;
+  }
+
+  /* Sur téléphone, on simplifie la grande silhouette spéciale
+     pour éviter les découpes hors écran. */
+  #charactersScreen,
+  #gamesScreen,
+  #mjScreen,
+  #multiplayerScreen{
+    background-image:none!important;
+    background:
+      linear-gradient(160deg,rgba(8,16,38,.60),rgba(4,10,27,.64))!important;
+    border:1px solid rgba(103,115,214,.65)!important;
+    border-radius:20px!important;
+    box-shadow:
+      inset 0 0 0 1px rgba(110,126,255,.08),
+      0 12px 28px rgba(0,0,0,.18)!important;
+  }
+
+  /* Topbar verticale / compacte */
+  .topbar{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    align-items:center!important;
+    gap:10px!important;
+    margin-bottom:16px!important;
+  }
+
+  .topbar-title{
+    flex:1 1 calc(100% - 120px)!important;
+    min-width:0!important;
+  }
+
+  .topbar h1{
+    font-size:30px!important;
+    line-height:1.05!important;
+    word-break:break-word!important;
+  }
+
+  .eyebrow{
+    font-size:9px!important;
+    letter-spacing:2px!important;
+  }
+
+  .back-button,
+  .save-button,
+  .secondary-button,
+  .create-character{
+    min-height:44px!important;
+    padding:10px 13px!important;
+    font-size:13px!important;
+  }
+
+  /* Personnages animés :
+     on les garde sur téléphone mais en petit, en haut à droite. */
+  .screen-sitter,
+  .sitter-video{
+    display:block!important;
+    position:absolute!important;
+    z-index:8!important;
+    top:8px!important;
+    right:8px!important;
+    width:112px!important;
+    max-width:112px!important;
+    height:auto!important;
+    max-height:150px!important;
+    object-fit:contain!important;
+    pointer-events:none!important;
+  }
+
+  /* Réserver seulement un petit coin pour la mascotte */
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    padding-right:120px!important;
+    width:100%!important;
+  }
+
+  /* Personnages — bouton et cartes */
+  #charactersScreen .character-header{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    margin-bottom:16px!important;
+  }
+
+  #charactersScreen #createCharacterBtn{
+    position:static!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+
+  #charactersScreen .jdr-presenter-content{
+    padding:12px 0 18px!important;
+  }
+
+  .character-grid,
+  .game-grid,
+  .npc-grid,
+  .mj-members{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+
+  .character-card,
+  .game-card,
+  .mj-member,
+  .npc-card,
+  .card{
+    width:100%!important;
+    min-width:0!important;
+    border-radius:16px!important;
+  }
+
+  .character-avatar{
+    width:96px!important;
+    height:96px!important;
+  }
+
+  /* Fiche personnage */
+  .hero-panel{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:16px!important;
+    padding:16px!important;
+  }
+
+  .portrait-block{
+    width:100%!important;
+  }
+
+  .portrait-frame{
+    width:150px!important;
+    height:150px!important;
+    margin:0 auto!important;
+  }
+
+  .hero-info{
+    width:100%!important;
+  }
+
+  .sheet-grid,
+  .stats-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+
+  input,
+  select,
+  textarea{
+    max-width:100%!important;
+  }
+
+  /* Multijoueur */
+  .multiplayer-card,
+  .multiplayer-card.jdr-presenter-panel{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:12px!important;
+  }
+
+  .multiplayer-grid,
+  .group-settings{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+
+  .multiplayer-actions{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:10px!important;
+  }
+
+  .multiplayer-actions button{
+    width:100%!important;
+    min-width:0!important;
+  }
+
+  .room-code-box{
+    font-size:24px!important;
+    letter-spacing:3px!important;
+  }
+
+  /* Vue MJ */
+  .mj-layout{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+    margin:0!important;
+  }
+
+  .jdr-mj-presenter-row{
+    display:block!important;
+  }
+
+  .mj-controls{
+    grid-template-columns:repeat(2,1fr)!important;
+  }
+
+  .combat-board{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+
+  .combat-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+
+  .combat-actions button{
+    width:100%!important;
+  }
+
+  /* Console visuelle combat */
+  .combat-stage,
+  .visual-combat,
+  .mj-combat-layout{
+    display:block!important;
+    width:100%!important;
+  }
+
+  .fighter-grid,
+  .combat-fighters{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+
+  /* Barres et contrôles assez gros pour le tactile */
+  button,
+  input,
+  select,
+  textarea{
+    font-size:16px!important;
+  }
+
+  button{
+    touch-action:manipulation;
+  }
+
+  /* Modales */
+  .modal,
+  .modal-card,
+  .dialog-card{
+    width:calc(100% - 24px)!important;
+    max-width:none!important;
+    margin:12px!important;
+    max-height:88dvh!important;
+    overflow:auto!important;
+  }
+
+  /* Petits espacements globaux */
+  .card,
+  .multiplayer-card,
+  .game-card,
+  .character-card{
+    padding:14px!important;
+  }
+
+  /* empêcher tout débordement horizontal des enfants */
+  #charactersScreen *,
+  #gamesScreen *,
+  #mjScreen *,
+  #multiplayerScreen *,
+  #characterScreen *{
+    max-width:100%;
+    box-sizing:border-box;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2326,7 +2643,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.8.8</div>
+    <div class="version">VERSION 1.9.0</div>
   </div>
 </div>
 
