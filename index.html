@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.8.5</title>
+<title>JDR Dreyard - V1.8.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2305,6 +2305,19 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   display:none!important;
 }
 
+
+/* V1.8.6 — transparence de la fenêtre principale
+   Forme/cassure/personnages/contenu inchangés. */
+.app-shell,
+.main-shell,
+.page-shell,
+.window-shell,
+.app-window,
+.main-window,
+.game-window {
+  background-color: rgba(5, 13, 37, 0.82) !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2326,7 +2339,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.8.5</div>
+    <div class="version">VERSION 1.8.6</div>
   </div>
 </div>
 
