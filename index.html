@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.7.3</title>
+<title>JDR Dreyard - V1.7.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1371,280 +1371,250 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
-/* V1.7.3 — FENÊTRE JDR À DOUBLE DÉCROCHÉ, SANS PERSONNAGE */
 
+/* V1.7.4 — RETOUR INTERFACE V1.4 + FENÊTRES ARRONDIES */
+
+/* Écrans principaux : on conserve la logique V1.4, avec un cadre plus élégant */
 #charactersScreen,
 #gamesScreen,
 #multiplayerScreen,
 #mjScreen{
-  width:min(96%,1480px)!important;
-  max-width:1480px!important;
-  min-height:860px;
-  margin:16px auto 28px!important;
-  padding:0 0 82px!important;
+  width:94%!important;
+  max-width:1450px!important;
+  margin:22px auto 40px!important;
+  padding:28px!important;
+  min-height:760px;
   position:relative;
-  overflow:hidden;
-
-  /* Le fond général de la vraie fenêtre JDR */
+  overflow:visible;
+  border:1px solid rgba(84,102,180,.55);
+  border-radius:28px;
   background:
-    radial-gradient(circle at 82% 5%,rgba(95,112,215,.09),transparent 22%),
-    linear-gradient(155deg,rgba(8,17,43,.985),rgba(5,11,29,.995));
-
-  border:1px solid rgba(84,99,211,.84);
-  border-radius:30px;
+    linear-gradient(160deg,rgba(8,15,32,.74),rgba(7,12,26,.88));
   box-shadow:
-    inset 0 0 0 1px rgba(102,118,232,.08),
-    inset 0 0 72px rgba(51,67,162,.06),
-    0 18px 50px rgba(0,0,0,.30);
+    inset 0 0 0 1px rgba(255,255,255,.015),
+    inset 0 0 50px rgba(63,82,165,.035),
+    0 18px 45px rgba(0,0,0,.22);
 }
 
-/* bandeau supérieur */
+/* Header exactement dans l'esprit V1.4 */
 #charactersScreen .topbar,
 #gamesScreen .topbar,
 #multiplayerScreen .topbar,
 #mjScreen .topbar{
-  min-height:88px;
-  margin:0!important;
-  padding:0 28px;
-  display:flex;
-  align-items:center;
-  gap:18px;
-  border-bottom:1px solid rgba(71,86,184,.32);
-  background:
-    linear-gradient(90deg,rgba(8,17,45,.99),rgba(8,17,45,.77) 60%,rgba(13,24,57,.36));
+  display:flex!important;
+  align-items:center!important;
+  gap:20px!important;
+  min-height:0!important;
+  margin:0 0 25px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
 }
 
-/* ---------------------------------------------------------
-   LA FORME PRINCIPALE : grand panneau avec DEUX marches
-   en haut à droite.
-   --------------------------------------------------------- */
+#charactersScreen .topbar-title,
+#gamesScreen .topbar-title,
+#multiplayerScreen .topbar-title,
+#mjScreen .topbar-title{
+  display:block!important;
+  flex:1;
+}
+
+#charactersScreen .topbar .back-button,
+#gamesScreen .topbar .back-button,
+#multiplayerScreen .topbar .back-button,
+#mjScreen .topbar .back-button{
+  order:initial!important;
+  margin-left:0!important;
+  width:auto!important;
+  height:auto!important;
+  padding:12px 17px!important;
+  border-radius:10px!important;
+  border:1px solid var(--border)!important;
+  background:var(--panel)!important;
+  color:white!important;
+  position:static!important;
+}
+
+#charactersScreen .topbar .back-button::after,
+#gamesScreen .topbar .back-button::after,
+#multiplayerScreen .topbar .back-button::after,
+#mjScreen .topbar .back-button::after{
+  content:none!important;
+}
+
+#mjScreen #endSessionBtn{
+  position:static!important;
+}
+
+/* Les panneaux spéciaux redeviennent des panneaux simples V1.4 */
 .jdr-presenter-panel,
 .multiplayer-card.jdr-presenter-panel,
 #mjScreen .jdr-mj-presented-card{
+  clip-path:none!important;
+  display:block!important;
   position:relative!important;
   width:auto!important;
   max-width:none!important;
-  margin:18px 20px 0!important;
-  padding:0!important;
-  min-height:680px;
-
-  display:block!important;
-
+  min-height:0!important;
+  margin:0!important;
+  padding:22px!important;
+  border:1px solid var(--border)!important;
+  border-radius:22px!important;
   background:
-    linear-gradient(160deg,rgba(7,16,41,.96),rgba(5,12,30,.985))!important;
-
-  /* pas de bordure classique : elle est dessinée par ::before */
-  border:0!important;
-  border-radius:0!important;
-  box-shadow:none!important;
-
-  /* vraie silhouette en escalier :
-     haut horizontal -> 1ère descente -> rebord -> 2e descente -> droite */
-  clip-path:polygon(
-    0 0,
-    54% 0,
-    54% 48px,
-    72% 48px,
-    72% 122px,
-    100% 122px,
-    100% 100%,
-    0 100%
-  );
+    linear-gradient(145deg,rgba(21,28,48,.96),rgba(13,18,33,.97))!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.015),
+    0 12px 28px rgba(0,0,0,.13)!important;
 }
 
-/* bordure lumineuse qui suit exactement la même forme */
+/* Plus aucun pseudo-contour en escalier */
 .jdr-presenter-panel::before,
-.multiplayer-card.jdr-presenter-panel::before,
-#mjScreen .jdr-mj-presented-card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-
-  background:
-    linear-gradient(90deg,#6f7cff,#7a67ff) top left/54% 2px no-repeat,
-    linear-gradient(#7381ff,#7381ff) 54% 0/2px 48px no-repeat,
-    linear-gradient(90deg,#7381ff,#6b76ee) 54% 48px/18% 2px no-repeat,
-    linear-gradient(#6b76ee,#6b76ee) 72% 48px/2px 74px no-repeat,
-    linear-gradient(90deg,#6b76ee,#5969dc) 72% 122px/28% 2px no-repeat,
-    linear-gradient(#5969dc,#5969dc) top right/2px 100% no-repeat,
-    linear-gradient(90deg,#5665d4,#6573ec) bottom left/100% 2px no-repeat,
-    linear-gradient(#6573ec,#6573ec) top left/2px 100% no-repeat;
-
-  filter:
-    drop-shadow(0 0 3px rgba(105,119,255,.45))
-    drop-shadow(0 0 8px rgba(79,92,218,.20));
-}
-
-/* petite seconde ligne intérieure, comme sur la maquette */
 .jdr-presenter-panel::after,
+.multiplayer-card.jdr-presenter-panel::before,
 .multiplayer-card.jdr-presenter-panel::after,
+#mjScreen .jdr-mj-presented-card::before,
 #mjScreen .jdr-mj-presented-card::after{
-  content:"";
-  position:absolute;
-  inset:10px 12px 12px 12px;
-  z-index:0;
-  pointer-events:none;
-  opacity:.50;
-
-  background:
-    linear-gradient(90deg,#6875de,#6875de) top left/calc(54% - 12px) 1px no-repeat,
-    linear-gradient(#6875de,#6875de) calc(54% - 12px) 0/1px 38px no-repeat,
-    linear-gradient(90deg,#6875de,#6875de) calc(54% - 12px) 38px/calc(18% + 4px) 1px no-repeat,
-    linear-gradient(#6875de,#6875de) calc(72% - 8px) 38px/1px 64px no-repeat,
-    linear-gradient(90deg,#6875de,#6875de) calc(72% - 8px) 102px/calc(28% - 4px) 1px no-repeat;
-}
-
-/* le contenu reste au-dessus de la forme */
-.jdr-presenter-content,
-.jdr-mj-presenter-content{
-  position:relative;
-  z-index:2;
-  min-width:0;
-  padding:34px 30px 30px!important;
-}
-
-/* On supprime toute ancienne colonne réservée aux personnages */
-.jdr-presenter-panel,
-.multiplayer-card.jdr-presenter-panel{
-  grid-template-columns:none!important;
-}
-.jdr-presenter,
-.jdr-mj-presenter{
+  content:none!important;
   display:none!important;
 }
 
-/* Vue MJ : le contenu reprend toute la largeur */
+.jdr-presenter-content,
+.jdr-mj-presenter-content{
+  position:relative!important;
+  z-index:auto!important;
+  min-width:0;
+  padding:0!important;
+  max-width:none!important;
+  width:100%!important;
+}
+
+/* Personnages : même présentation V1.4 */
+#charactersScreen .character-header{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  margin-bottom:24px!important;
+}
+
+#charactersScreen .character-header h2{
+  font-size:24px!important;
+  color:white!important;
+}
+
+#charactersScreen .character-header h2::before{
+  content:none!important;
+}
+
+#charactersScreen #createCharacterBtn{
+  position:static!important;
+  transform:none!important;
+  min-width:0!important;
+  padding:12px 17px!important;
+  border-radius:10px!important;
+  background:var(--moon)!important;
+  color:#101426!important;
+  box-shadow:none!important;
+  font-size:14px!important;
+}
+
+#charactersScreen .character-grid{
+  min-height:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+
+#charactersScreen .character-grid:empty::before{
+  content:none!important;
+}
+
+/* Parties : V1.4 */
+#gamesScreen .jdr-presenter-content::before,
+#gamesScreen .jdr-presenter-content::after,
+#multiplayerScreen .jdr-presenter-content::before{
+  content:none!important;
+  display:none!important;
+}
+
+#gamesScreen .game-grid{
+  max-width:none!important;
+}
+
+/* Multijoueur : carte centrée façon V1.4 */
+#multiplayerScreen .multiplayer-card.jdr-presenter-panel{
+  max-width:760px!important;
+  margin:0 auto!important;
+  padding:24px!important;
+}
+
+/* MJ : retrouver la disposition V1.4 */
+#mjScreen .mj-layout{
+  margin:0!important;
+}
+
 #mjScreen .jdr-mj-presenter-row{
   display:block!important;
+  padding:0!important;
 }
+
 #mjScreen .jdr-mj-presenter-content{
-  width:100%!important;
-  padding-right:30px!important;
+  padding:0!important;
 }
 
-/* La marche droite reste vide exprès :
-   ce sera l'endroit où un personnage pourra s'asseoir plus tard. */
-.jdr-presenter-panel .character-header,
-.jdr-presenter-panel .game-grid,
-.multiplayer-card.jdr-presenter-panel > .jdr-presenter-content,
-#mjScreen .jdr-mj-presenter-content{
-  max-width:70%;
+/* Cartes internes gardent leur look V1.4, avec coins légèrement plus doux */
+#charactersScreen .character-card,
+#gamesScreen .game-card,
+#mjScreen .card,
+#multiplayerScreen .group-panel{
+  border-radius:18px!important;
 }
 
-/* Zone fonctionnelle Personnages */
-#charactersScreen .character-grid{
-  min-height:500px;
-}
-
-/* ---------------------------------------------------------
-   Navigation basse conservée
-   --------------------------------------------------------- */
+/* Pas de navigation basse */
 .jdr-bottom-nav{
+  display:none!important;
+}
+
+/* Légère lueur extérieure pour rappeler l'image, sans changer la forme V1.4 */
+#charactersScreen::before,
+#gamesScreen::before,
+#multiplayerScreen::before,
+#mjScreen::before{
+  content:"";
   position:absolute;
-  z-index:30;
-  left:20px;
-  right:20px;
-  bottom:0;
-  height:72px;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  align-items:center;
-  padding:8px 34px;
-
-  border-top:1px solid rgba(58,72,158,.62);
-  background:
-    linear-gradient(180deg,rgba(7,15,36,.94),rgba(5,11,28,.995));
+  inset:-1px;
+  pointer-events:none;
+  border-radius:28px;
+  border:1px solid rgba(103,115,214,.20);
+  box-shadow:0 0 18px rgba(64,78,170,.07);
 }
 
-.jdr-nav-btn{
-  height:54px;
-  border:1px solid transparent;
-  border-radius:12px;
-  color:#9faadd;
-  background:transparent;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  font-size:14px;
-}
-
-.jdr-nav-btn span{font-size:20px}
-
-.jdr-nav-btn.active{
-  color:#e7deff;
-  border-color:rgba(105,86,228,.58);
-  background:
-    linear-gradient(180deg,rgba(89,69,203,.38),rgba(45,34,118,.36));
-  box-shadow:
-    inset 0 0 18px rgba(101,80,227,.18),
-    0 0 15px rgba(95,75,221,.10);
-}
-
-/* responsive */
-@media(max-width:980px){
-  .jdr-presenter-panel,
-  .multiplayer-card.jdr-presenter-panel,
-  #mjScreen .jdr-mj-presented-card{
-    clip-path:polygon(
-      0 0,
-      58% 0,
-      58% 42px,
-      76% 42px,
-      76% 100px,
-      100% 100px,
-      100% 100%,
-      0 100%
-    );
-  }
-
-  .jdr-presenter-panel .character-header,
-  .jdr-presenter-panel .game-grid,
-  .multiplayer-card.jdr-presenter-panel > .jdr-presenter-content,
-  #mjScreen .jdr-mj-presenter-content{
-    max-width:76%;
-  }
-}
-
-@media(max-width:720px){
+/* Responsive */
+@media(max-width:760px){
   #charactersScreen,
   #gamesScreen,
   #multiplayerScreen,
   #mjScreen{
-    width:98%!important;
-    min-height:760px;
+    width:96%!important;
+    padding:18px!important;
     border-radius:20px;
   }
 
-  .jdr-presenter-panel,
-  .multiplayer-card.jdr-presenter-panel,
-  #mjScreen .jdr-mj-presented-card{
-    clip-path:none!important;
-    border:1px solid rgba(84,99,211,.70)!important;
-    border-radius:20px!important;
+  #charactersScreen::before,
+  #gamesScreen::before,
+  #multiplayerScreen::before,
+  #mjScreen::before{
+    border-radius:20px;
   }
 
-  .jdr-presenter-panel::before,
-  .jdr-presenter-panel::after,
-  .multiplayer-card.jdr-presenter-panel::before,
-  .multiplayer-card.jdr-presenter-panel::after,
-  #mjScreen .jdr-mj-presented-card::before,
-  #mjScreen .jdr-mj-presented-card::after{
-    display:none!important;
+  #charactersScreen .character-header{
+    align-items:flex-start!important;
+    flex-direction:column!important;
   }
 
-  .jdr-presenter-panel .character-header,
-  .jdr-presenter-panel .game-grid,
-  .multiplayer-card.jdr-presenter-panel > .jdr-presenter-content,
-  #mjScreen .jdr-mj-presenter-content{
-    max-width:100%;
-  }
-
-  .jdr-bottom-nav{
-    padding:7px 8px;
+  #charactersScreen #createCharacterBtn{
+    width:100%;
   }
 }
 
@@ -1669,7 +1639,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.7.3</div>
+    <div class="version">VERSION 1.7.4</div>
   </div>
 </div>
 
@@ -1683,7 +1653,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 <div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
-  <header class="topbar"><div class="jdr-brand"><span class="jdr-brand-moon">☾</span><span>Le Sanctuaire de la Lune</span></div><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
+  <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
   <div class="multiplayer-card jdr-presenter-panel presenter-melusine">
     <div class="jdr-presenter-content">
     <div id="multiplayerDisconnected">
@@ -1754,16 +1724,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     </div>
     </div>
 </div>
-<nav class="jdr-bottom-nav" aria-label="Navigation principale">
-<button type="button" class="jdr-nav-btn" data-jdr-nav="characters"><span>👥</span>Personnages</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="games"><span>🗡️</span>Parties</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="mj"><span>👑</span>Vue MJ</button>
-<button type="button" class="jdr-nav-btn active" data-jdr-nav="multiplayer"><span>👥</span>Multijoueur</button>
-</nav>
 </div>
 
 <div id="gamesScreen" class="screen hidden">
-  <header class="topbar"><div class="jdr-brand"><span class="jdr-brand-moon">☾</span><span>Le Sanctuaire de la Lune</span></div>
+  <header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title">
       <p class="eyebrow">Campagnes & sessions</p>
@@ -1776,16 +1740,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <div id="gameGrid" class="game-grid"></div>
     </div>
   </section>
-<nav class="jdr-bottom-nav" aria-label="Navigation principale">
-<button type="button" class="jdr-nav-btn" data-jdr-nav="characters"><span>👥</span>Personnages</button>
-<button type="button" class="jdr-nav-btn active" data-jdr-nav="games"><span>🗡️</span>Parties</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="mj"><span>👑</span>Vue MJ</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="multiplayer"><span>👥</span>Multijoueur</button>
-</nav>
 </div>
 
 <div id="mjScreen" class="screen hidden">
-  <header class="topbar"><div class="jdr-brand"><span class="jdr-brand-moon">☾</span><span>Le Sanctuaire de la Lune</span></div>
+  <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
     <div class="topbar-title">
       <p class="eyebrow">Mode maître du jeu</p>
@@ -1942,7 +1900,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="charactersScreen" class="screen hidden">
-  <header class="topbar"><div class="jdr-brand"><span class="jdr-brand-moon">☾</span><span>Le Sanctuaire de la Lune</span></div>
+  <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
   </header>
@@ -1958,12 +1916,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <div id="characterGrid" class="character-grid"></div>
     </div>
   </section>
-<nav class="jdr-bottom-nav" aria-label="Navigation principale">
-<button type="button" class="jdr-nav-btn active" data-jdr-nav="characters"><span>👥</span>Personnages</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="games"><span>🗡️</span>Parties</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="mj"><span>👑</span>Vue MJ</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="multiplayer"><span>👥</span>Multijoueur</button>
-</nav>
 </div>
 
 <div id="characterScreen" class="screen hidden">
@@ -2148,12 +2100,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     <label>Incantation<textarea id="spellIncantation"></textarea></label>
     <div class="modal-actions"><button id="cancelSpellBtn" class="secondary-button">Annuler</button><button id="confirmSpellBtn" class="save-button">Enregistrer</button></div>
   </div>
-<nav class="jdr-bottom-nav" aria-label="Navigation principale">
-<button type="button" class="jdr-nav-btn" data-jdr-nav="characters"><span>👥</span>Personnages</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="games"><span>🗡️</span>Parties</button>
-<button type="button" class="jdr-nav-btn active" data-jdr-nav="mj"><span>👑</span>Vue MJ</button>
-<button type="button" class="jdr-nav-btn" data-jdr-nav="multiplayer"><span>👥</span>Multijoueur</button>
-</nav>
 </div>
 
 
@@ -4021,22 +3967,6 @@ console.log("JDR V1.6.0 combat controls",{
   spiritPlus:!!$("mjSpiritPlus"),
   dice:document.querySelectorAll(".quick-die").length
 });
-
-
-document.querySelectorAll("[data-jdr-nav]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const target=btn.dataset.jdrNav;
-    if(target==="characters")openCharacters();
-    else if(target==="games")openGames();
-    else if(target==="multiplayer")openMultiplayer();
-    else if(target==="mj"){
-      const game=getGames().find(g=>g.id===currentGameId) || getGames()[0];
-      if(game){ currentGameId=game.id; openMJ(game.id); }
-      else openGames();
-    }
-  });
-});
-
 openHome();
 
 </script>
