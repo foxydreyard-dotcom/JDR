@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.6.0</title>
+<title>JDR Dreyard - V1.6.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1368,6 +1368,58 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   background:linear-gradient(90deg,#4e4f9a,#a5b0ff);
 }
 
+
+
+/* V1.6.2 - 4 PERSONNAGES DÉCORATIFS SUR 4 ÉCRANS */
+.interface-mascot{
+  position:absolute;
+  right:24px;
+  top:72px;
+  width:150px;
+  height:190px;
+  pointer-events:none;
+  user-select:none;
+  z-index:1;
+  opacity:.92;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.38));
+}
+.interface-mascot img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  display:block;
+}
+.mascot-characters{width:155px;height:205px;top:68px}
+.mascot-games{width:120px;height:165px;top:82px}
+.mascot-mj{width:145px;height:205px;top:74px}
+.mascot-multi{width:135px;height:185px;top:78px}
+
+#charactersScreen .topbar,#charactersScreen .character-grid,
+#gamesScreen .topbar,#gamesScreen .game-grid,
+#mjScreen .topbar,#mjScreen .mj-layout,#mjScreen .npc-panel,#mjScreen .combat-panel,#mjScreen .combat-stage,
+#multiplayerScreen .topbar,#multiplayerScreen .multiplayer-wrap{
+  position:relative;
+  z-index:2;
+}
+
+@media(max-width:1000px){
+  .interface-mascot{
+    width:110px;
+    height:150px;
+    right:12px;
+    top:76px;
+    opacity:.72;
+  }
+}
+@media(max-width:720px){
+  .interface-mascot{
+    display:none;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1389,7 +1441,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.6.0</div>
+    <div class="version">VERSION 1.6.2</div>
   </div>
 </div>
 
@@ -1403,6 +1455,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 <div id="innerDecor" aria-hidden="true"></div>
 
 <div id="multiplayerScreen" class="screen hidden">
+  <div class="interface-mascot mascot-multi" aria-hidden="true"><img src="decor_personnage_4.png" alt=""></div>
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
   <div class="multiplayer-card">
     <div id="multiplayerDisconnected">
@@ -1475,7 +1528,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="gamesScreen" class="screen hidden">
-  <header class="topbar">
+  <div class="interface-mascot mascot-games" aria-hidden="true"><img src="decor_personnage_2.png" alt=""></div>
+<header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title">
       <p class="eyebrow">Campagnes & sessions</p>
@@ -1487,6 +1541,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="mjScreen" class="screen hidden">
+  <div class="interface-mascot mascot-mj" aria-hidden="true"><img src="decor_personnage_3.png" alt=""></div>
   <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
     <div class="topbar-title">
@@ -1640,6 +1695,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 </div>
 
 <div id="charactersScreen" class="screen hidden">
+  <div class="interface-mascot mascot-characters" aria-hidden="true"><img src="decor_personnage_1.png" alt=""></div>
   <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
