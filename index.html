@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.9.0</title>
+<title>JDR Dreyard - V1.9.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2622,6 +2622,166 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* =========================================================
+   V1.9.1 — MOBILE UNIQUEMENT :
+   personnages petits, en haut à droite, assis sur branche de cerisier.
+   Aucun effet sur PC.
+   ========================================================= */
+@media (max-width: 760px){
+
+  /* Le coin haut droit devient une petite scène décorative */
+  #charactersScreen,
+  #gamesScreen,
+  #mjScreen,
+  #multiplayerScreen{
+    position:relative!important;
+  }
+
+  /* Personnages beaucoup plus petits et réellement dans le coin */
+  #charactersScreen .screen-sitter,
+  #gamesScreen .screen-sitter,
+  #mjScreen .screen-sitter,
+  #multiplayerScreen .screen-sitter{
+    display:block!important;
+    position:absolute!important;
+    z-index:22!important;
+    top:2px!important;
+    right:14px!important;
+    width:96px!important;
+    max-width:96px!important;
+    height:auto!important;
+    max-height:126px!important;
+    object-fit:contain!important;
+    transform:none!important;
+    transform-origin:center!important;
+    pointer-events:none!important;
+  }
+
+  /* Aki est plus petite : légère réduction supplémentaire */
+  #gamesScreen .sitter-aki{
+    width:84px!important;
+    max-width:84px!important;
+    right:20px!important;
+    top:6px!important;
+  }
+
+  /* Inari/Melusine/Lisanna légèrement différenciées */
+  #mjScreen .sitter-inari{
+    width:100px!important;
+    max-width:100px!important;
+    right:10px!important;
+    top:0!important;
+  }
+
+  #multiplayerScreen .sitter-melusine{
+    width:94px!important;
+    max-width:94px!important;
+    right:14px!important;
+    top:3px!important;
+  }
+
+  #charactersScreen .sitter-lisanna{
+    width:96px!important;
+    max-width:96px!important;
+    right:13px!important;
+    top:2px!important;
+  }
+
+  /* Branche de cerisier : visible seulement sur téléphone */
+  .mobile-sakura-branch{
+    display:block!important;
+    position:absolute!important;
+    z-index:20!important;
+    top:76px!important;
+    right:2px!important;
+    width:150px!important;
+    height:56px!important;
+    pointer-events:none!important;
+    opacity:.96!important;
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.34));
+  }
+
+  .mobile-sakura-branch svg{
+    width:100%!important;
+    height:100%!important;
+    overflow:visible!important;
+  }
+
+  .mobile-sakura-branch .branch-main,
+  .mobile-sakura-branch .branch-twig{
+    fill:none;
+    stroke:#5b342d;
+    stroke-width:7;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  .mobile-sakura-branch .branch-twig{
+    stroke-width:4;
+  }
+
+  .mobile-sakura-branch .branch-blossoms circle{
+    fill:#f3a9c9;
+    stroke:#ffd5e6;
+    stroke-width:1.5;
+  }
+
+  /* quelques pétales très discrets autour de la branche */
+  .mobile-sakura-branch::before,
+  .mobile-sakura-branch::after{
+    content:"";
+    position:absolute;
+    border-radius:70% 25% 70% 25%;
+    background:rgba(247,176,210,.85);
+    width:6px;
+    height:4px;
+    animation:mobilePetal 4.8s ease-in-out infinite;
+  }
+
+  .mobile-sakura-branch::before{
+    right:35px;
+    top:8px;
+  }
+
+  .mobile-sakura-branch::after{
+    right:78px;
+    top:2px;
+    animation-delay:1.8s;
+  }
+
+  @keyframes mobilePetal{
+    0%{transform:translate(0,0) rotate(0deg);opacity:0}
+    15%{opacity:.9}
+    100%{transform:translate(-18px,38px) rotate(220deg);opacity:0}
+  }
+
+  /* Laisse seulement la place nécessaire au petit décor,
+     sans pousser tout le contenu vers le milieu. */
+  #charactersScreen .topbar,
+  #gamesScreen .topbar,
+  #mjScreen .topbar,
+  #multiplayerScreen .topbar{
+    padding-right:112px!important;
+    min-height:104px!important;
+  }
+
+  /* Les titres restent lisibles à gauche */
+  #charactersScreen .topbar-title,
+  #gamesScreen .topbar-title,
+  #mjScreen .topbar-title,
+  #multiplayerScreen .topbar-title{
+    max-width:calc(100% - 8px)!important;
+  }
+}
+
+/* Par sécurité : branche totalement absente sur PC/tablette large */
+@media (min-width: 761px){
+  .mobile-sakura-branch{
+    display:none!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2643,7 +2803,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.9.0</div>
+    <div class="version">VERSION 1.9.1</div>
   </div>
 </div>
 
@@ -2658,6 +2818,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 <div id="multiplayerScreen" class="screen hidden">
   <video class="screen-sitter sitter-melusine sitter-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="melusine_boucle.webm" type="video/webm"></video>
+  <div class="mobile-sakura-branch" aria-hidden="true">
+    <svg viewBox="0 0 220 80" preserveAspectRatio="xMidYMid meet">
+      <path class="branch-main" d="M214 55 C170 56 139 48 112 42 C82 35 55 39 10 53"/>
+      <path class="branch-twig" d="M142 48 C154 34 161 23 169 9"/>
+      <path class="branch-twig" d="M93 39 C82 26 76 19 68 8"/>
+      <path class="branch-twig" d="M54 43 C43 33 33 28 23 24"/>
+      <g class="branch-blossoms">
+        <circle cx="171" cy="10" r="6"/><circle cx="160" cy="25" r="5"/>
+        <circle cx="68" cy="9" r="6"/><circle cx="78" cy="22" r="5"/>
+        <circle cx="22" cy="24" r="6"/><circle cx="39" cy="34" r="4"/>
+        <circle cx="118" cy="42" r="4"/><circle cx="147" cy="47" r="4"/>
+      </g>
+    </svg>
+  </div>
+
   <header class="topbar"><button id="multiplayerBackBtn" class="back-button">← Accueil</button><div class="topbar-title"><p class="eyebrow">Supabase Realtime</p><h1>Multijoueur</h1></div></header>
   <div class="multiplayer-card jdr-presenter-panel presenter-melusine">
     <div class="jdr-presenter-content">
@@ -2733,6 +2908,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 <div id="gamesScreen" class="screen hidden">
   <video class="screen-sitter sitter-aki sitter-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="aki_boucle.webm" type="video/webm"></video>
+  <div class="mobile-sakura-branch" aria-hidden="true">
+    <svg viewBox="0 0 220 80" preserveAspectRatio="xMidYMid meet">
+      <path class="branch-main" d="M214 55 C170 56 139 48 112 42 C82 35 55 39 10 53"/>
+      <path class="branch-twig" d="M142 48 C154 34 161 23 169 9"/>
+      <path class="branch-twig" d="M93 39 C82 26 76 19 68 8"/>
+      <path class="branch-twig" d="M54 43 C43 33 33 28 23 24"/>
+      <g class="branch-blossoms">
+        <circle cx="171" cy="10" r="6"/><circle cx="160" cy="25" r="5"/>
+        <circle cx="68" cy="9" r="6"/><circle cx="78" cy="22" r="5"/>
+        <circle cx="22" cy="24" r="6"/><circle cx="39" cy="34" r="4"/>
+        <circle cx="118" cy="42" r="4"/><circle cx="147" cy="47" r="4"/>
+      </g>
+    </svg>
+  </div>
+
   <header class="topbar">
     <button id="gamesBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title">
@@ -2750,6 +2940,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 <div id="mjScreen" class="screen hidden">
   <video class="screen-sitter sitter-inari sitter-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="inari_boucle.webm" type="video/webm"></video>
+  <div class="mobile-sakura-branch" aria-hidden="true">
+    <svg viewBox="0 0 220 80" preserveAspectRatio="xMidYMid meet">
+      <path class="branch-main" d="M214 55 C170 56 139 48 112 42 C82 35 55 39 10 53"/>
+      <path class="branch-twig" d="M142 48 C154 34 161 23 169 9"/>
+      <path class="branch-twig" d="M93 39 C82 26 76 19 68 8"/>
+      <path class="branch-twig" d="M54 43 C43 33 33 28 23 24"/>
+      <g class="branch-blossoms">
+        <circle cx="171" cy="10" r="6"/><circle cx="160" cy="25" r="5"/>
+        <circle cx="68" cy="9" r="6"/><circle cx="78" cy="22" r="5"/>
+        <circle cx="22" cy="24" r="6"/><circle cx="39" cy="34" r="4"/>
+        <circle cx="118" cy="42" r="4"/><circle cx="147" cy="47" r="4"/>
+      </g>
+    </svg>
+  </div>
+
   <header class="topbar">
     <button id="mjBackBtn" class="back-button">← Parties</button>
     <div class="topbar-title">
@@ -2908,6 +3113,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 <div id="charactersScreen" class="screen hidden">
   <video class="screen-sitter sitter-lisanna sitter-video" autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="lisanna_boucle.webm" type="video/webm"></video>
+  <div class="mobile-sakura-branch" aria-hidden="true">
+    <svg viewBox="0 0 220 80" preserveAspectRatio="xMidYMid meet">
+      <path class="branch-main" d="M214 55 C170 56 139 48 112 42 C82 35 55 39 10 53"/>
+      <path class="branch-twig" d="M142 48 C154 34 161 23 169 9"/>
+      <path class="branch-twig" d="M93 39 C82 26 76 19 68 8"/>
+      <path class="branch-twig" d="M54 43 C43 33 33 28 23 24"/>
+      <g class="branch-blossoms">
+        <circle cx="171" cy="10" r="6"/><circle cx="160" cy="25" r="5"/>
+        <circle cx="68" cy="9" r="6"/><circle cx="78" cy="22" r="5"/>
+        <circle cx="22" cy="24" r="6"/><circle cx="39" cy="34" r="4"/>
+        <circle cx="118" cy="42" r="4"/><circle cx="147" cy="47" r="4"/>
+      </g>
+    </svg>
+  </div>
+
   <header class="topbar">
     <button id="charactersBackBtn" class="back-button">← Accueil</button>
     <div class="topbar-title"><p class="eyebrow">Sanctuaire de la Lune</p><h1>Personnages</h1></div>
