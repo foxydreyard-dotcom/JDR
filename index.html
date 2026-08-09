@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.6.6</title>
+<title>JDR Dreyard - V1.6.7</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -1370,7 +1370,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 
 
 
-/* V1.6.6 — FENÊTRES VIVANTES : uniquement habillage visuel */
+
+/* V1.6.7 — FENÊTRES VIVANTES PROPRES, PERSONNAGES NON DÉFORMÉS */
 #charactersScreen,
 #gamesScreen,
 #mjScreen,
@@ -1379,186 +1380,130 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   isolation:isolate;
 }
 
-/* Grand panneau de fond avec encoche haute droite.
-   Ne modifie pas les composants ni leurs fonctions. */
-#charactersScreen::before,
-#gamesScreen::before,
-#mjScreen::before,
-#multiplayerScreen::before{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  left:-18px;
-  right:-18px;
-  top:88px;
-  bottom:34px;
-  min-height:430px;
-  border:1px solid rgba(89,107,165,.48);
-  border-radius:24px;
-  background:
-    linear-gradient(145deg,rgba(17,24,43,.82),rgba(8,13,26,.68)),
-    radial-gradient(circle at 82% 8%,rgba(107,123,201,.13),transparent 28%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.025),
-    0 18px 45px rgba(0,0,0,.18);
-  clip-path:polygon(
-    0 0,
-    calc(100% - 255px) 0,
-    calc(100% - 255px) 145px,
-    100% 145px,
-    100% 100%,
-    0 100%
-  );
-  pointer-events:none;
-}
-
-/* Fenêtre de sanctuaire intégrée dans l'encoche */
 .living-window{
   position:absolute;
-  z-index:1;
   top:72px;
-  right:-4px;
-  width:246px;
-  height:177px;
+  right:18px;
+  width:220px;
+  height:185px;
+  z-index:1;
   pointer-events:none;
   user-select:none;
 }
 
+/* vraie petite alcôve/fenêtre */
 .living-window-scene{
   position:absolute;
-  inset:0 0 30px 25px;
+  right:0;
+  top:0;
+  width:185px;
+  height:128px;
   overflow:hidden;
-  border-left:3px solid rgba(105,121,177,.62);
-  border-top:3px solid rgba(105,121,177,.48);
-  border-right:3px solid rgba(105,121,177,.36);
-  border-radius:16px 16px 0 0;
+  border:2px solid rgba(105,121,177,.55);
+  border-bottom-width:5px;
+  border-radius:18px 18px 10px 10px;
   background:
-    radial-gradient(circle at 76% 24%,rgba(237,242,255,.95) 0 6%,transparent 6.7%),
-    radial-gradient(circle at 15% 88%,rgba(102,80,146,.18),transparent 34%),
-    linear-gradient(180deg,rgba(7,15,38,.92),rgba(11,18,39,.60));
+    radial-gradient(circle at 76% 23%,rgba(239,244,255,.94) 0 7%,transparent 7.7%),
+    linear-gradient(180deg,rgba(7,15,37,.86),rgba(11,18,39,.52));
   box-shadow:
-    inset 0 0 35px rgba(90,110,189,.13),
-    0 0 18px rgba(45,62,110,.12);
+    inset 0 0 28px rgba(90,110,189,.12),
+    0 10px 26px rgba(0,0,0,.22);
 }
 .living-window-scene::before{
   content:"";
   position:absolute;
-  left:52%;
+  left:50%;
   top:0;
   bottom:0;
   width:2px;
-  background:rgba(108,123,179,.28);
+  background:rgba(108,123,179,.22);
 }
 .living-window-scene::after{
   content:"";
   position:absolute;
   left:0;
   right:0;
-  top:53%;
+  top:52%;
   height:2px;
-  background:rgba(108,123,179,.22);
+  background:rgba(108,123,179,.18);
 }
 
-/* lune, étoiles, petits pétales */
-.living-moon{
-  position:absolute;
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  right:25px;
-  top:15px;
-  background:#eef2ff;
-  box-shadow:0 0 15px rgba(207,218,255,.65);
-  opacity:.9;
-}
+.living-moon{display:none}
+
 .living-star{
   position:absolute;
   width:3px;
   height:3px;
   border-radius:50%;
   background:#e9edff;
-  box-shadow:0 0 7px #aabaff;
-  animation:livingTwinkle 2.1s ease-in-out infinite alternate;
+  box-shadow:0 0 6px #aabaff;
+  animation:livingTwinkle 2.2s ease-in-out infinite alternate;
 }
-.living-star.st1{left:23px;top:22px}
-.living-star.st2{left:64px;top:46px;animation-delay:.65s}
-.living-star.st3{right:61px;top:75px;animation-delay:1.15s}
+.living-star.st1{left:24px;top:22px}
+.living-star.st2{left:65px;top:45px;animation-delay:.6s}
+.living-star.st3{right:56px;top:72px;animation-delay:1.1s}
 @keyframes livingTwinkle{
-  from{opacity:.25;transform:scale(.75)}
-  to{opacity:1;transform:scale(1.25)}
-}
-.living-petal{
-  position:absolute;
-  width:7px;
-  height:4px;
-  border-radius:70% 20% 70% 20%;
-  background:rgba(240,166,211,.55);
-  animation:livingPetal 5s linear infinite;
-}
-.living-petal.p1{left:31px;top:-8px}
-.living-petal.p2{left:113px;top:-14px;animation-delay:2.1s}
-@keyframes livingPetal{
-  0%{transform:translate(0,0) rotate(0);opacity:0}
-  15%{opacity:.8}
-  100%{transform:translate(42px,135px) rotate(240deg);opacity:0}
+  from{opacity:.28}
+  to{opacity:1}
 }
 
-/* personnage incrusté sur le vrai rebord */
+.living-petal{display:none}
+
+/* IMPORTANT : aucune découpe brutale / aucun étirement */
 .living-character{
   position:absolute;
   z-index:3;
-  right:4px;
-  bottom:20px;
-  width:186px;
+  right:10px;
+  bottom:18px;
+  width:175px;
   height:170px;
-  overflow:hidden;
+  overflow:visible;
   display:flex;
-  align-items:flex-start;
+  align-items:flex-end;
   justify-content:center;
-  filter:drop-shadow(0 8px 14px rgba(0,0,0,.42));
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.34));
 }
 .living-character img{
+  display:block;
   width:auto;
-  max-width:190px;
-  height:215px;
+  height:auto;
+  max-width:165px;
+  max-height:170px;
   object-fit:contain;
-  object-position:center top;
-  animation:livingBreath 3.2s ease-in-out infinite alternate;
+  object-position:center bottom;
+  transform:none!important;
+  animation:livingBreathClean 3.5s ease-in-out infinite alternate;
 }
-@keyframes livingBreath{
-  from{transform:translateY(4px)}
-  to{transform:translateY(0)}
+@keyframes livingBreathClean{
+  from{translate:0 1px}
+  to{translate:0 -1px}
 }
 
-/* cadrage spécifique des 4 personnages */
-.living-inari .living-character img{height:222px;transform:translateY(-2px)}
-.living-aki .living-character img{height:192px;transform:translateY(10px)}
-.living-melusine .living-character img{height:225px;transform:translateY(-4px)}
-.living-lisanna .living-character img{height:210px;transform:translateY(2px)}
+/* tailles adaptées sans déformer les personnages */
+.living-inari .living-character img{max-height:168px;max-width:160px}
+.living-aki .living-character img{max-height:150px;max-width:145px}
+.living-melusine .living-character img{max-height:168px;max-width:155px}
+.living-lisanna .living-character img{max-height:165px;max-width:155px}
 
 .living-sill{
   position:absolute;
   z-index:4;
-  right:-1px;
-  bottom:17px;
-  width:221px;
-  height:15px;
-  border-radius:8px 0 0 8px;
-  border:1px solid rgba(120,137,190,.65);
-  background:
-    linear-gradient(180deg,#66749e 0%,#3b476b 40%,#232d47 100%);
-  box-shadow:
-    0 7px 14px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.08);
+  right:0;
+  bottom:12px;
+  width:195px;
+  height:13px;
+  border-radius:7px;
+  background:linear-gradient(180deg,#66749e,#303b5b 55%,#222a42);
+  border:1px solid rgba(120,137,190,.58);
+  box-shadow:0 6px 12px rgba(0,0,0,.30);
 }
 
-/* Aucun clic ne peut être bloqué par le décor */
+/* le décor ne touche jamais aux contrôles */
 .living-window,
 .living-window *{
   pointer-events:none!important;
 }
 
-/* Le contenu réel de l'app reste au-dessus du panneau */
 #charactersScreen > :not(.living-window),
 #gamesScreen > :not(.living-window),
 #mjScreen > :not(.living-window),
@@ -1567,49 +1512,38 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   z-index:2;
 }
 
-/* laisse un peu d'air au titre pour éviter qu'il touche le personnage */
-#charactersScreen .topbar-title,
-#gamesScreen .topbar-title,
-#mjScreen .topbar-title,
-#multiplayerScreen .topbar-title{
-  padding-right:210px;
+/* pas de gros panneau ajouté : on garde ton interface originale */
+#charactersScreen::before,
+#gamesScreen::before,
+#mjScreen::before,
+#multiplayerScreen::before{
+  content:none!important;
 }
 
-@media(max-width:1050px){
-  #charactersScreen::before,
-  #gamesScreen::before,
-  #mjScreen::before,
-  #multiplayerScreen::before{
-    clip-path:none;
-  }
+@media(max-width:980px){
   .living-window{
-    width:185px;
+    width:165px;
     height:145px;
-    right:0;
+    right:8px;
     top:78px;
-    opacity:.74;
+    opacity:.78;
+  }
+  .living-window-scene{
+    width:140px;
+    height:100px;
   }
   .living-character{
-    width:145px;
-    height:135px;
+    width:140px;
+    height:132px;
   }
-  .living-character img{height:170px}
-  .living-sill{width:168px}
-  #charactersScreen .topbar-title,
-  #gamesScreen .topbar-title,
-  #mjScreen .topbar-title,
-  #multiplayerScreen .topbar-title{
-    padding-right:130px;
+  .living-character img{
+    max-height:130px!important;
+    max-width:125px!important;
   }
+  .living-sill{width:148px}
 }
-@media(max-width:720px){
+@media(max-width:700px){
   .living-window{display:none}
-  #charactersScreen .topbar-title,
-  #gamesScreen .topbar-title,
-  #mjScreen .topbar-title,
-  #multiplayerScreen .topbar-title{
-    padding-right:0;
-  }
 }
 
 </style>
@@ -1633,7 +1567,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.6.6</div>
+    <div class="version">VERSION 1.6.7</div>
   </div>
 </div>
 
