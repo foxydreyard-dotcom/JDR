@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V1.8.1</title>
+<title>JDR Dreyard - V1.8.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -2109,6 +2109,148 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   #charactersScreen .topbar,#gamesScreen .topbar,#mjScreen .topbar,#multiplayerScreen .topbar{padding-right:0!important}
 }
 
+
+/* V1.8.2 — SUPPRESSION DES GROS BLOCS FONCÉS INTERNES
+   Les contrôles sont désormais directement posés DANS la grande fenêtre JDR. */
+
+/* PERSONNAGES : supprime le grand rectangle sombre intérieur */
+#charactersScreen .jdr-presenter-panel{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+#charactersScreen .jdr-presenter-content{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:20px 26px 95px!important;
+}
+#charactersScreen .character-header{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#charactersScreen .character-grid{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+
+/* Le bouton création est directement dans la grande fenêtre */
+#charactersScreen #createCharacterBtn{
+  left:auto!important;
+  right:330px!important;
+  bottom:auto!important;
+  top:190px!important;
+  transform:none!important;
+}
+
+/* PARTIES : retire le grand panneau de fond, garde seulement les cartes de parties */
+#gamesScreen .jdr-presenter-panel,
+#gamesScreen .jdr-presenter-content{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+}
+#gamesScreen .jdr-presenter-panel{
+  padding:0!important;
+  margin:0!important;
+}
+#gamesScreen .jdr-presenter-content{
+  padding:20px 26px!important;
+}
+#gamesScreen .game-grid{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* MULTIJOUEUR : le gros carré central disparaît complètement */
+#multiplayerScreen .multiplayer-card,
+#multiplayerScreen .multiplayer-card.jdr-presenter-panel,
+#multiplayerScreen .jdr-presenter-content{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+}
+#multiplayerScreen .multiplayer-card,
+#multiplayerScreen .multiplayer-card.jdr-presenter-panel{
+  max-width:none!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+}
+#multiplayerScreen .jdr-presenter-content{
+  padding:34px 28px!important;
+  max-width:900px!important;
+}
+
+/* Les champs restent lisibles individuellement */
+#multiplayerScreen input,
+#multiplayerScreen select,
+#multiplayerScreen textarea{
+  background:rgba(8,14,31,.72)!important;
+  border:1px solid rgba(84,101,167,.55)!important;
+}
+
+/* VUE MJ : retire le grand rectangle du bloc participants,
+   mais conserve les petites lignes/cartes fonctionnelles */
+#mjScreen .jdr-mj-presented-card{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:18px 26px!important;
+}
+#mjScreen .jdr-mj-presenter-row,
+#mjScreen .jdr-mj-presenter-content{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* Neutralise les éventuels pseudo-fonds des gros wrappers */
+#charactersScreen .jdr-presenter-panel::before,
+#charactersScreen .jdr-presenter-panel::after,
+#gamesScreen .jdr-presenter-panel::before,
+#gamesScreen .jdr-presenter-panel::after,
+#multiplayerScreen .jdr-presenter-panel::before,
+#multiplayerScreen .jdr-presenter-panel::after,
+#mjScreen .jdr-mj-presented-card::before,
+#mjScreen .jdr-mj-presented-card::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Les petites cartes utiles restent visibles, mais plus légères */
+#charactersScreen .character-card,
+#gamesScreen .game-card,
+#mjScreen .mj-member,
+#mjScreen .combatant-card{
+  background:rgba(14,22,42,.72)!important;
+  border:1px solid rgba(82,99,166,.55)!important;
+  box-shadow:none!important;
+}
+
+/* Les personnages restent sur la cassure, pas dans une "case" */
+.screen-sitter{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* Pas de barre/navigation en bas */
+.jdr-bottom-nav{
+  display:none!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2130,7 +2272,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.8.1</div>
+    <div class="version">VERSION 1.8.2</div>
   </div>
 </div>
 
