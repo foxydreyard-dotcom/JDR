@@ -4223,6 +4223,7 @@ body.jdr-effects-off #innerDecor{
         <div class="stat"><span>S</span><input id="s" type="number" min="0" max="7"></div>
         <div class="stat"><span>FM</span><input id="fm" type="number" min="0" max="7"></div>
         <div class="stat"><span>FP</span><input id="fp" type="number" min="0" max="7"></div>
+        <div class="stat" id="metierPointsStat" style="display:none"><span id="metierPointsLabel">Métier</span><input id="metierPoints" type="number" min="0" max="7" value="0"></div>
       </div>
     </section>
 
@@ -4564,7 +4565,19 @@ let syncTimer=null;
 
 let currentEditingNpcId=null;
 let mjCombatSelectedCharacterId=null;
-const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
+function updateMetierPointsVisibility(){
+  const metierEl=document.getElementById("metier");
+  const statEl=document.getElementById("metierPointsStat");
+  const labelEl=document.getElementById("metierPointsLabel");
+  if(!metierEl||!statEl||!labelEl)return;
+  const nom=(metierEl.value||"").trim();
+  statEl.style.display=nom?"block":"none";
+  labelEl.textContent=nom||"Métier";
+}
+
+const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metierPoints","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
+const metierField=document.getElementById("metier");
+if(metierField) metierField.addEventListener("input",updateMetierPointsVisibility);
 
 function clone(obj){return JSON.parse(JSON.stringify(obj))}
 function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=getLocalOwnerName()){
@@ -4828,7 +4841,7 @@ function renderCharacters(){
 function createCharacter(){
   const prenom=prompt("Prénom :");if(!prenom)return;
   const nom=prompt("Nom :")||"",race=prompt("Race :")||"",metier=prompt("Métier / classe :")||"";
-  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
+  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,metierPoints:0,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
   const chars=getCharacters();chars.push(c);saveCharacters(chars);renderCharacters();
 }
 function deleteCharacter(id){
@@ -4843,7 +4856,7 @@ function deleteCharacter(id){
 
 function fillCharacterSheet(c){
   fields.forEach(id=>{const el=$(id);if(el&&c[id]!==undefined)el.value=c[id]});
-  sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
+  sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();
   renderPortrait(c.portrait);
   document.querySelectorAll(".body-part").forEach(b=>b.classList.toggle("injured",c.blessures?.[b.dataset.part]===true));
   renderInventory(c);renderEquipment(c);renderSpells(c);renderDiceHistory(c);renderQuests(c);renderJournal(c);updateBars();
@@ -4866,7 +4879,7 @@ function saveCurrentCharacter(){
   const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];if(!canEditCharacter(c))return alert("Ce personnage appartient à un autre joueur.");
   fields.forEach(id=>{const el=$(id);if(el)c[id]=el.value});
   c.blessures={};document.querySelectorAll(".body-part").forEach(b=>c.blessures[b.dataset.part]=b.classList.contains("injured"));
-  saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;notice("✓ Fiche sauvegardée");
+  saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();notice("✓ Fiche sauvegardée");
 }
 
 /* INVENTAIRE */
@@ -6435,7 +6448,7 @@ function autoSaveCurrentCharacterSilent(){
   if(sheetTitle && heroName && heroSubtitle){
     sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();
     heroName.textContent=sheetTitle.textContent;
-    heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
+    heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();
   }
 
   return true;
