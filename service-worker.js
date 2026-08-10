@@ -1,5 +1,5 @@
 
-const CACHE_NAME="jdr-lunaria-v2-1-0";
+const CACHE_NAME="jdr-lunaria-v2-1-1";
 const CORE=[
   "./",
   "./index.html",
