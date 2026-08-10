@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V2.0.1</title>
+<title>Lunaria - V2.0.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3660,6 +3660,26 @@ body.jdr-effects-off #innerDecor{
   }
 }
 
+
+/* V2.0.2 — identité LUNARIA */
+.lunaria-origin{
+  margin:8px 0 4px;
+  color:#cfc6ff;
+  font-size:13px;
+  font-style:italic;
+  letter-spacing:.3px;
+  text-shadow:0 0 10px rgba(154,124,255,.20);
+}
+
+@media(max-width:760px){
+  .lunaria-origin{
+    font-size:12px;
+    line-height:1.35;
+    max-width:290px;
+    margin:7px auto 4px;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3672,7 +3692,8 @@ body.jdr-effects-off #innerDecor{
 <div class="home-content">
     <div class="moon">☾</div>
     <div class="small-title">LE SANCTUAIRE DE LA LUNE</div>
-    <h1 class="main-title">JDR DREYARD</h1>
+    <h1 class="main-title">JDR LUNARIA</h1>
+    <p class="lunaria-origin">Imaginée au cœur du Sanctuaire de la Lune</p>
     <p class="subtitle">Gestionnaire de personnages & aventures</p>
     <div class="menu">
       <button id="continueBtn" class="primary">⛩ Entrer dans le sanctuaire</button>
@@ -3681,7 +3702,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.0.1</div>
+    <div class="version">VERSION 2.0.2</div>
   </div>
 </div>
 
