@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.2</title>
+<title>JDR Lunaria - V2.1.3</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3712,7 +3712,7 @@ body.jdr-effects-off #innerDecor{
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JDR Lunaria">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icône-192.png">
 
 </head>
 <body>
@@ -3734,7 +3734,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.2</div>
+    <div class="version">VERSION 2.1.3</div>
   </div>
 </div>
 
@@ -6442,8 +6442,8 @@ async function runPwaDiagnostic(){
   setPwaStatus("pwaManifestStatus",manifestOk?"ok":"bad",manifestOk?"OK":"ERREUR");
   if(!manifestOk)messages.push("❌ Le manifest n'est pas accessible.");
 
-  const icon192=await resourceExists("./icons/icon-192.png");
-  const icon512=await resourceExists("./icons/icon-512.png");
+  const icon192=await resourceExists("./icône-192.png");
+  const icon512=await resourceExists("./icône-512.png");
   setPwaStatus("pwaIcon192Status",icon192?"ok":"bad",icon192?"OK":"ERREUR");
   setPwaStatus("pwaIcon512Status",icon512?"ok":"bad",icon512?"OK":"ERREUR");
   if(!icon192||!icon512)messages.push("❌ Une ou plusieurs icônes PWA sont introuvables.");
