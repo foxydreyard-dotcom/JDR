@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lunaria - V2.0.2</title>
+<title>JDR Lunaria - V2.1.0</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3680,8 +3680,27 @@ body.jdr-effects-off #innerDecor{
   }
 }
 
+
+/* V2.1.0 — installation PWA */
+.install-app-button{
+  background:linear-gradient(135deg,#5b4fd1,#8b6bf0)!important;
+  color:white!important;
+  border-color:#927cff!important;
+  font-weight:800!important;
+}
+.install-app-button.hidden{display:none!important}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#090f24">
+<meta name="application-name" content="JDR Lunaria">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JDR Lunaria">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
 </head>
 <body>
 
@@ -3702,7 +3721,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.0.2</div>
+    <div class="version">VERSION 2.1.0</div>
   </div>
 </div>
 
@@ -3793,6 +3812,8 @@ body.jdr-effects-off #innerDecor{
     <section class="settings-card">
       <div class="settings-card-title">🖥 Affichage</div>
       <div class="settings-actions">
+        
+      <button id="installAppBtn" class="install-app-button hidden">⬇ Installer JDR Lunaria</button>
         <button id="fullscreenSettingsBtn">⛶ Plein écran</button>
         <button id="resetSettingsBtn" class="danger-soft">↺ Réinitialiser les paramètres</button>
       </div>
@@ -6361,6 +6382,49 @@ console.log("JDR V1.6.0 combat controls",{
   dice:document.querySelectorAll(".quick-die").length
 });
 openHome();
+
+
+/* =========================
+   JDR LUNARIA — PWA V2.1.0
+   ========================= */
+let lunariaInstallPrompt=null;
+
+window.addEventListener("beforeinstallprompt",(event)=>{
+  event.preventDefault();
+  lunariaInstallPrompt=event;
+  const btn=document.getElementById("installAppBtn");
+  if(btn)btn.classList.remove("hidden");
+});
+
+window.addEventListener("appinstalled",()=>{
+  lunariaInstallPrompt=null;
+  const btn=document.getElementById("installAppBtn");
+  if(btn)btn.classList.add("hidden");
+});
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const installBtn=document.getElementById("installAppBtn");
+  if(installBtn){
+    installBtn.addEventListener("click",async()=>{
+      if(!lunariaInstallPrompt){
+        alert("Si le bouton d'installation du navigateur n'apparaît pas, utilise le menu du navigateur puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
+        return;
+      }
+      lunariaInstallPrompt.prompt();
+      try{ await lunariaInstallPrompt.userChoice; }catch(e){}
+      lunariaInstallPrompt=null;
+      installBtn.classList.add("hidden");
+    });
+  }
+});
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./service-worker.js").catch(err=>{
+      console.warn("Service worker Lunaria non enregistré :",err);
+    });
+  });
+}
 
 </script>
 </body>

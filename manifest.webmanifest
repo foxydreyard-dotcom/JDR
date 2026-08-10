@@ -1,0 +1,29 @@
+{
+  "name": "JDR Lunaria",
+  "short_name": "Lunaria",
+  "description": "Gestionnaire de personnages et d'aventures, imaginé au cœur du Sanctuaire de la Lune.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "background_color": "#070d20",
+  "theme_color": "#090f24",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
