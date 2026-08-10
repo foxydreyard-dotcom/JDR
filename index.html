@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Dreyard - V2.0.0</title>
+<title>JDR Dreyard - V2.0.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3614,6 +3614,52 @@ body.jdr-effects-off #innerDecor{
   }
 }
 
+
+/* =========================================================
+   V2.0.1 — PC / MULTIJOUEUR :
+   suppression du flou résiduel derrière le personnage.
+   Mobile inchangé.
+   ========================================================= */
+@media (min-width:761px){
+
+  /* Le grand panneau multijoueur ne floute plus la zone du personnage */
+  #multiplayerScreen .multiplayer-card,
+  #multiplayerScreen .multiplayer-card.jdr-presenter-panel,
+  #multiplayerScreen .jdr-presenter-content{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+
+  /* Supprime tout pseudo-calque éventuellement encore présent */
+  #multiplayerScreen .multiplayer-card::before,
+  #multiplayerScreen .multiplayer-card::after,
+  #multiplayerScreen .jdr-presenter-panel::before,
+  #multiplayerScreen .jdr-presenter-panel::after,
+  #multiplayerScreen .jdr-presenter-content::before,
+  #multiplayerScreen .jdr-presenter-content::after{
+    content:none!important;
+    display:none!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    filter:none!important;
+  }
+
+  /* La vidéo/personnage reste nette, sans mélange ni halo de flou */
+  #multiplayerScreen .sitter-melusine,
+  #multiplayerScreen .sitter-video{
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.34))!important;
+    mix-blend-mode:normal!important;
+  }
+
+  /* Le fond de la zone multijoueur reste transparent/net */
+  #multiplayerScreen .multiplayer-card{
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3635,7 +3681,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.0.0</div>
+    <div class="version">VERSION 2.0.1</div>
   </div>
 </div>
 
