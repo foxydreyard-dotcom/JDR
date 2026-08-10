@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.4</title>
+<title>JDR Lunaria - V2.1.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3734,7 +3734,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.4</div>
+    <div class="version">VERSION 2.1.5</div>
   </div>
 </div>
 
@@ -6397,6 +6397,111 @@ openHome();
 
 
 
+
+
+/* =========================================================
+   V2.1.5 — SAUVEGARDE AUTOMATIQUE
+   - toutes les 4 minutes
+   - silencieuse pour la fiche personnage et les notes de partie
+   - copie de sécurité locale horodatée
+   - sauvegarde aussi lorsque l'app passe en arrière-plan
+   ========================================================= */
+
+const LUNARIA_AUTOSAVE_INTERVAL = 4 * 60 * 1000; // 4 minutes
+let lunariaLastAutoSaveAt = 0;
+
+function autoSaveCurrentCharacterSilent(){
+  if(!currentCharacterId) return false;
+
+  const chars=getCharacters();
+  const index=chars.findIndex(c=>c.id===currentCharacterId);
+  if(index<0) return false;
+
+  const c=chars[index];
+  if(!canEditCharacter(c)) return false;
+
+  fields.forEach(id=>{
+    const el=$(id);
+    if(el) c[id]=el.value;
+  });
+
+  c.blessures={};
+  document.querySelectorAll(".body-part").forEach(b=>{
+    c.blessures[b.dataset.part]=b.classList.contains("injured");
+  });
+
+  saveCharacters(chars);
+
+  if(sheetTitle && heroName && heroSubtitle){
+    sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();
+    heroName.textContent=sheetTitle.textContent;
+    heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
+  }
+
+  return true;
+}
+
+function autoSaveGameNotesSilent(){
+  if(!currentGameId) return false;
+
+  const notesField=$("gameNotes");
+  if(!notesField) return false;
+
+  const games=getGames();
+  const g=games.find(x=>x.id===currentGameId);
+  if(!g) return false;
+
+  g.notes=notesField.value;
+  saveGames(games);
+  return true;
+}
+
+function createLunariaAutoBackup(){
+  try{
+    const backup={
+      savedAt:new Date().toISOString(),
+      characters:JSON.parse(localStorage.getItem("jdrCharacters")||"[]"),
+      games:JSON.parse(localStorage.getItem("jdrGames")||"[]"),
+      settings:JSON.parse(localStorage.getItem("jdrSettings")||"{}")
+    };
+
+    localStorage.setItem("jdrAutoBackup",JSON.stringify(backup));
+    localStorage.setItem("jdrAutoBackupLastAt",backup.savedAt);
+    return true;
+  }catch(e){
+    console.warn("Sauvegarde automatique Lunaria impossible :",e);
+    return false;
+  }
+}
+
+function runLunariaAutoSave(showNotice=true){
+  const charSaved=autoSaveCurrentCharacterSilent();
+  const gameSaved=autoSaveGameNotesSilent();
+  const backupSaved=createLunariaAutoBackup();
+
+  lunariaLastAutoSaveAt=Date.now();
+
+  if(showNotice && (charSaved || gameSaved || backupSaved)){
+    notice("💾 Sauvegarde automatique effectuée");
+  }
+}
+
+setInterval(()=>{
+  runLunariaAutoSave(true);
+},LUNARIA_AUTOSAVE_INTERVAL);
+
+/* Si l'utilisateur change d'application / verrouille le téléphone,
+   on sauvegarde immédiatement sans afficher de notification. */
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){
+    runLunariaAutoSave(false);
+  }
+});
+
+/* Dernière sauvegarde locale avant fermeture/rechargement. */
+window.addEventListener("pagehide",()=>{
+  runLunariaAutoSave(false);
+});
 
 /* =========================
    JDR LUNARIA — PWA V2.1.0
