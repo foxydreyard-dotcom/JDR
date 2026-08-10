@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.3</title>
+<title>JDR Lunaria - V2.1.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3692,16 +3692,16 @@ body.jdr-effects-off #innerDecor{
 
 
 /* V2.1.2 — diagnostic PWA */
-.pwa-diagnostic-card{grid-column:1/-1}
-.pwa-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin:8px 0 14px}
-.pwa-status-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid rgba(83,100,165,.36);border-radius:12px;background:rgba(8,14,29,.44);color:#aeb8d8;font-size:13px}
-.pwa-status-line strong{color:#dfe4ff;white-space:nowrap}
-.pwa-status-ok{color:#8ef0b0!important}
-.pwa-status-bad{color:#ff9aa7!important}
-.pwa-status-warn{color:#ffd985!important}
-.pwa-diagnostic-message{padding:12px 14px;border-radius:12px;background:rgba(10,16,34,.62);border:1px solid rgba(83,100,165,.40);color:#c8d0ec;font-size:13px;line-height:1.5;white-space:pre-line}
-.pwa-diagnostic-actions{margin-top:12px}
-@media(max-width:760px){.pwa-status-grid{grid-template-columns:1fr!important}}
+
+
+
+
+
+
+
+
+
+@media(max-width:760px){}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3734,7 +3734,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.3</div>
+    <div class="version">VERSION 2.1.4</div>
   </div>
 </div>
 
@@ -3832,26 +3832,7 @@ body.jdr-effects-off #innerDecor{
       </div>
       <p class="settings-note">Les préférences sont enregistrées automatiquement sur ce navigateur.</p>
     </section>
-
-    <section class="settings-card pwa-diagnostic-card">
-      <div class="settings-card-title">🧪 Diagnostic installation</div>
-      <div class="pwa-status-grid">
-        <div class="pwa-status-line"><span>HTTPS / contexte sécurisé</span><strong id="pwaHttpsStatus">…</strong></div>
-        <div class="pwa-status-line"><span>Manifest détecté</span><strong id="pwaManifestStatus">…</strong></div>
-        <div class="pwa-status-line"><span>Service Worker</span><strong id="pwaSwStatus">…</strong></div>
-        <div class="pwa-status-line"><span>Icône 192 × 192</span><strong id="pwaIcon192Status">…</strong></div>
-        <div class="pwa-status-line"><span>Icône 512 × 512</span><strong id="pwaIcon512Status">…</strong></div>
-        <div class="pwa-status-line"><span>Mode application</span><strong id="pwaStandaloneStatus">…</strong></div>
-        <div class="pwa-status-line"><span>Événement installation Chrome</span><strong id="pwaPromptStatus">…</strong></div>
-      </div>
-      <div id="pwaDiagnosticMessage" class="pwa-diagnostic-message">Vérification en cours…</div>
-      <div class="settings-actions pwa-diagnostic-actions">
-        <button id="refreshPwaDiagnosticBtn">↻ Relancer le diagnostic</button>
-        <button id="clearPwaCacheBtn">🧹 Vider le cache de l'application</button>
-      </div>
-    </section>
-
-  </div>
+</div>
 </div>
 
 <video id="innerBgVideo" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
@@ -6415,91 +6396,7 @@ openHome();
 
 
 
-function setPwaStatus(id,state,text){
-  const el=document.getElementById(id); if(!el)return;
-  el.textContent=text;
-  el.classList.remove("pwa-status-ok","pwa-status-bad","pwa-status-warn");
-  el.classList.add(state==="ok"?"pwa-status-ok":state==="bad"?"pwa-status-bad":"pwa-status-warn");
-}
-async function resourceExists(url){
-  try{const r=await fetch(url,{cache:"no-store"});return r.ok}catch(e){return false}
-}
-async function runPwaDiagnostic(){
-  const messages=[];
-  const secure=window.isSecureContext||location.protocol==="https:"||location.hostname==="localhost";
-  setPwaStatus("pwaHttpsStatus",secure?"ok":"bad",secure?"OK":"NON");
-  if(!secure)messages.push("❌ La page n'est pas dans un contexte sécurisé.");
 
-  const manifestLink=document.querySelector('link[rel="manifest"]');
-  let manifestOk=false,manifestData=null;
-  if(manifestLink){
-    try{
-      const res=await fetch(manifestLink.href,{cache:"no-store"});
-      manifestOk=res.ok;
-      if(res.ok)manifestData=await res.json();
-    }catch(e){}
-  }
-  setPwaStatus("pwaManifestStatus",manifestOk?"ok":"bad",manifestOk?"OK":"ERREUR");
-  if(!manifestOk)messages.push("❌ Le manifest n'est pas accessible.");
-
-  const icon192=await resourceExists("./icône-192.png");
-  const icon512=await resourceExists("./icône-512.png");
-  setPwaStatus("pwaIcon192Status",icon192?"ok":"bad",icon192?"OK":"ERREUR");
-  setPwaStatus("pwaIcon512Status",icon512?"ok":"bad",icon512?"OK":"ERREUR");
-  if(!icon192||!icon512)messages.push("❌ Une ou plusieurs icônes PWA sont introuvables.");
-
-  let swState="bad",swText="ABSENT";
-  if("serviceWorker" in navigator){
-    try{
-      const reg=await navigator.serviceWorker.getRegistration();
-      if(reg){swState="ok";swText=reg.active?"ACTIF":"EN ATTENTE"}
-      else{swState="warn";swText="NON ENREGISTRÉ"}
-    }catch(e){swText="ERREUR"}
-  }
-  setPwaStatus("pwaSwStatus",swState,swText);
-  if(swState!=="ok")messages.push("⚠️ Le Service Worker n'est pas actif.");
-
-  const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
-  setPwaStatus("pwaStandaloneStatus",standalone?"ok":"warn",standalone?"DÉJÀ INSTALLÉ":"NAVIGATEUR");
-
-  const promptReady=!!lunariaInstallPrompt;
-  setPwaStatus("pwaPromptStatus",promptReady?"ok":"warn",promptReady?"REÇU":"NON REÇU");
-
-  if(manifestData){
-    const missing=[];
-    if(!manifestData.name&&!manifestData.short_name)missing.push("name/short_name");
-    if(!manifestData.start_url)missing.push("start_url");
-    if(!manifestData.display)missing.push("display");
-    if(!Array.isArray(manifestData.icons)||!manifestData.icons.length)missing.push("icons");
-    if(missing.length)messages.push("❌ Manifest incomplet : "+missing.join(", "));
-  }
-
-  if(standalone)messages.unshift("✅ JDR Lunaria est déjà ouvert en mode application.");
-  else if(promptReady)messages.unshift("✅ Chrome considère JDR Lunaria comme installable.");
-  else if(messages.length===0){
-    messages.push("⚠️ Tous les fichiers PWA semblent corrects, mais Chrome n'a pas encore envoyé l'événement d'installation.");
-    messages.push("Recharge la page, clique dans l'application, attends quelques secondes puis retourne dans Paramètres.");
-  }
-
-  const box=document.getElementById("pwaDiagnosticMessage");
-  if(box)box.textContent=messages.join("\n\n");
-}
-async function clearLunariaCaches(){
-  try{
-    if("serviceWorker" in navigator){
-      const regs=await navigator.serviceWorker.getRegistrations();
-      for(const reg of regs)await reg.unregister();
-    }
-    if("caches" in window){
-      const keys=await caches.keys();
-      await Promise.all(keys.map(k=>caches.delete(k)));
-    }
-    alert("Cache PWA vidé. La page va se recharger.");
-    location.reload();
-  }catch(e){
-    alert("Impossible de vider complètement le cache : "+e.message);
-  }
-}
 
 /* =========================
    JDR LUNARIA — PWA V2.1.0
@@ -6511,21 +6408,14 @@ window.addEventListener("beforeinstallprompt",(event)=>{
   lunariaInstallPrompt=event;
   const btn=document.getElementById("installAppBtn");
   if(btn)btn.classList.remove("hidden");
-  runPwaDiagnostic();
 });
 
 window.addEventListener("appinstalled",()=>{
   lunariaInstallPrompt=null;
   const btn=document.getElementById("installAppBtn");
-  runPwaDiagnostic();
 });
 
 document.addEventListener("DOMContentLoaded",()=>{
-  const refreshDiag=document.getElementById("refreshPwaDiagnosticBtn");
-  if(refreshDiag)refreshDiag.addEventListener("click",runPwaDiagnostic);
-  const clearCacheBtn=document.getElementById("clearPwaCacheBtn");
-  if(clearCacheBtn)clearCacheBtn.addEventListener("click",clearLunariaCaches);
-  setTimeout(runPwaDiagnostic,800);
   const installBtn=document.getElementById("installAppBtn");
   if(installBtn){
     installBtn.addEventListener("click",async()=>{
