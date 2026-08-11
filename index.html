@@ -4223,7 +4223,22 @@ body.jdr-effects-off #innerDecor{
         <div class="stat"><span>S</span><input id="s" type="number" min="0" max="7"></div>
         <div class="stat"><span>FM</span><input id="fm" type="number" min="0" max="7"></div>
         <div class="stat"><span>FP</span><input id="fp" type="number" min="0" max="7"></div>
-        <div class="stat" id="metierPointsStat" style="display:none"><span id="metierPointsLabel">Métier</span><input id="metierPoints" type="number" min="0" max="7" value="0"></div>
+      </div>
+
+      <div id="metierStatsBlock" style="display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(91,105,153,.28)">
+        <h3 style="margin:0 0 10px;font-size:15px;color:#cfd6ff">🛠️ Points de métier — <span id="metierStatsLabel">Métier</span></h3>
+        <div class="stats">
+          <div class="stat"><span>CC</span><input id="metier_cc" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>CT</span><input id="metier_ct" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>F</span><input id="metier_f" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>A</span><input id="metier_a" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>R</span><input id="metier_r" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>I</span><input id="metier_i" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>P</span><input id="metier_p" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>S</span><input id="metier_s" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>FM</span><input id="metier_fm" type="number" min="0" max="7" value="0"></div>
+          <div class="stat"><span>FP</span><input id="metier_fp" type="number" min="0" max="7" value="0"></div>
+        </div>
       </div>
     </section>
 
@@ -4515,7 +4530,7 @@ const emptyInjuries=()=>({tete:false,torse:false,brasD:false,brasG:false,jambeD:
 
 const defaultFoxy={
   id:"foxy",prenom:"Foxy",nom:"Dreyard",age:23,race:"Kitsune",origine:"Sanctuaire de la Lune",metier:"Mage / Forgeron",portrait:"",
-  pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,
+  pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,metier_cc:0,metier_ct:0,metier_f:0,metier_a:0,metier_r:0,metier_i:0,metier_p:0,metier_s:0,metier_fm:0,metier_fp:0,
   positifs:"Protecteur\nFort\nPatient\nMagie feu & soin",negatifs:"Têtu",
   po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",
   blessures:emptyInjuries(),
@@ -4567,15 +4582,15 @@ let currentEditingNpcId=null;
 let mjCombatSelectedCharacterId=null;
 function updateMetierPointsVisibility(){
   const metierEl=document.getElementById("metier");
-  const statEl=document.getElementById("metierPointsStat");
-  const labelEl=document.getElementById("metierPointsLabel");
-  if(!metierEl||!statEl||!labelEl)return;
+  const block=document.getElementById("metierStatsBlock");
+  const label=document.getElementById("metierStatsLabel");
+  if(!metierEl||!block||!label)return;
   const nom=(metierEl.value||"").trim();
-  statEl.style.display=nom?"block":"none";
-  labelEl.textContent=nom||"Métier";
+  block.style.display=nom?"block":"none";
+  label.textContent=nom||"Métier";
 }
 
-const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metierPoints","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
+const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
 const metierField=document.getElementById("metier");
 if(metierField) metierField.addEventListener("input",updateMetierPointsVisibility);
 
@@ -4589,6 +4604,9 @@ function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=g
   c.quests ||= [];
   c.journal ||= [];
   if(c.portrait===undefined)c.portrait="";
+  ["metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp"].forEach(k=>{
+    if(c[k]===undefined)c[k]=0;
+  });
   if(!c.ownerId)c.ownerId=fallbackOwnerId;
   if(!c.ownerName)c.ownerName=fallbackOwnerName;
   return c;
@@ -4841,7 +4859,7 @@ function renderCharacters(){
 function createCharacter(){
   const prenom=prompt("Prénom :");if(!prenom)return;
   const nom=prompt("Nom :")||"",race=prompt("Race :")||"",metier=prompt("Métier / classe :")||"";
-  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,metierPoints:0,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
+  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,metier_cc:0,metier_ct:0,metier_f:0,metier_a:0,metier_r:0,metier_i:0,metier_p:0,metier_s:0,metier_fm:0,metier_fp:0,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
   const chars=getCharacters();chars.push(c);saveCharacters(chars);renderCharacters();
 }
 function deleteCharacter(id){
