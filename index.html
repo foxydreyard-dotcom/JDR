@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.5</title>
+<title>JDR Lunaria - V2.1.8</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3734,7 +3734,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.5</div>
+    <div class="version">VERSION 2.1.8</div>
   </div>
 </div>
 
@@ -4530,7 +4530,7 @@ const emptyInjuries=()=>({tete:false,torse:false,brasD:false,brasG:false,jambeD:
 
 const defaultFoxy={
   id:"foxy",prenom:"Foxy",nom:"Dreyard",age:23,race:"Kitsune",origine:"Sanctuaire de la Lune",metier:"Mage / Forgeron",portrait:"",
-  pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,metier_cc:0,metier_ct:0,metier_f:0,metier_a:0,metier_r:0,metier_i:0,metier_p:0,metier_s:0,metier_fm:0,metier_fp:0,
+  pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,
   positifs:"Protecteur\nFort\nPatient\nMagie feu & soin",negatifs:"Têtu",
   po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",
   blessures:emptyInjuries(),
@@ -4580,19 +4580,7 @@ let syncTimer=null;
 
 let currentEditingNpcId=null;
 let mjCombatSelectedCharacterId=null;
-function updateMetierPointsVisibility(){
-  const metierEl=document.getElementById("metier");
-  const block=document.getElementById("metierStatsBlock");
-  const label=document.getElementById("metierStatsLabel");
-  if(!metierEl||!block||!label)return;
-  const nom=(metierEl.value||"").trim();
-  block.style.display=nom?"block":"none";
-  label.textContent=nom||"Métier";
-}
-
 const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
-const metierField=document.getElementById("metier");
-if(metierField) metierField.addEventListener("input",updateMetierPointsVisibility);
 
 function clone(obj){return JSON.parse(JSON.stringify(obj))}
 function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=getLocalOwnerName()){
@@ -4874,10 +4862,10 @@ function deleteCharacter(id){
 
 function fillCharacterSheet(c){
   fields.forEach(id=>{const el=$(id);if(el&&c[id]!==undefined)el.value=c[id]});
-  sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();
+  sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
   renderPortrait(c.portrait);
   document.querySelectorAll(".body-part").forEach(b=>b.classList.toggle("injured",c.blessures?.[b.dataset.part]===true));
-  renderInventory(c);renderEquipment(c);renderSpells(c);renderDiceHistory(c);renderQuests(c);renderJournal(c);updateBars();
+  renderInventory(c);renderEquipment(c);renderSpells(c);renderDiceHistory(c);renderQuests(c);renderJournal(c);updateBars();updateMetierStatsVisibility();
 }
 function renderPortrait(p){portraitFrame.innerHTML=p?`<img src="${p}" alt="Portrait">`:"🌙"}
 portraitInput.onchange=()=>{
@@ -4897,7 +4885,7 @@ function saveCurrentCharacter(){
   const chars=getCharacters(),i=chars.findIndex(c=>c.id===currentCharacterId);if(i<0)return;const c=chars[i];if(!canEditCharacter(c))return alert("Ce personnage appartient à un autre joueur.");
   fields.forEach(id=>{const el=$(id);if(el)c[id]=el.value});
   c.blessures={};document.querySelectorAll(".body-part").forEach(b=>c.blessures[b.dataset.part]=b.classList.contains("injured"));
-  saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();notice("✓ Fiche sauvegardée");
+  saveCharacters(chars);sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();heroName.textContent=sheetTitle.textContent;heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;notice("✓ Fiche sauvegardée");
 }
 
 /* INVENTAIRE */
@@ -6466,7 +6454,7 @@ function autoSaveCurrentCharacterSilent(){
   if(sheetTitle && heroName && heroSubtitle){
     sheetTitle.textContent=`${c.prenom} ${c.nom}`.trim();
     heroName.textContent=sheetTitle.textContent;
-    heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;updateMetierPointsVisibility();
+    heroSubtitle.textContent=`${c.race||"Race inconnue"} • ${c.metier||"Aucun métier"}`;
   }
 
   return true;
@@ -6567,13 +6555,59 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
 });
 
+
+function updateMetierStatsVisibility(){
+  const metierEl=document.getElementById("metier");
+  const block=document.getElementById("metierStatsBlock");
+  const label=document.getElementById("metierStatsLabel");
+  if(!metierEl||!block||!label)return;
+  const nom=(metierEl.value||"").trim();
+  block.style.display=nom?"block":"none";
+  label.textContent=nom||"Métier";
+}
+document.addEventListener("input",e=>{
+  if(e.target && e.target.id==="metier") updateMetierStatsVisibility();
+});
+
+
+/* =========================================================
+   V2.1.8 — MISE À JOUR AUTOMATIQUE PWA
+   ========================================================= */
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./service-worker.js").catch(err=>{
-      console.warn("Service worker Lunaria non enregistré :",err);
-    });
+  let lunariaReloading=false;
+
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(lunariaReloading)return;
+    lunariaReloading=true;
+    location.reload();
+  });
+
+  window.addEventListener("load",async()=>{
+    try{
+      const reg=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
+      reg.update().catch(()=>{});
+
+      setInterval(()=>reg.update().catch(()=>{}),5*60*1000);
+
+      document.addEventListener("visibilitychange",()=>{
+        if(!document.hidden) reg.update().catch(()=>{});
+      });
+
+      reg.addEventListener("updatefound",()=>{
+        const worker=reg.installing;
+        if(!worker)return;
+        worker.addEventListener("statechange",()=>{
+          if(worker.state==="installed" && navigator.serviceWorker.controller){
+            worker.postMessage({type:"SKIP_WAITING"});
+          }
+        });
+      });
+    }catch(err){
+      console.warn("Mise à jour Lunaria : service worker non disponible",err);
+    }
   });
 }
+
 
 </script>
 </body>

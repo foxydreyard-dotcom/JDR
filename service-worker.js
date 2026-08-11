@@ -1,12 +1,5 @@
-
-const CACHE_NAME="jdr-lunaria-v2-1-3";
-const CORE=[
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./icône-192.png",
-  "./icône-512.png"
-];
+const CACHE_NAME="jdr-lunaria-v2-1-8";
+const CORE=["./","./index.html","./manifest.webmanifest","./icône-192.png","./icône-512.png"];
 
 self.addEventListener("install",event=>{
   event.waitUntil(
@@ -24,16 +17,39 @@ self.addEventListener("activate",event=>{
   );
 });
 
-self.addEventListener("fetch",event=>{
-  if(event.request.method!=="GET") return;
+self.addEventListener("message",event=>{
+  if(event.data && event.data.type==="SKIP_WAITING") self.skipWaiting();
+});
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response=>{
-        const copy=response.clone();
-        caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy)).catch(()=>{});
-        return response;
-      })
-      .catch(()=>caches.match(event.request).then(cached=>cached || caches.match("./index.html")))
-  );
+self.addEventListener("fetch",event=>{
+  if(event.request.method!=="GET")return;
+  const req=event.request;
+  const url=new URL(req.url);
+
+  if(req.mode==="navigate" || url.pathname.endsWith("/index.html")){
+    event.respondWith(
+      fetch(req,{cache:"no-store"})
+        .then(response=>{
+          const copy=response.clone();
+          caches.open(CACHE_NAME).then(cache=>cache.put("./index.html",copy)).catch(()=>{});
+          return response;
+        })
+        .catch(()=>caches.match("./index.html"))
+    );
+    return;
+  }
+
+  if(url.origin===self.location.origin){
+    event.respondWith(
+      fetch(req)
+        .then(response=>{
+          if(response && response.ok){
+            const copy=response.clone();
+            caches.open(CACHE_NAME).then(cache=>cache.put(req,copy)).catch(()=>{});
+          }
+          return response;
+        })
+        .catch(()=>caches.match(req))
+    );
+  }
 });
