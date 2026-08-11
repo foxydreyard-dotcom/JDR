@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.8</title>
+<title>JDR Lunaria - V2.1.9</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3734,7 +3734,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.8</div>
+    <div class="version">VERSION 2.1.9</div>
   </div>
 </div>
 
@@ -4208,6 +4208,11 @@ body.jdr-effects-off #innerDecor{
       <label>Race<input id="race"></label>
       <label>Origine<input id="origine"></label>
       <label>Métier<input id="metier"></label>
+      <label>Poids<input id="poids" type="number" min="0" step="0.1" placeholder="Ex : 62"></label>
+      <label>Taille<input id="taille" placeholder="Ex : 1m78"></label>
+      <label>Naissance<input id="naissance" type="date"></label>
+      <label>Langue<input id="langue" placeholder="Ex : Commun, ancien Dreyard, lunaire"></label>
+      <label>Classe sociale<input id="classeSociale" placeholder="Ex : Noble, artisan, roturier..."></label>
     </section>
 
     <section class="card">
@@ -4529,7 +4534,7 @@ const emptyEquipment=()=>({head:"",neck:"",chest:"",rightHand:"",leftHand:"",rin
 const emptyInjuries=()=>({tete:false,torse:false,brasD:false,brasG:false,jambeD:false,jambeG:false});
 
 const defaultFoxy={
-  id:"foxy",prenom:"Foxy",nom:"Dreyard",age:23,race:"Kitsune",origine:"Sanctuaire de la Lune",metier:"Mage / Forgeron",portrait:"",
+  id:"foxy",prenom:"Foxy",nom:"Dreyard",age:23,race:"Kitsune",origine:"Sanctuaire de la Lune",metier:"Mage / Forgeron",poids:"",taille:"",naissance:"",langue:"",classeSociale:"",portrait:"",
   pv:10,esprit:8,cc:3,ct:3,f:4,a:3,r:5,i:4,p:5,s:5,fm:4,fp:4,
   positifs:"Protecteur\nFort\nPatient\nMagie feu & soin",negatifs:"Têtu",
   po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",
@@ -4580,7 +4585,7 @@ let syncTimer=null;
 
 let currentEditingNpcId=null;
 let mjCombatSelectedCharacterId=null;
-const fields=["prenom","nom","age","race","origine","metier","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
+const fields=["prenom","nom","age","race","origine","metier","poids","taille","naissance","langue","classeSociale","pv","esprit","cc","ct","f","a","r","i","p","s","fm","fp","metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp","positifs","negatifs","po","pa","pf","pb","remarques","passe"];
 
 function clone(obj){return JSON.parse(JSON.stringify(obj))}
 function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=getLocalOwnerName()){
@@ -4591,6 +4596,11 @@ function migrateCharacter(c, fallbackOwnerId=LOCAL_OWNER_ID, fallbackOwnerName=g
   c.diceHistory ||= [];
   c.quests ||= [];
   c.journal ||= [];
+  if(c.poids===undefined)c.poids="";
+  if(c.taille===undefined)c.taille="";
+  if(c.naissance===undefined)c.naissance="";
+  if(c.langue===undefined)c.langue="";
+  if(c.classeSociale===undefined)c.classeSociale="";
   if(c.portrait===undefined)c.portrait="";
   ["metier_cc","metier_ct","metier_f","metier_a","metier_r","metier_i","metier_p","metier_s","metier_fm","metier_fp"].forEach(k=>{
     if(c[k]===undefined)c[k]=0;
@@ -4847,7 +4857,7 @@ function renderCharacters(){
 function createCharacter(){
   const prenom=prompt("Prénom :");if(!prenom)return;
   const nom=prompt("Nom :")||"",race=prompt("Race :")||"",metier=prompt("Métier / classe :")||"";
-  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,metier_cc:0,metier_ct:0,metier_f:0,metier_a:0,metier_r:0,metier_i:0,metier_p:0,metier_s:0,metier_fm:0,metier_fp:0,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
+  const c={id:"character_"+Date.now(),ownerId:LOCAL_OWNER_ID,ownerName:getLocalOwnerName(),prenom,nom,age:18,race,origine:"",metier,poids:"",taille:"",naissance:"",langue:"",classeSociale:"",portrait:"",pv:10,esprit:10,cc:3,ct:3,f:3,a:3,r:3,i:3,p:3,s:3,fm:3,fp:3,metier_cc:0,metier_ct:0,metier_f:0,metier_a:0,metier_r:0,metier_i:0,metier_p:0,metier_s:0,metier_fm:0,metier_fp:0,positifs:"",negatifs:"",po:0,pa:0,pf:0,pb:0,remarques:"",passe:"",blessures:emptyInjuries(),equipment:emptyEquipment(),inventory:[],spells:[],diceHistory:[],quests:[],journal:[]};
   const chars=getCharacters();chars.push(c);saveCharacters(chars);renderCharacters();
 }
 function deleteCharacter(id){

@@ -1,4 +1,4 @@
-const CACHE_NAME="jdr-lunaria-v2-1-8";
+const CACHE_NAME="jdr-lunaria-v2-1-9";
 const CORE=["./","./index.html","./manifest.webmanifest","./icône-192.png","./icône-512.png"];
 
 self.addEventListener("install",event=>{
