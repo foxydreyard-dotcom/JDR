@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V1.10.3</title>
+<title>JDR Lunaria - V1.10.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3563,6 +3563,92 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* =========================================================
+   V1.10.4 — CORRECTIONS PERSONNAGES / PRÉSENTATEURS PC
+   1) suppression du flou derrière les personnages assis
+   2) boutons Import/Export gardés entièrement à gauche du personnage
+   ========================================================= */
+
+/* Pas de flou sous/derrière les personnages présentateurs */
+#charactersScreen .jdr-presenter-panel,
+#gamesScreen .jdr-presenter-panel,
+#multiplayerScreen .multiplayer-card,
+#multiplayerScreen .jdr-presenter-panel,
+#mjScreen .jdr-mj-presented-card,
+#mjScreen .card{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* Les grandes zones restent nettes au lieu de flouter l'arrière-plan */
+#charactersScreen .jdr-presenter-content,
+#gamesScreen .jdr-presenter-content,
+#multiplayerScreen .jdr-presenter-content,
+#mjScreen .jdr-mj-presenter-content{
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* Import / Export : zone réservée à gauche de Lisanna */
+#charactersScreen .lunaria-transfer-actions{
+  position:relative!important;
+  z-index:70!important;
+  width:calc(100% - 350px)!important;
+  max-width:720px!important;
+  min-width:0!important;
+  margin:0 0 20px 0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:10px!important;
+}
+
+#charactersScreen .lunaria-transfer-actions button{
+  position:relative!important;
+  z-index:71!important;
+  pointer-events:auto!important;
+  flex:0 1 auto!important;
+  min-width:230px!important;
+  max-width:320px!important;
+}
+
+/* Le personnage garde sa place à droite sans recouvrir les commandes */
+#charactersScreen .sitter-lisanna{
+  z-index:50!important;
+}
+
+/* Même principe si un contrôle passe près d'un autre personnage assis */
+#gamesScreen .topbar,
+#multiplayerScreen .topbar,
+#mjScreen .topbar{
+  position:relative!important;
+  z-index:60!important;
+}
+
+@media(max-width:1050px) and (min-width:761px){
+  #charactersScreen .lunaria-transfer-actions{
+    width:calc(100% - 245px)!important;
+    max-width:none!important;
+  }
+  #charactersScreen .lunaria-transfer-actions button{
+    min-width:190px!important;
+  }
+}
+
+@media(max-width:760px){
+  #charactersScreen .lunaria-transfer-actions{
+    width:100%!important;
+    max-width:none!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+  #charactersScreen .lunaria-transfer-actions button{
+    min-width:0!important;
+    max-width:none!important;
+    width:100%!important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3584,7 +3670,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.10.3</div>
+    <div class="version">VERSION 1.10.4</div>
   </div>
 </div>
 
