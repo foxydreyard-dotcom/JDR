@@ -1,0 +1,63 @@
+import java.util.Properties
+
+plugins {
+    id 'com.android.application'
+}
+
+def suppliedVersionCode = project.findProperty("versionCode") ?: "1"
+def suppliedVersionName = project.findProperty("versionName") ?: "1.0.0"
+
+android {
+    namespace 'com.jdrlunaria.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.jdrlunaria.app"
+        minSdk 24
+        targetSdk 35
+        versionCode suppliedVersionCode.toInteger()
+        versionName suppliedVersionName
+    }
+
+    def keyPropsFile = rootProject.file("keystore.properties")
+    if (keyPropsFile.exists()) {
+        def keyProps = new Properties()
+        keyProps.load(new FileInputStream(keyPropsFile))
+
+        signingConfigs {
+            release {
+                storeFile rootProject.file(keyProps["storeFile"])
+                storePassword keyProps["storePassword"]
+                keyAlias keyProps["keyAlias"]
+                keyPassword keyProps["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+        release {
+            minifyEnabled false
+            shrinkResources false
+            if (keyPropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+}
