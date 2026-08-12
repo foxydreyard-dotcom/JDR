@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V1.10.5</title>
+<title>JDR Lunaria - V1.10.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3437,6 +3437,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 #innerDecor,
 .screen-sitter,
 .sitter-video,
+#homeScreen video,
+#homeScreen .home-bg,
+#homeScreen .home-overlay,
 .mobile-sakura-branch,
 .mobile-sakura-branch *,
 #charactersScreen .topbar::before,
@@ -3658,6 +3661,25 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
 body.lunaria-no-effects .spark,body.lunaria-no-effects .shooting-star,body.lunaria-no-effects .stars,body.lunaria-no-effects .star{display:none!important}
 @media(max-width:760px){.settings-actions{display:grid;grid-template-columns:1fr}.settings-actions button{width:100%!important;min-width:0!important}}
 
+
+/* V1.10.6 — bouton Paramètres et écran Paramètres robustes */
+#settingsBtn{
+  position:relative!important;
+  z-index:9999!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+#settingsScreen{
+  position:relative!important;
+  z-index:20!important;
+}
+#settingsScreen.hidden{
+  display:none!important;
+}
+#settingsScreen:not(.hidden){
+  display:block!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3679,7 +3701,7 @@ body.lunaria-no-effects .spark,body.lunaria-no-effects .shooting-star,body.lunar
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.10.5</div>
+    <div class="version">VERSION 1.10.6</div>
   </div>
 </div>
 
@@ -4008,7 +4030,7 @@ body.lunaria-no-effects .spark,body.lunaria-no-effects .shooting-star,body.lunar
   </section>
   <section class="card settings-card">
     <h2>🌙 JDR Lunaria</h2>
-    <p class="muted">Version 1.10.5</p>
+    <p class="muted">Version 1.10.6</p>
   </section>
 </div>
 
@@ -6271,7 +6293,20 @@ $("addJournalBtn").onclick=()=>openJournalModal();$("cancelJournalBtn").onclick=
 
 $("continueBtn").onclick=()=>{const chars=getOwnedCharacters();chars.length?openCharacter(chars[0].id):openCharacters()};
 $("newGameBtn").onclick=openGames;
-$("settingsBtn").onclick=()=>{showOnly("settingsScreen");window.scrollTo({top:0,behavior:"smooth"});};
+$("settingsBtn").onclick=()=>{
+  try{
+    document.querySelectorAll("#homeScreen,#charactersScreen,#characterScreen,#gamesScreen,#mjScreen,#multiplayerScreen,#settingsScreen").forEach(el=>{
+      if(el) el.classList.add("hidden");
+    });
+    const s=document.getElementById("settingsScreen");
+    if(!s) throw new Error("settingsScreen introuvable");
+    s.classList.remove("hidden");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }catch(err){
+    console.error("Ouverture paramètres :",err);
+    alert("Impossible d'ouvrir les paramètres.");
+  }
+};
 const savedMultiName=localStorage.getItem("jdrMultiplayerName");if(savedMultiName)$("multiplayerName").value=savedMultiName;$("multiplayerName").addEventListener("input",()=>localStorage.setItem("jdrMultiplayerName",$("multiplayerName").value));
 const savedMultiRole=localStorage.getItem("jdrMultiplayerRole");
 if(savedMultiRole){multiplayerRoleValue=savedMultiRole;if(multiplayerRole)multiplayerRole.value=savedMultiRole}
@@ -6424,7 +6459,14 @@ openHome();
   document.querySelectorAll("video").forEach(v=>{if(a){v.style.display="";try{v.play().catch(()=>{})}catch(_){}}else{try{v.pause()}catch(_){}v.style.display="none"}});
   document.body.classList.toggle("lunaria-no-effects",!e);
  }
- if($("settingsBackBtn"))$("settingsBackBtn").onclick=openHome;
+ if($("settingsBackBtn"))$("settingsBackBtn").onclick=()=>{
+  document.querySelectorAll("#homeScreen,#charactersScreen,#characterScreen,#gamesScreen,#mjScreen,#multiplayerScreen,#settingsScreen").forEach(el=>{
+    if(el) el.classList.add("hidden");
+  });
+  const h=document.getElementById("homeScreen");
+  if(h) h.classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+};
  if($("settingAnimations"))$("settingAnimations").onchange=e=>{localStorage.setItem(ak,e.target.checked?"1":"0");apply()};
  if($("settingEffects"))$("settingEffects").onchange=e=>{localStorage.setItem(ek,e.target.checked?"1":"0");apply()};
  if($("settingsExportBtn"))$("settingsExportBtn").onclick=exportCharacters;
