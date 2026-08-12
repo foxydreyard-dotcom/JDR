@@ -1,0 +1,104 @@
+name: Build JDR Lunaria Android
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "android-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Installer SDK Android 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Préparer la signature
+        if: startsWith(github.ref, 'refs/tags/android-v')
+        shell: bash
+        env:
+          LUNARIA_KEYSTORE_BASE64: ${{ secrets.LUNARIA_KEYSTORE_BASE64 }}
+          LUNARIA_STORE_PASSWORD: ${{ secrets.LUNARIA_STORE_PASSWORD }}
+          LUNARIA_KEY_ALIAS: ${{ secrets.LUNARIA_KEY_ALIAS }}
+          LUNARIA_KEY_PASSWORD: ${{ secrets.LUNARIA_KEY_PASSWORD }}
+        run: |
+          cd android-app
+          echo "$LUNARIA_KEYSTORE_BASE64" | base64 --decode > lunaria-release-key.jks
+          cat > keystore.properties <<EOF
+          storeFile=lunaria-release-key.jks
+          storePassword=$LUNARIA_STORE_PASSWORD
+          keyAlias=$LUNARIA_KEY_ALIAS
+          keyPassword=$LUNARIA_KEY_PASSWORD
+          EOF
+
+      - name: Déterminer la version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            VERSION_NAME="${GITHUB_REF_NAME#android-v}"
+          else
+            VERSION_NAME="0.0.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Construire APK de test
+        if: github.ref_type != 'tag'
+        run: |
+          cd android-app
+          gradle :app:assembleDebug \
+            -PversionCode=${{ steps.version.outputs.code }} \
+            -PversionName=${{ steps.version.outputs.name }}
+
+      - name: Construire APK signé
+        if: github.ref_type == 'tag'
+        run: |
+          cd android-app
+          gradle :app:assembleRelease \
+            -PversionCode=${{ steps.version.outputs.code }} \
+            -PversionName=${{ steps.version.outputs.name }}
+
+      - name: Préparer le fichier APK
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            cp android-app/app/build/outputs/apk/release/app-release.apk JDR-Lunaria.apk
+          else
+            cp android-app/app/build/outputs/apk/debug/app-debug.apk JDR-Lunaria-TEST.apk
+          fi
+
+      - name: APK de test dans Actions
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: JDR-Lunaria-Android-TEST
+          path: JDR-Lunaria-TEST.apk
+
+      - name: Publier la mise à jour Android
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: JDR-Lunaria.apk
+          generate_release_notes: true
