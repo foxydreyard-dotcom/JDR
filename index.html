@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V1.10.0</title>
+<title>JDR Lunaria - V1.10.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3499,6 +3499,53 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   pointer-events:none!important;
 }
 
+
+/* =========================================================
+   V1.10.1 — POINTS DE MÉTIER
+   ========================================================= */
+.profession-points-card{
+  margin-top:18px;
+}
+.profession-points-list{
+  display:grid;
+  gap:10px;
+  margin:14px 0;
+}
+.profession-point-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 100px 44px;
+  gap:10px;
+  align-items:center;
+}
+.profession-point-row input[type="text"],
+.profession-point-row input[type="number"]{
+  width:100%;
+  min-width:0;
+}
+.profession-point-remove{
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  border:1px solid rgba(255,99,132,.35);
+  background:rgba(74,21,35,.55);
+  color:#ff9bb0;
+  cursor:pointer;
+}
+.profession-add-btn{
+  width:auto;
+}
+@media(max-width:760px){
+  .profession-point-row{
+    grid-template-columns:minmax(0,1fr) 82px 42px;
+  }
+  .profession-points-card{
+    margin-top:12px;
+  }
+  .profession-add-btn{
+    width:100%;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3520,7 +3567,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.10.0</div>
+    <div class="version">VERSION 1.10.1</div>
   </div>
 </div>
 
@@ -3923,6 +3970,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       </div>
     </section>
 
+<section class="card profession-points-card" id="professionPointsCard">
+  <h2>🛠️ Points de métier</h2>
+  <p class="muted">Ajoute plusieurs compétences liées au métier de ton personnage et attribue-leur une valeur.</p>
+
+  <div class="profession-points-list" id="professionPointsList"></div>
+
+  <button type="button" id="addProfessionPointBtn" class="secondary-button profession-add-btn">
+    ＋ Ajouter une compétence métier
+  </button>
+</section>
+
+
     <section class="card">
       <h2>✨ Mots-clés</h2>
       <label>Positifs<textarea id="positifs"></textarea></label>
@@ -4225,7 +4284,7 @@ const defaultFoxy={
   ],
   diceHistory:[],
   quests:[],
-  journal:[]
+  journal:[],professionPoints:[]
 };
 
 const $=id=>document.getElementById(id);
@@ -4453,6 +4512,7 @@ function fillCharacterSheet(c){
   renderPortrait(c.portrait);
   document.querySelectorAll(".body-part").forEach(b=>b.classList.toggle("injured",c.blessures?.[b.dataset.part]===true));
   renderInventory(c);renderEquipment(c);renderSpells(c);renderDiceHistory(c);renderQuests(c);renderJournal(c);updateBars();
+  renderProfessionPoints(c);
 }
 function renderPortrait(p){portraitFrame.innerHTML=p?`<img src="${p}" alt="Portrait">`:"🌙"}
 portraitInput.onchange=()=>{
@@ -6085,6 +6145,91 @@ console.log("JDR V1.6.0 combat controls",{
   dice:document.querySelectorAll(".quick-die").length
 });
 
+
+/* =========================================================
+   V1.10.1 — POINTS DE MÉTIER
+   ========================================================= */
+function ensureProfessionPoints(c){
+  if(!c.professionPoints || !Array.isArray(c.professionPoints)){
+    c.professionPoints=[];
+  }
+  return c.professionPoints;
+}
+
+function renderProfessionPoints(c){
+  const host=document.getElementById("professionPointsList");
+  if(!host)return;
+  const list=ensureProfessionPoints(c);
+  host.innerHTML="";
+
+  if(list.length===0){
+    const empty=document.createElement("div");
+    empty.className="muted";
+    empty.textContent="Aucune compétence métier ajoutée.";
+    host.appendChild(empty);
+    return;
+  }
+
+  list.forEach((item,index)=>{
+    const row=document.createElement("div");
+    row.className="profession-point-row";
+
+    const name=document.createElement("input");
+    name.type="text";
+    name.placeholder="Ex. Forge, Minage, Alchimie...";
+    name.value=item.name||"";
+    name.addEventListener("input",()=>{
+      item.name=name.value;
+      saveCurrentCharacterProfessionPoints();
+    });
+
+    const value=document.createElement("input");
+    value.type="number";
+    value.min="0";
+    value.max="99";
+    value.step="1";
+    value.value=Number.isFinite(Number(item.value))?Number(item.value):0;
+    value.addEventListener("input",()=>{
+      item.value=Math.max(0,Number(value.value)||0);
+      saveCurrentCharacterProfessionPoints();
+    });
+
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="profession-point-remove";
+    remove.textContent="🗑";
+    remove.title="Supprimer cette compétence";
+    remove.addEventListener("click",()=>{
+      list.splice(index,1);
+      saveCurrentCharacterProfessionPoints(true);
+      renderProfessionPoints(c);
+    });
+
+    row.append(name,value,remove);
+    host.appendChild(row);
+  });
+}
+
+function saveCurrentCharacterProfessionPoints(renderAfter=false){
+  if(!currentCharacterId)return;
+  const chars=getCharacters();
+  const c=chars.find(x=>x.id===currentCharacterId);
+  if(!c)return;
+  ensureProfessionPoints(c);
+  saveCharacters(chars);
+  if(renderAfter)renderCharacters();
+}
+
+function addProfessionPoint(){
+  if(!currentCharacterId)return;
+  const chars=getCharacters();
+  const c=chars.find(x=>x.id===currentCharacterId);
+  if(!c)return;
+  ensureProfessionPoints(c).push({name:"",value:0});
+  saveCharacters(chars);
+  renderProfessionPoints(c);
+}
+
 /* V1.10.0 — binding robuste du bouton Créer */
 (function bindCreateCharacterButton(){
   const bind=()=>{
@@ -6096,6 +6241,22 @@ console.log("JDR V1.6.0 combat controls",{
       ev.stopPropagation();
       createCharacter();
     },false);
+  };
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bind,{once:true});
+  }else{
+    bind();
+  }
+})();
+
+
+(function bindProfessionPoints(){
+  const bind=()=>{
+    const btn=document.getElementById("addProfessionPointBtn");
+    if(btn && !btn.dataset.bound){
+      btn.dataset.bound="1";
+      btn.addEventListener("click",addProfessionPoint);
+    }
   };
   if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded",bind,{once:true});
