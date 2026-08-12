@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V1.10.4</title>
+<title>JDR Lunaria - V1.10.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3649,6 +3649,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
   }
 }
 
+
+/* V1.10.5 — Paramètres, sans téléchargement de l'application */
+.settings-card{max-width:760px;margin:0 auto 16px;}
+.settings-option{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;padding:16px!important;margin:10px 0!important;border:1px solid var(--border)!important;border-radius:16px!important;background:#0d1425!important;}
+.settings-option span{display:flex;flex-direction:column;gap:5px}.settings-option small{color:var(--muted);font-size:12px}.settings-option input[type="checkbox"]{width:22px!important;height:22px!important;flex:0 0 auto!important}
+.settings-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.settings-actions button{width:auto!important;min-width:230px}
+body.lunaria-no-effects .spark,body.lunaria-no-effects .shooting-star,body.lunaria-no-effects .stars,body.lunaria-no-effects .star{display:none!important}
+@media(max-width:760px){.settings-actions{display:grid;grid-template-columns:1fr}.settings-actions button{width:100%!important;min-width:0!important}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3670,7 +3679,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 1.10.4</div>
+    <div class="version">VERSION 1.10.5</div>
   </div>
 </div>
 
@@ -3975,6 +3984,31 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:
     <h2>📝 Notes de la partie</h2>
     <textarea id="gameNotes" placeholder="Ambiance, PNJ rencontrés, indices, décisions du groupe..."></textarea>
     <button id="saveGameNotesBtn" class="save-button">💾 Sauvegarder les notes</button>
+  </section>
+</div>
+
+
+<div id="settingsScreen" class="screen hidden">
+  <div class="topbar">
+    <button type="button" class="back" id="settingsBackBtn">← Retour</button>
+    <h1>⚙ Paramètres</h1>
+  </div>
+  <section class="card settings-card">
+    <h2>🎨 Interface</h2>
+    <label class="settings-option"><span><strong>Animations</strong><small>Active ou désactive les vidéos et animations de fond.</small></span><input id="settingAnimations" type="checkbox" checked></label>
+    <label class="settings-option"><span><strong>Effets visuels</strong><small>Active ou désactive les effets décoratifs de l'interface.</small></span><input id="settingEffects" type="checkbox" checked></label>
+  </section>
+  <section class="card settings-card">
+    <h2>💾 Données</h2>
+    <p class="muted">Les personnages et réglages sont enregistrés localement sur cet appareil.</p>
+    <div class="settings-actions">
+      <button type="button" id="settingsExportBtn">💾 Exporter mes personnages</button>
+      <button type="button" id="settingsImportBtn">📥 Importer des personnages</button>
+    </div>
+  </section>
+  <section class="card settings-card">
+    <h2>🌙 JDR Lunaria</h2>
+    <p class="muted">Version 1.10.5</p>
   </section>
 </div>
 
@@ -6237,7 +6271,7 @@ $("addJournalBtn").onclick=()=>openJournalModal();$("cancelJournalBtn").onclick=
 
 $("continueBtn").onclick=()=>{const chars=getOwnedCharacters();chars.length?openCharacter(chars[0].id):openCharacters()};
 $("newGameBtn").onclick=openGames;
-$("settingsBtn").onclick=()=>alert("Les paramètres seront ajoutés plus tard.");
+$("settingsBtn").onclick=()=>{showOnly("settingsScreen");window.scrollTo({top:0,behavior:"smooth"});};
 const savedMultiName=localStorage.getItem("jdrMultiplayerName");if(savedMultiName)$("multiplayerName").value=savedMultiName;$("multiplayerName").addEventListener("input",()=>localStorage.setItem("jdrMultiplayerName",$("multiplayerName").value));
 const savedMultiRole=localStorage.getItem("jdrMultiplayerRole");
 if(savedMultiRole){multiplayerRoleValue=savedMultiRole;if(multiplayerRole)multiplayerRole.value=savedMultiRole}
@@ -6378,6 +6412,25 @@ function addProfessionPoint(){
 })();
 
 openHome();
+
+
+/* V1.10.5 — PARAMÈTRES */
+(function(){
+ const ak="jdrLunariaAnimations", ek="jdrLunariaEffects";
+ function apply(){
+  const a=localStorage.getItem(ak)!=="0", e=localStorage.getItem(ek)!=="0";
+  if($("settingAnimations"))$("settingAnimations").checked=a;
+  if($("settingEffects"))$("settingEffects").checked=e;
+  document.querySelectorAll("video").forEach(v=>{if(a){v.style.display="";try{v.play().catch(()=>{})}catch(_){}}else{try{v.pause()}catch(_){}v.style.display="none"}});
+  document.body.classList.toggle("lunaria-no-effects",!e);
+ }
+ if($("settingsBackBtn"))$("settingsBackBtn").onclick=openHome;
+ if($("settingAnimations"))$("settingAnimations").onchange=e=>{localStorage.setItem(ak,e.target.checked?"1":"0");apply()};
+ if($("settingEffects"))$("settingEffects").onchange=e=>{localStorage.setItem(ek,e.target.checked?"1":"0");apply()};
+ if($("settingsExportBtn"))$("settingsExportBtn").onclick=exportCharacters;
+ if($("settingsImportBtn"))$("settingsImportBtn").onclick=()=>{const i=$("importCharactersFile");if(i)i.click()};
+ apply();
+})();
 
 </script>
 </body>
