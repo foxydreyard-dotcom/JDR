@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.1</title>
+<title>JDR Lunaria - V2.2.2</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3704,6 +3704,76 @@ body.jdr-effects-off #innerDecor{
 @media(max-width:760px){}
 
 
+
+/* =========================================================
+   V2.2.2 — STOCKAGE MULTIJOUEUR ALLÉGÉ
+   Evite QuotaExceededError dans localStorage.
+   Les portraits (data:image...), inventaires lourds, historiques, etc.
+   ne sont plus dupliqués dans jdrGames.
+   ========================================================= */
+function lightweightCharacterSnapshot(c){
+  if(!c)return null;
+  return {
+    id:c.id,
+    ownerId:c.ownerId||"remote",
+    ownerName:c.ownerName||"Joueur",
+    prenom:c.prenom||"",
+    nom:c.nom||"",
+    race:c.race||"",
+    metier:c.metier||"",
+    pv:Number(c.pv||0),
+    esprit:Number(c.esprit||0),
+    cc:Number(c.cc||0),ct:Number(c.ct||0),f:Number(c.f||0),a:Number(c.a||0),r:Number(c.r||0),
+    i:Number(c.i||0),p:Number(c.p||0),s:Number(c.s||0),fm:Number(c.fm||0),fp:Number(c.fp||0),
+    portrait:"" // IMPORTANT : jamais de base64/data URL dans jdrGames
+  };
+}
+
+function compactGameForStorage(game){
+  const g=clone(game);
+  g.sharedCharacters=(g.sharedCharacters||[]).map(lightweightCharacterSnapshot).filter(Boolean);
+  if(Array.isArray(g.sessionLog) && g.sessionLog.length>80)g.sessionLog=g.sessionLog.slice(0,80);
+  if(g.combat && Array.isArray(g.combat.log) && g.combat.log.length>100)g.combat.log=g.combat.log.slice(0,100);
+  return g;
+}
+
+function safeWriteGames(games){
+  const compact=(games||[]).map(compactGameForStorage);
+  try{
+    localStorage.setItem("jdrGames",JSON.stringify(compact));
+    return true;
+  }catch(err){
+    if(err?.name!=="QuotaExceededError")throw err;
+
+    // Nettoyage plus agressif en dernier recours : on garde la structure,
+    // mais on enlève les journaux volumineux des anciennes parties.
+    const emergency=compact.map(g=>({
+      ...g,
+      sessionLog:(g.sessionLog||[]).slice(0,20),
+      combat:g.combat?{...g.combat,log:(g.combat.log||[]).slice(0,25)}:g.combat,
+      sharedCharacters:(g.sharedCharacters||[]).map(lightweightCharacterSnapshot)
+    }));
+    try{
+      localStorage.setItem("jdrGames",JSON.stringify(emergency));
+      return true;
+    }catch(err2){
+      console.error("Stockage des parties toujours trop volumineux",err2);
+      return false;
+    }
+  }
+}
+
+function cleanLegacyGameStorage(){
+  try{
+    const raw=localStorage.getItem("jdrGames");
+    if(!raw)return;
+    const games=JSON.parse(raw);
+    if(Array.isArray(games))safeWriteGames(games);
+  }catch(err){
+    console.warn("Nettoyage jdrGames impossible :",err);
+  }
+}
+
 /* =========================================================
    V2.2.0 — LOBBY MULTIJOUEUR GLOBAL
    Une partie créée par un joueur apparaît chez les autres.
@@ -3767,7 +3837,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.1</div>
+    <div class="version">VERSION 2.2.2</div>
   </div>
 </div>
 
@@ -5482,7 +5552,7 @@ function mergeSharedGame(raw){
   const index=games.findIndex(g=>g.id===game.id);
   if(index>=0)games[index]=game;
   else games.push(game);
-  localStorage.setItem("jdrGames",JSON.stringify(games));
+  safeWriteGames(games);
   mergeSharedCharacters(game.sharedCharacters);
   if(!gamesScreen.classList.contains("hidden"))renderGames();
 }
@@ -5493,7 +5563,7 @@ async function announceSharedGame(game){
     await globalLobbyChannel.send({
       type:"broadcast",
       event:"lobby-game-upsert",
-      payload:{game:normalizeSharedGame(clone(game)),senderId:multiplayerPlayerId,sentAt:Date.now()}
+      payload:{game:normalizeSharedGame(compactGameForStorage(game)),senderId:multiplayerPlayerId,sentAt:Date.now()}
     });
   }catch(err){console.warn("Annonce lobby impossible :",err)}
 }
@@ -5556,7 +5626,8 @@ async function startGlobalLobby(){
 
 function ensureGameSharedCharacter(game,character){
   game.sharedCharacters ||= [];
-  const snapshot=clone(character);
+  const snapshot=lightweightCharacterSnapshot(character);
+  if(!snapshot)return;
   const i=game.sharedCharacters.findIndex(c=>c.id===snapshot.id);
   if(i>=0)game.sharedCharacters[i]=snapshot;
   else game.sharedCharacters.push(snapshot);
@@ -5607,7 +5678,14 @@ function getGames(){
   if(!saved)return [];
   try{return JSON.parse(saved).map(normalizeGame)}catch{return []}
 }
-function saveGames(games){localStorage.setItem("jdrGames",JSON.stringify(games));scheduleRealtimeSync();scheduleLobbyGamesSync()}
+function saveGames(games){
+  if(!safeWriteGames(games)){
+    alert("Le stockage local est plein. Les anciennes données multijoueur ont été allégées, mais il reste trop de données sur cet appareil.");
+    return;
+  }
+  scheduleRealtimeSync();
+  scheduleLobbyGamesSync();
+}
 function openGames(){
   hideScreens();
   gamesScreen.classList.remove("hidden");
@@ -5666,7 +5744,10 @@ async function joinGame(gameId){
       date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
       text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
     });
-    localStorage.setItem("jdrGames",JSON.stringify(games));
+    if(!safeWriteGames(games)){
+      alert("Impossible de sauvegarder la partie : stockage local saturé.");
+      return;
+    }
 
     currentGameId=gameId;
     renderGames();
@@ -5796,7 +5877,7 @@ async function confirmGame(){
   const roomCode=randomRoomCode();
   const gmName=$("gameMaster").value.trim() || getLocalOwnerName();
   const chars=getCharacters();
-  const initialSharedCharacters=ids.map(id=>chars.find(c=>c.id===id)).filter(Boolean).map(clone);
+  const initialSharedCharacters=ids.map(id=>chars.find(c=>c.id===id)).filter(Boolean).map(lightweightCharacterSnapshot);
 
   const game=normalizeGame({
     id:"game_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
@@ -6794,6 +6875,8 @@ if("serviceWorker" in navigator){
   });
 }
 
+
+cleanLegacyGameStorage();
 
 /* V2.2.0 — démarre le lobby dès l'ouverture du site */
 setTimeout(()=>startGlobalLobby(),0);
