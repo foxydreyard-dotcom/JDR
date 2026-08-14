@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.0</title>
+<title>JDR Lunaria - V2.2.1</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3726,6 +3726,16 @@ body.jdr-effects-off #innerDecor{
   font-size:11px;
 }
 
+
+/* V2.2.1 — bouton Rejoindre fiable sur mobile */
+.join-game{
+  position:relative!important;
+  z-index:80!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.join-game:active{transform:scale(.97)!important;filter:brightness(1.12)!important;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3757,7 +3767,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.0</div>
+    <div class="version">VERSION 2.2.1</div>
   </div>
 </div>
 
@@ -5556,19 +5566,27 @@ async function ensureConnectedToGameRoom(game,asHost=false){
   if(!game.roomCode)game.roomCode=randomRoomCode();
   if(currentRoomCode===game.roomCode && realtimeChannel)return true;
 
-  let playerName=(localStorage.getItem("jdrMultiplayerName")||multiplayerPlayerName||getLocalOwnerName()||"").trim();
+  // Pas de prompt bloquant : on récupère le nom déjà connu ou celui du personnage.
+  let playerName=(localStorage.getItem("jdrMultiplayerName")||multiplayerPlayerName||"").trim();
   if(!playerName || playerName==="Joueur"){
-    playerName=(prompt("Quel nom veux-tu utiliser dans cette partie ?")||"").trim();
-    if(!playerName)return false;
+    const active=getActivePlayerCharacter();
+    playerName=active ? `${active.prenom||""} ${active.nom||""}`.trim() : getLocalOwnerName();
   }
+  if(!playerName || playerName==="Joueur") playerName="Joueur Lunaria";
 
   multiplayerPlayerName=playerName;
   localStorage.setItem("jdrMultiplayerName",playerName);
   multiplayerIsHost=!!asHost;
   multiplayerRoleValue=asHost?"MJ":"Joueur";
   if(multiplayerRole)multiplayerRole.value=multiplayerRoleValue;
-  await joinRealtimeRoom(game.roomCode);
-  return true;
+
+  try{
+    await joinRealtimeRoom(game.roomCode);
+    return true;
+  }catch(err){
+    console.error("Connexion à la partie impossible :",err);
+    return false;
+  }
 }
 
 
@@ -5615,51 +5633,61 @@ function isLocalPlayerInGame(game){
 }
 
 async function joinGame(gameId){
-  let game=getGames().find(g=>g.id===gameId);
-  if(!game)return;
+  try{
+    const game=getGames().find(g=>g.id===gameId);
+    if(!game)return alert("Cette partie n'est plus disponible.");
 
-  let c=getActivePlayerCharacter();
-  if(!c){
-    const owned=getOwnedCharacters();
-    if(!owned.length){
-      alert("Crée d'abord ton personnage.");
-      return;
+    let c=getActivePlayerCharacter();
+    if(!c){
+      const owned=getOwnedCharacters();
+      if(!owned.length){
+        alert("Crée d'abord ton personnage avant de rejoindre une partie.");
+        return;
+      }
+      // Si plusieurs personnages existent et aucun n'est choisi dans le salon,
+      // on utilise le premier : l'objectif est que Rejoindre fonctionne en un clic.
+      c=owned[0];
     }
-    const labels=owned.map((x,i)=>`${i+1} - ${x.prenom} ${x.nom}`).join("\n");
-    const choice=Number(prompt("Avec quel personnage veux-tu rejoindre ?\n"+labels));
-    c=owned[choice-1];
-    if(!c)return;
-  }
 
-  // Rejoindre automatiquement le salon Realtime attaché à cette partie.
-  const connected=await ensureConnectedToGameRoom(game,false);
-  if(!connected)return;
+    multiplayerCharacterId=c.id;
+    if(multiplayerCharacter)multiplayerCharacter.value=c.id;
+    localStorage.setItem("jdrMultiplayerCharacter",c.id);
 
-  multiplayerCharacterId=c.id;
-  if(multiplayerCharacter)multiplayerCharacter.value=c.id;
-  localStorage.setItem("jdrMultiplayerCharacter",c.id);
+    // On enregistre immédiatement la participation LOCALement.
+    // Ainsi l'interface répond au clic même si Supabase met un peu de temps.
+    const games=getGames();
+    const g=games.find(x=>x.id===gameId);
+    if(!g)return;
+    g.characterIds ||= [];
+    if(!g.characterIds.includes(c.id))g.characterIds.push(c.id);
+    ensureGameSharedCharacter(g,c);
+    g.sessionLog ||= [];
+    g.sessionLog.unshift({
+      date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+      text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
+    });
+    localStorage.setItem("jdrGames",JSON.stringify(games));
 
-  const games=getGames();
-  const g=games.find(x=>x.id===gameId);
-  if(!g)return;
-  g.characterIds ||= [];
-  if(!g.characterIds.includes(c.id))g.characterIds.push(c.id);
-  ensureGameSharedCharacter(g,c);
-  g.sessionLog ||= [];
-  g.sessionLog.unshift({
-    date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
-    text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
-  });
+    currentGameId=gameId;
+    renderGames();
+    notice(`🎭 ${c.prenom} rejoint ${g.name}`);
 
-  saveGames(games);
-  await announceSharedGame(g);
-  await trackCurrentPresence();
+    // Connexion réseau en second plan : elle ne bloque plus l'ouverture.
+    const connected=await ensureConnectedToGameRoom(g,false);
+    if(connected){
+      try{ await announceSharedGame(g); }catch(e){ console.warn(e); }
+      try{ await trackCurrentPresence(); }catch(e){ console.warn(e); }
+    }else{
+      alert("Tu as rejoint la partie sur cet appareil, mais la connexion temps réel n'a pas pu être établie. Vérifie Internet puis réessaie.");
+    }
 
-  currentGameId=gameId;
-  if(liveSessionActive)openLiveSession();
-  else{
-    openCharacter(c.id);
-    notice(`🎭 Partie rejointe : ${g.name}`);
+    // Ouvre la fiche du personnage après le clic, même si la synchro a échoué.
+    if(liveSessionActive)openLiveSession();
+    else openCharacter(c.id);
+
+  }catch(err){
+    console.error("Erreur rejoindre partie :",err);
+    alert("Impossible de rejoindre la partie : "+(err?.message||err));
   }
 }
 
