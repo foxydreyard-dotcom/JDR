@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.3</title>
+<title>JDR Lunaria - V2.2.4</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3731,14 +3731,14 @@ function v223LightCharacter(c){
 
 function v223CompactGame(game){
   const g=clone(game);
-  g.sharedCharacters=(g.sharedCharacters||[]).map(lightweightCharacterSnapshot).filter(Boolean);
+  g.sharedCharacters=(g.sharedCharacters||[]).map(v223LightCharacter).filter(Boolean);
   if(Array.isArray(g.sessionLog) && g.sessionLog.length>80)g.sessionLog=g.sessionLog.slice(0,80);
   if(g.combat && Array.isArray(g.combat.log) && g.combat.log.length>100)g.combat.log=g.combat.log.slice(0,100);
   return g;
 }
 
 function v223SafeWriteGames(games){
-  const compact=(games||[]).map(compactGameForStorage);
+  const compact=(games||[]).map(v223CompactGame);
   try{
     localStorage.setItem("jdrGames",JSON.stringify(compact));
     return true;
@@ -3751,7 +3751,7 @@ function v223SafeWriteGames(games){
       ...g,
       sessionLog:(g.sessionLog||[]).slice(0,20),
       combat:g.combat?{...g.combat,log:(g.combat.log||[]).slice(0,25)}:g.combat,
-      sharedCharacters:(g.sharedCharacters||[]).map(lightweightCharacterSnapshot)
+      sharedCharacters:(g.sharedCharacters||[]).map(v223LightCharacter)
     }));
     try{
       localStorage.setItem("jdrGames",JSON.stringify(emergency));
@@ -3763,7 +3763,7 @@ function v223SafeWriteGames(games){
   }
 }
 
-function cleanLegacyGameStorage(){
+function v223CleanLegacyGames(){
   try{
     const raw=localStorage.getItem("jdrGames");
     if(!raw)return;
@@ -3815,6 +3815,20 @@ function cleanLegacyGameStorage(){
   touch-action:manipulation!important;
 }
 
+
+/* V2.2.4 — bouton Créer une partie robuste */
+#confirmGameBtn,
+#createGameBtn{
+  position:relative!important;
+  z-index:100!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+#confirmGameBtn:active,
+#createGameBtn:active{
+  transform:scale(.97)!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3846,7 +3860,7 @@ function cleanLegacyGameStorage(){
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.3</div>
+    <div class="version">VERSION 2.2.4</div>
   </div>
 </div>
 
@@ -5943,42 +5957,70 @@ function openGameModal(){
 }
 function closeGameModal(){$("gameModal").classList.add("hidden")}
 async function confirmGame(){
-  const name=$("gameName").value.trim();
-  if(!name)return alert("Donne un nom à la partie.");
+  try{
+    const name=$("gameName").value.trim();
+    if(!name){
+      alert("Donne un nom à la partie.");
+      return;
+    }
 
-  const ids=[...$("partySelectList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
-  const roomCode=randomRoomCode();
-  const gmName=$("gameMaster").value.trim() || getLocalOwnerName();
-  const chars=getCharacters();
-  const initialSharedCharacters=ids.map(id=>chars.find(c=>c.id===id)).filter(Boolean).map(lightweightCharacterSnapshot);
+    const ids=[...$("partySelectList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
+    const roomCode=randomRoomCode();
+    const gmName=$("gameMaster").value.trim() || getLocalOwnerName();
+    const chars=getCharacters();
 
-  const game=normalizeGame({
-    id:"game_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
-    name,
-    gm:gmName,
-    characterIds:ids,
-    sharedCharacters:initialSharedCharacters,
-    roomCode,
-    shared:true,
-    createdBy:LOCAL_OWNER_ID,
-    creatorName:gmName,
-    notes:"",
-    createdAt:new Date().toLocaleDateString("fr-FR"),
-    sessionLog:[],
-    npcs:[],
-    combat:{order:[],turnIndex:0,log:[]}
-  });
+    const initialSharedCharacters=ids
+      .map(id=>chars.find(c=>c.id===id))
+      .filter(Boolean)
+      .map(v223LightCharacter);
 
-  const games=getGames();
-  games.push(game);
-  saveGames(games);
-  closeGameModal();
-  renderGames();
+    const game=normalizeGame({
+      id:"game_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      name,
+      gm:gmName,
+      characterIds:ids,
+      sharedCharacters:initialSharedCharacters,
+      roomCode,
+      shared:true,
+      createdBy:LOCAL_OWNER_ID,
+      creatorName:gmName,
+      notes:"",
+      createdAt:new Date().toLocaleDateString("fr-FR"),
+      sessionLog:[],
+      npcs:[],
+      combat:{order:[],turnIndex:0,log:[]}
+    });
 
-  // Le créateur devient automatiquement l'hôte du salon de cette partie.
-  await ensureConnectedToGameRoom(game,true);
-  await announceSharedGame(game);
-  notice("🌐 Partie multijoueur créée — les autres peuvent maintenant la rejoindre");
+    const games=getGames();
+    games.push(game);
+
+    // Sauvegarde locale en premier : le bouton Créer répond immédiatement.
+    if(!v223SafeWriteGames(games)){
+      alert("Impossible de créer la partie : le stockage local est plein.");
+      return;
+    }
+
+    closeGameModal();
+    renderGames();
+    notice("✓ Partie créée");
+
+    // La mise en réseau se fait ensuite, sans empêcher la création locale.
+    try{
+      const connected=await ensureConnectedToGameRoom(game,true);
+      if(connected){
+        await announceSharedGame(game);
+        notice("🌐 Partie multijoueur créée — les autres peuvent la rejoindre");
+      }else{
+        console.warn("Partie créée localement, mais connexion Realtime indisponible.");
+      }
+    }catch(netErr){
+      console.warn("Connexion multijoueur différée :",netErr);
+    }
+
+  }catch(err){
+    console.error("Erreur création partie :",err);
+    alert("Impossible de créer la partie : "+(err?.message||err));
+  }
 }
 function deleteGame(id){
   const games=getGames();
