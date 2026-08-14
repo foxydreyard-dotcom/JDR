@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.1.5</title>
+<title>JDR Lunaria - V2.2.0</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3703,6 +3703,29 @@ body.jdr-effects-off #innerDecor{
 
 @media(max-width:760px){}
 
+
+/* =========================================================
+   V2.2.0 — LOBBY MULTIJOUEUR GLOBAL
+   Une partie créée par un joueur apparaît chez les autres.
+   ========================================================= */
+.game-network-chip{
+  display:inline-block;
+  margin-top:8px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid rgba(81,184,132,.42);
+  background:rgba(19,73,49,.30);
+  color:#a8efc8;
+  font-size:11px;
+  font-weight:700;
+}
+.game-room-code{
+  display:inline-block;
+  margin-left:6px;
+  color:#c8d0ff;
+  font-size:11px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3734,7 +3757,7 @@ body.jdr-effects-off #innerDecor{
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.1.5</div>
+    <div class="version">VERSION 2.2.0</div>
   </div>
 </div>
 
@@ -5404,12 +5427,160 @@ function refreshVisibleScreenAfterSync(){
 }
 
 
+
+/* =========================================================
+   V2.2.0 — LOBBY MULTIJOUEUR GLOBAL
+   Les parties sont annoncées sur un canal Supabase commun.
+   Cela permet à Mitsuki/Epona/Foxy de voir la même liste sans
+   devoir recréer chacun la partie.
+   ========================================================= */
+let globalLobbyChannel=null;
+let lobbySyncTimer=null;
+
+function normalizeSharedGame(game){
+  if(!game || typeof game!=="object")return null;
+  game.characterIds ||= [];
+  game.sharedCharacters ||= [];
+  game.sessionLog ||= [];
+  game.npcs ||= [];
+  game.combat ||= {order:[],turnIndex:0,log:[]};
+  game.notes ||= "";
+  game.roomCode ||= "";
+  game.shared = game.shared!==false;
+  return game;
+}
+
+function mergeSharedCharacters(list){
+  if(!Array.isArray(list) || !list.length)return;
+  const local=getCharacters();
+  const byId=new Map(local.map(c=>[c.id,c]));
+  list.forEach(raw=>{
+    if(!raw || !raw.id)return;
+    const incoming=migrateCharacter(clone(raw),raw.ownerId||"remote",raw.ownerName||"Joueur distant");
+    const existing=byId.get(incoming.id);
+    // Ne jamais écraser notre propre personnage local par une copie distante.
+    if(existing && existing.ownerId===LOCAL_OWNER_ID)return;
+    byId.set(incoming.id,incoming);
+  });
+  localStorage.setItem("jdrCharacters",JSON.stringify([...byId.values()]));
+}
+
+function mergeSharedGame(raw){
+  const game=normalizeSharedGame(clone(raw));
+  if(!game || !game.id)return;
+  const games=getGames();
+  const index=games.findIndex(g=>g.id===game.id);
+  if(index>=0)games[index]=game;
+  else games.push(game);
+  localStorage.setItem("jdrGames",JSON.stringify(games));
+  mergeSharedCharacters(game.sharedCharacters);
+  if(!gamesScreen.classList.contains("hidden"))renderGames();
+}
+
+async function announceSharedGame(game){
+  if(!globalLobbyChannel || !game || game.shared===false)return;
+  try{
+    await globalLobbyChannel.send({
+      type:"broadcast",
+      event:"lobby-game-upsert",
+      payload:{game:normalizeSharedGame(clone(game)),senderId:multiplayerPlayerId,sentAt:Date.now()}
+    });
+  }catch(err){console.warn("Annonce lobby impossible :",err)}
+}
+
+async function announceDeletedGame(gameId){
+  if(!globalLobbyChannel || !gameId)return;
+  try{
+    await globalLobbyChannel.send({
+      type:"broadcast",
+      event:"lobby-game-delete",
+      payload:{gameId,senderId:multiplayerPlayerId,sentAt:Date.now()}
+    });
+  }catch(err){console.warn("Suppression lobby impossible :",err)}
+}
+
+function scheduleLobbyGamesSync(){
+  clearTimeout(lobbySyncTimer);
+  lobbySyncTimer=setTimeout(()=>{
+    getGames().filter(g=>g.shared!==false && g.roomCode).forEach(g=>announceSharedGame(g));
+  },180);
+}
+
+async function startGlobalLobby(){
+  if(globalLobbyChannel)return;
+  const channel=realtimeClient.channel("jdr-lunaria-global-lobby",{config:{broadcast:{self:false}}});
+  globalLobbyChannel=channel;
+
+  channel
+    .on("broadcast",{event:"lobby-game-upsert"},({payload})=>{
+      if(!payload || payload.senderId===multiplayerPlayerId)return;
+      mergeSharedGame(payload.game);
+    })
+    .on("broadcast",{event:"lobby-game-delete"},({payload})=>{
+      if(!payload || payload.senderId===multiplayerPlayerId || !payload.gameId)return;
+      const games=getGames().filter(g=>g.id!==payload.gameId);
+      localStorage.setItem("jdrGames",JSON.stringify(games));
+      if(!gamesScreen.classList.contains("hidden"))renderGames();
+    })
+    .on("broadcast",{event:"lobby-request-games"},({payload})=>{
+      if(payload?.senderId===multiplayerPlayerId)return;
+      // Chaque client peut réannoncer les parties qu'il connaît :
+      // cela évite de dépendre uniquement du créateur au moment précis de la demande.
+      getGames().filter(g=>g.shared!==false && g.roomCode).forEach(g=>announceSharedGame(g));
+    })
+    .subscribe(async status=>{
+      if(status==="SUBSCRIBED"){
+        try{
+          await channel.send({
+            type:"broadcast",
+            event:"lobby-request-games",
+            payload:{senderId:multiplayerPlayerId,sentAt:Date.now()}
+          });
+          setTimeout(()=>{
+            getGames().filter(g=>g.shared!==false && g.roomCode).forEach(g=>announceSharedGame(g));
+          },250);
+        }catch(err){console.warn("Demande lobby impossible :",err)}
+      }
+    });
+}
+
+function ensureGameSharedCharacter(game,character){
+  game.sharedCharacters ||= [];
+  const snapshot=clone(character);
+  const i=game.sharedCharacters.findIndex(c=>c.id===snapshot.id);
+  if(i>=0)game.sharedCharacters[i]=snapshot;
+  else game.sharedCharacters.push(snapshot);
+}
+
+async function ensureConnectedToGameRoom(game,asHost=false){
+  if(!game.roomCode)game.roomCode=randomRoomCode();
+  if(currentRoomCode===game.roomCode && realtimeChannel)return true;
+
+  let playerName=(localStorage.getItem("jdrMultiplayerName")||multiplayerPlayerName||getLocalOwnerName()||"").trim();
+  if(!playerName || playerName==="Joueur"){
+    playerName=(prompt("Quel nom veux-tu utiliser dans cette partie ?")||"").trim();
+    if(!playerName)return false;
+  }
+
+  multiplayerPlayerName=playerName;
+  localStorage.setItem("jdrMultiplayerName",playerName);
+  multiplayerIsHost=!!asHost;
+  multiplayerRoleValue=asHost?"MJ":"Joueur";
+  if(multiplayerRole)multiplayerRole.value=multiplayerRoleValue;
+  await joinRealtimeRoom(game.roomCode);
+  return true;
+}
+
+
 function normalizeGame(g){
   g.characterIds ||= [];
+  g.sharedCharacters ||= [];
   g.sessionLog ||= [];
   g.npcs ||= [];
   g.combat ||= {order:[],turnIndex:0,log:[]};
   g.notes ||= "";
+  if(g.shared===undefined)g.shared=true;
+  g.roomCode ||= "";
   return g;
 }
 
@@ -5418,8 +5589,17 @@ function getGames(){
   if(!saved)return [];
   try{return JSON.parse(saved).map(normalizeGame)}catch{return []}
 }
-function saveGames(games){localStorage.setItem("jdrGames",JSON.stringify(games));scheduleRealtimeSync()}
-function openGames(){hideScreens();gamesScreen.classList.remove("hidden");renderGames();window.scrollTo(0,0)}
+function saveGames(games){localStorage.setItem("jdrGames",JSON.stringify(games));scheduleRealtimeSync();scheduleLobbyGamesSync()}
+function openGames(){
+  hideScreens();
+  gamesScreen.classList.remove("hidden");
+  renderGames();
+  window.scrollTo(0,0);
+  startGlobalLobby();
+  if(globalLobbyChannel){
+    globalLobbyChannel.send({type:"broadcast",event:"lobby-request-games",payload:{senderId:multiplayerPlayerId,sentAt:Date.now()}}).catch(()=>{});
+  }
+}
 function getActivePlayerCharacter(){
   if(multiplayerCharacterId){
     const c=getOwnedCharacters().find(x=>x.id===multiplayerCharacterId);
@@ -5434,8 +5614,8 @@ function isLocalPlayerInGame(game){
   return (game.characterIds||[]).some(id=>ownedIds.has(id));
 }
 
-function joinGame(gameId){
-  const game=getGames().find(g=>g.id===gameId);
+async function joinGame(gameId){
+  let game=getGames().find(g=>g.id===gameId);
   if(!game)return;
 
   let c=getActivePlayerCharacter();
@@ -5449,35 +5629,37 @@ function joinGame(gameId){
     const choice=Number(prompt("Avec quel personnage veux-tu rejoindre ?\n"+labels));
     c=owned[choice-1];
     if(!c)return;
-    multiplayerCharacterId=c.id;
-    if(multiplayerCharacter)multiplayerCharacter.value=c.id;
-    localStorage.setItem("jdrMultiplayerCharacter",c.id);
-    trackCurrentPresence();
   }
+
+  // Rejoindre automatiquement le salon Realtime attaché à cette partie.
+  const connected=await ensureConnectedToGameRoom(game,false);
+  if(!connected)return;
+
+  multiplayerCharacterId=c.id;
+  if(multiplayerCharacter)multiplayerCharacter.value=c.id;
+  localStorage.setItem("jdrMultiplayerCharacter",c.id);
 
   const games=getGames();
   const g=games.find(x=>x.id===gameId);
+  if(!g)return;
   g.characterIds ||= [];
-  if(!g.characterIds.includes(c.id)){
-    g.characterIds.push(c.id);
-    g.sessionLog ||= [];
-    g.sessionLog.unshift({
-      date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
-      text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
-    });
-    saveGames(games);
-  }
+  if(!g.characterIds.includes(c.id))g.characterIds.push(c.id);
+  ensureGameSharedCharacter(g,c);
+  g.sessionLog ||= [];
+  g.sessionLog.unshift({
+    date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+    text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
+  });
+
+  saveGames(games);
+  await announceSharedGame(g);
+  await trackCurrentPresence();
 
   currentGameId=gameId;
-  if(multiplayerRoleValue==="MJ" || multiplayerIsHost){
-    openMJ(gameId);
-  }else{
-    if(liveSessionActive){
-      openLiveSession();
-    }else{
-      openCharacter(c.id);
-      notice(`🎭 Partie rejointe : ${g.name}`);
-    }
+  if(liveSessionActive)openLiveSession();
+  else{
+    openCharacter(c.id);
+    notice(`🎭 Partie rejointe : ${g.name}`);
   }
 }
 
@@ -5523,6 +5705,7 @@ function renderGames(){
     card.innerHTML=`
       <h3>${esc(g.name)}</h3>
       <div class="game-meta">MJ : ${esc(g.gm||"Non défini")}<br>Créée le ${esc(g.createdAt||"")}</div>
+      ${g.roomCode?`<span class="game-network-chip">🌐 Partie multijoueur</span><span class="game-room-code">${esc(g.roomCode)}</span>`:""}
 
       <div class="game-status-row">
         <span class="game-status-chip">${names.length} joueur${names.length>1?"s":""}</span>
@@ -5538,7 +5721,7 @@ function renderGames(){
           ? `<button class="enter-game">🎮 Entrer dans la partie</button>`
           : `<button class="join-game">＋ Rejoindre</button>`}
         ${isMJ?'<button class="start-game">👑 Vue MJ</button>':""}
-        <button class="delete-game danger">Supprimer</button>
+        ${(g.createdBy===LOCAL_OWNER_ID || (!g.createdBy && isMJ))?'<button class="delete-game danger">Supprimer</button>':""}
       </div>
     `;
 
@@ -5554,10 +5737,10 @@ function renderGames(){
       e.stopPropagation();
       openMJ(g.id);
     });
-    card.querySelector(".delete-game").onclick=e=>{
+    card.querySelector(".delete-game")?.addEventListener("click",e=>{
       e.stopPropagation();
       deleteGame(g.id);
-    };
+    });
 
     card.onclick=()=>{
       if(joined)enterJoinedGame(g.id);
@@ -5577,16 +5760,55 @@ function openGameModal(){
   $("gameModal").classList.remove("hidden");
 }
 function closeGameModal(){$("gameModal").classList.add("hidden")}
-function confirmGame(){
-  const name=$("gameName").value.trim();if(!name)return alert("Donne un nom à la partie.");
+async function confirmGame(){
+  const name=$("gameName").value.trim();
+  if(!name)return alert("Donne un nom à la partie.");
+
   const ids=[...$("partySelectList").querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);
+  const roomCode=randomRoomCode();
+  const gmName=$("gameMaster").value.trim() || getLocalOwnerName();
+  const chars=getCharacters();
+  const initialSharedCharacters=ids.map(id=>chars.find(c=>c.id===id)).filter(Boolean).map(clone);
+
+  const game=normalizeGame({
+    id:"game_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+    name,
+    gm:gmName,
+    characterIds:ids,
+    sharedCharacters:initialSharedCharacters,
+    roomCode,
+    shared:true,
+    createdBy:LOCAL_OWNER_ID,
+    creatorName:gmName,
+    notes:"",
+    createdAt:new Date().toLocaleDateString("fr-FR"),
+    sessionLog:[],
+    npcs:[],
+    combat:{order:[],turnIndex:0,log:[]}
+  });
+
   const games=getGames();
-  games.push({id:"game_"+Date.now(),name,gm:$("gameMaster").value.trim(),characterIds:ids,notes:"",createdAt:new Date().toLocaleDateString("fr-FR"),sessionLog:[],npcs:[],combat:{order:[],turnIndex:0,log:[]}});
-  saveGames(games);closeGameModal();renderGames();notice("✓ Partie créée");
+  games.push(game);
+  saveGames(games);
+  closeGameModal();
+  renderGames();
+
+  // Le créateur devient automatiquement l'hôte du salon de cette partie.
+  await ensureConnectedToGameRoom(game,true);
+  await announceSharedGame(game);
+  notice("🌐 Partie multijoueur créée — les autres peuvent maintenant la rejoindre");
 }
 function deleteGame(id){
+  const game=getGames().find(g=>g.id===id);
+  if(!game)return;
+  if(game.createdBy && game.createdBy!==LOCAL_OWNER_ID){
+    alert("Seul le créateur peut supprimer cette partie.");
+    return;
+  }
   if(!confirm("Supprimer cette partie ?"))return;
-  saveGames(getGames().filter(g=>g.id!==id));renderGames();
+  saveGames(getGames().filter(g=>g.id!==id));
+  announceDeletedGame(id);
+  renderGames();
 }
 function openMJ(id){
   const game=getGames().find(g=>g.id===id);if(!game)return;
@@ -6543,6 +6765,10 @@ if("serviceWorker" in navigator){
     });
   });
 }
+
+
+/* V2.2.0 — démarre le lobby dès l'ouverture du site */
+setTimeout(()=>startGlobalLobby(),0);
 
 </script>
 </body>
