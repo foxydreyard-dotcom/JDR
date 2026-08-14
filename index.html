@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.2</title>
+<title>JDR Lunaria - V2.2.3</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3711,7 +3711,7 @@ body.jdr-effects-off #innerDecor{
    Les portraits (data:image...), inventaires lourds, historiques, etc.
    ne sont plus dupliqués dans jdrGames.
    ========================================================= */
-function lightweightCharacterSnapshot(c){
+function v223LightCharacter(c){
   if(!c)return null;
   return {
     id:c.id,
@@ -3729,7 +3729,7 @@ function lightweightCharacterSnapshot(c){
   };
 }
 
-function compactGameForStorage(game){
+function v223CompactGame(game){
   const g=clone(game);
   g.sharedCharacters=(g.sharedCharacters||[]).map(lightweightCharacterSnapshot).filter(Boolean);
   if(Array.isArray(g.sessionLog) && g.sessionLog.length>80)g.sessionLog=g.sessionLog.slice(0,80);
@@ -3737,7 +3737,7 @@ function compactGameForStorage(game){
   return g;
 }
 
-function safeWriteGames(games){
+function v223SafeWriteGames(games){
   const compact=(games||[]).map(compactGameForStorage);
   try{
     localStorage.setItem("jdrGames",JSON.stringify(compact));
@@ -3768,7 +3768,7 @@ function cleanLegacyGameStorage(){
     const raw=localStorage.getItem("jdrGames");
     if(!raw)return;
     const games=JSON.parse(raw);
-    if(Array.isArray(games))safeWriteGames(games);
+    if(Array.isArray(games))v223SafeWriteGames(games);
   }catch(err){
     console.warn("Nettoyage jdrGames impossible :",err);
   }
@@ -3806,6 +3806,15 @@ function cleanLegacyGameStorage(){
 }
 .join-game:active{transform:scale(.97)!important;filter:brightness(1.12)!important;}
 
+
+/* V2.2.3 — boutons Partie robustes */
+.delete-game,.join-game,#clearLocalGamesBtn{
+  position:relative!important;
+  z-index:90!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3837,7 +3846,7 @@ function cleanLegacyGameStorage(){
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.2</div>
+    <div class="version">VERSION 2.2.3</div>
   </div>
 </div>
 
@@ -4058,6 +4067,7 @@ function cleanLegacyGameStorage(){
       <h1>Parties</h1>
     </div>
     <button id="createGameBtn" class="save-button">＋ Nouvelle partie</button>
+    <button id="clearLocalGamesBtn" class="secondary-button" title="Supprime les parties enregistrées sur cet appareil">🧹 Nettoyer</button>
   </header>
   <section class="jdr-presenter-panel presenter-aki">
     <div class="jdr-presenter-content">
@@ -5552,7 +5562,7 @@ function mergeSharedGame(raw){
   const index=games.findIndex(g=>g.id===game.id);
   if(index>=0)games[index]=game;
   else games.push(game);
-  safeWriteGames(games);
+  v223SafeWriteGames(games);
   mergeSharedCharacters(game.sharedCharacters);
   if(!gamesScreen.classList.contains("hidden"))renderGames();
 }
@@ -5563,7 +5573,7 @@ async function announceSharedGame(game){
     await globalLobbyChannel.send({
       type:"broadcast",
       event:"lobby-game-upsert",
-      payload:{game:normalizeSharedGame(compactGameForStorage(game)),senderId:multiplayerPlayerId,sentAt:Date.now()}
+      payload:{game:normalizeSharedGame(v223CompactGame(game)),senderId:multiplayerPlayerId,sentAt:Date.now()}
     });
   }catch(err){console.warn("Annonce lobby impossible :",err)}
 }
@@ -5626,7 +5636,7 @@ async function startGlobalLobby(){
 
 function ensureGameSharedCharacter(game,character){
   game.sharedCharacters ||= [];
-  const snapshot=lightweightCharacterSnapshot(character);
+  const snapshot=v223LightCharacter(character);
   if(!snapshot)return;
   const i=game.sharedCharacters.findIndex(c=>c.id===snapshot.id);
   if(i>=0)game.sharedCharacters[i]=snapshot;
@@ -5661,6 +5671,69 @@ async function ensureConnectedToGameRoom(game,asHost=false){
 }
 
 
+
+/* =========================================================
+   V2.2.3 — CORRECTION PORTÉE DES HELPERS + SUPPRESSION PARTIE
+   ========================================================= */
+function v223LightCharacter(c){
+  if(!c)return null;
+  return {
+    id:c.id,
+    ownerId:c.ownerId||"remote",
+    ownerName:c.ownerName||"Joueur",
+    prenom:c.prenom||"",
+    nom:c.nom||"",
+    race:c.race||"",
+    metier:c.metier||"",
+    pv:Number(c.pv||0),
+    esprit:Number(c.esprit||0),
+    cc:Number(c.cc||0),ct:Number(c.ct||0),f:Number(c.f||0),a:Number(c.a||0),r:Number(c.r||0),
+    i:Number(c.i||0),p:Number(c.p||0),s:Number(c.s||0),fm:Number(c.fm||0),fp:Number(c.fp||0),
+    portrait:""
+  };
+}
+
+function v223CompactGame(game){
+  const g=clone(game);
+  g.sharedCharacters=(g.sharedCharacters||[]).map(v223LightCharacter).filter(Boolean);
+  if(Array.isArray(g.sessionLog))g.sessionLog=g.sessionLog.slice(0,80);
+  if(g.combat && Array.isArray(g.combat.log))g.combat.log=g.combat.log.slice(0,100);
+  return g;
+}
+
+function v223SafeWriteGames(games){
+  const compact=(games||[]).map(v223CompactGame);
+  try{
+    localStorage.setItem("jdrGames",JSON.stringify(compact));
+    return true;
+  }catch(err){
+    const emergency=compact.map(g=>({
+      ...g,
+      sessionLog:(g.sessionLog||[]).slice(0,20),
+      combat:g.combat?{...g.combat,log:(g.combat.log||[]).slice(0,25)}:g.combat,
+      sharedCharacters:(g.sharedCharacters||[]).map(v223LightCharacter)
+    }));
+    try{
+      localStorage.setItem("jdrGames",JSON.stringify(emergency));
+      return true;
+    }catch(err2){
+      console.error("jdrGames quota dépassé",err2);
+      return false;
+    }
+  }
+}
+
+function v223CleanLegacyGames(){
+  try{
+    const raw=localStorage.getItem("jdrGames");
+    if(!raw)return;
+    const games=JSON.parse(raw);
+    if(Array.isArray(games))v223SafeWriteGames(games);
+  }catch(err){
+    console.warn("Nettoyage ancien jdrGames impossible",err);
+  }
+}
+
 function normalizeGame(g){
   g.characterIds ||= [];
   g.sharedCharacters ||= [];
@@ -5679,7 +5752,7 @@ function getGames(){
   try{return JSON.parse(saved).map(normalizeGame)}catch{return []}
 }
 function saveGames(games){
-  if(!safeWriteGames(games)){
+  if(!v223SafeWriteGames(games)){
     alert("Le stockage local est plein. Les anciennes données multijoueur ont été allégées, mais il reste trop de données sur cet appareil.");
     return;
   }
@@ -5744,7 +5817,7 @@ async function joinGame(gameId){
       date:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
       text:`🟢 ${c.prenom} ${c.nom} rejoint la partie`
     });
-    if(!safeWriteGames(games)){
+    if(!v223SafeWriteGames(games)){
       alert("Impossible de sauvegarder la partie : stockage local saturé.");
       return;
     }
@@ -5830,7 +5903,7 @@ function renderGames(){
           ? `<button class="enter-game">🎮 Entrer dans la partie</button>`
           : `<button class="join-game">＋ Rejoindre</button>`}
         ${isMJ?'<button class="start-game">👑 Vue MJ</button>':""}
-        ${(g.createdBy===LOCAL_OWNER_ID || (!g.createdBy && isMJ))?'<button class="delete-game danger">Supprimer</button>':""}
+        ${((!g.createdBy || g.createdBy===LOCAL_OWNER_ID || isMJ)?'<button class="delete-game danger">Supprimer</button>':'')}
       </div>
     `;
 
@@ -5908,16 +5981,30 @@ async function confirmGame(){
   notice("🌐 Partie multijoueur créée — les autres peuvent maintenant la rejoindre");
 }
 function deleteGame(id){
-  const game=getGames().find(g=>g.id===id);
+  const games=getGames();
+  const game=games.find(g=>g.id===id);
   if(!game)return;
-  if(game.createdBy && game.createdBy!==LOCAL_OWNER_ID){
-    alert("Seul le créateur peut supprimer cette partie.");
+
+  const isCreator=!game.createdBy || game.createdBy===LOCAL_OWNER_ID;
+  const isMjForGame=(multiplayerRoleValue==="MJ") || (game.gm && game.gm===getLocalOwnerName());
+
+  if(!isCreator && !isMjForGame){
+    alert("Seul le créateur ou le MJ peut supprimer cette partie.");
     return;
   }
-  if(!confirm("Supprimer cette partie ?"))return;
-  saveGames(getGames().filter(g=>g.id!==id));
+
+  if(!confirm(`Supprimer définitivement la partie "${game.name||"Sans nom"}" ?`))return;
+
+  const remaining=games.filter(g=>g.id!==id);
+  if(!v223SafeWriteGames(remaining)){
+    alert("Impossible de mettre à jour le stockage local.");
+    return;
+  }
+
+  if(currentGameId===id)currentGameId=null;
   announceDeletedGame(id);
   renderGames();
+  notice("🗑 Partie supprimée");
 }
 function openMJ(id){
   const game=getGames().find(g=>g.id===id);if(!game)return;
@@ -6876,10 +6963,29 @@ if("serviceWorker" in navigator){
 }
 
 
-cleanLegacyGameStorage();
+v223CleanLegacyGames();
 
 /* V2.2.0 — démarre le lobby dès l'ouverture du site */
 setTimeout(()=>startGlobalLobby(),0);
+
+
+(function(){
+  const btn=document.getElementById("clearLocalGamesBtn");
+  if(btn){
+    btn.onclick=()=>{
+      const games=getGames();
+      if(!games.length){
+        notice("Aucune partie locale à nettoyer");
+        return;
+      }
+      if(!confirm("Supprimer toutes les parties enregistrées sur CET appareil ? Les personnages ne seront pas supprimés."))return;
+      localStorage.removeItem("jdrGames");
+      currentGameId=null;
+      renderGames();
+      notice("🧹 Parties locales nettoyées");
+    };
+  }
+})();
 
 </script>
 </body>
