@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.4</title>
+<title>JDR Lunaria - V2.2.5</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3829,6 +3829,19 @@ function v223CleanLegacyGames(){
   transform:scale(.97)!important;
 }
 
+
+/* V2.2.5 — bouton PWA toujours utilisable */
+#installAppBtn{
+  position:relative!important;
+  z-index:100!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+#installAppBtn:disabled{
+  cursor:default!important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3860,7 +3873,7 @@ function v223CleanLegacyGames(){
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.4</div>
+    <div class="version">VERSION 2.2.5</div>
   </div>
 </div>
 
@@ -6964,36 +6977,93 @@ window.addEventListener("pagehide",()=>{
 });
 
 /* =========================
-   JDR LUNARIA — PWA V2.1.0
+   JDR LUNARIA — PWA V2.2.5
    ========================= */
 let lunariaInstallPrompt=null;
+
+function isLunariaStandalone(){
+  return window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone===true;
+}
+
+function updateLunariaInstallButton(){
+  const btn=document.getElementById("installAppBtn");
+  if(!btn)return;
+
+  btn.classList.remove("hidden");
+
+  if(isLunariaStandalone()){
+    btn.textContent="✓ JDR Lunaria est installé";
+    btn.disabled=true;
+    btn.style.opacity=".72";
+    return;
+  }
+
+  btn.disabled=false;
+  btn.style.opacity="1";
+
+  if(lunariaInstallPrompt){
+    btn.textContent="⬇ Installer JDR Lunaria";
+  }else{
+    btn.textContent="⬇ Ajouter JDR Lunaria à cet appareil";
+  }
+}
 
 window.addEventListener("beforeinstallprompt",(event)=>{
   event.preventDefault();
   lunariaInstallPrompt=event;
-  const btn=document.getElementById("installAppBtn");
-  if(btn)btn.classList.remove("hidden");
+  updateLunariaInstallButton();
 });
 
 window.addEventListener("appinstalled",()=>{
   lunariaInstallPrompt=null;
-  const btn=document.getElementById("installAppBtn");
+  updateLunariaInstallButton();
+  try{notice("✓ JDR Lunaria installé");}catch(e){}
 });
+
+async function installLunaria(){
+  if(isLunariaStandalone()){
+    alert("JDR Lunaria est déjà installé sur cet appareil.");
+    return;
+  }
+
+  if(lunariaInstallPrompt){
+    try{
+      lunariaInstallPrompt.prompt();
+      const choice=await lunariaInstallPrompt.userChoice;
+      if(choice && choice.outcome==="accepted"){
+        lunariaInstallPrompt=null;
+      }
+      updateLunariaInstallButton();
+      return;
+    }catch(err){
+      console.warn("Installation PWA Lunaria :",err);
+    }
+  }
+
+  const ua=navigator.userAgent||"";
+  const isiOS=/iPad|iPhone|iPod/.test(ua);
+  const isAndroid=/Android/i.test(ua);
+
+  if(isiOS){
+    alert('Sur iPhone/iPad : ouvre le menu Partager de Safari puis choisis "Sur l’écran d’accueil".');
+    return;
+  }
+
+  if(isAndroid){
+    alert('Sur Android : ouvre le menu ⋮ du navigateur puis choisis "Installer l’application" ou "Ajouter à l’écran d’accueil".');
+    return;
+  }
+
+  alert('Sur PC : dans Chrome ou Edge, clique sur l’icône d’installation à droite de la barre d’adresse, ou ouvre le menu ⋮ puis choisis "Installer JDR Lunaria".');
+}
 
 document.addEventListener("DOMContentLoaded",()=>{
   const installBtn=document.getElementById("installAppBtn");
   if(installBtn){
-    installBtn.addEventListener("click",async()=>{
-      if(!lunariaInstallPrompt){
-        alert("Si le bouton d'installation du navigateur n'apparaît pas, utilise le menu du navigateur puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
-        return;
-      }
-      lunariaInstallPrompt.prompt();
-      try{ await lunariaInstallPrompt.userChoice; }catch(e){}
-      lunariaInstallPrompt=null;
-      
-    });
+    installBtn.onclick=installLunaria;
   }
+  updateLunariaInstallButton();
 });
 
 if("serviceWorker" in navigator){
