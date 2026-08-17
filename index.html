@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JDR Lunaria - V2.2.5</title>
+<title>JDR Lunaria - V2.2.6</title>
 <style>
 /* V1.4.3 - ACCUEIL SANCTUAIRE CINÉMATIQUE */
 #homeScreen{
@@ -3842,6 +3842,47 @@ function v223CleanLegacyGames(){
   cursor:default!important;
 }
 
+
+/* V2.2.6 — fenêtre Télécharger Lunaria */
+#lunariaDownloadModal{z-index:10000!important}
+.lunaria-download-box{
+  position:relative;
+  max-width:620px!important;
+  text-align:center;
+  padding:30px!important;
+  border:1px solid rgba(124,111,255,.72)!important;
+  background:radial-gradient(circle at 50% 0%,rgba(113,87,255,.18),transparent 42%),linear-gradient(160deg,#10182e,#090f20)!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.48),0 0 28px rgba(114,87,255,.12)!important;
+}
+.lunaria-download-close{
+  position:absolute!important;top:12px!important;right:12px!important;
+  width:40px!important;height:40px!important;min-width:40px!important;padding:0!important;
+  border-radius:50%!important;border:1px solid rgba(112,126,190,.45)!important;
+  background:#11192b!important;color:white!important;font-size:24px!important;line-height:1!important;
+}
+.lunaria-download-icon{font-size:54px;margin:4px 0 8px}
+.lunaria-download-box h2{margin:0 0 8px;font-size:30px}
+.lunaria-download-text,.lunaria-download-note{color:#9da8ca;line-height:1.5}
+.lunaria-download-choices{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 18px}
+.lunaria-device-choice{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:14px!important;
+  min-height:110px!important;padding:18px!important;text-align:left!important;
+  border-radius:18px!important;border:1px solid rgba(95,112,181,.58)!important;
+  background:linear-gradient(145deg,#171f38,#0d1427)!important;color:white!important;
+}
+.lunaria-device-choice:hover{transform:translateY(-2px);border-color:#9078ff!important}
+.lunaria-device-icon{font-size:38px;flex:0 0 auto}
+.lunaria-device-choice strong{display:block;font-size:18px;margin-bottom:5px}
+.lunaria-device-choice small{display:block;color:#9da8ca;font-size:12px}
+#installAppBtn,#installLunariaDesktopBtn,#installLunariaMobileBtn,#closeLunariaDownloadBtn{
+  position:relative!important;z-index:100!important;pointer-events:auto!important;touch-action:manipulation!important;
+}
+@media(max-width:600px){
+  .lunaria-download-box{width:calc(100% - 24px)!important;padding:24px 16px!important}
+  .lunaria-download-choices{grid-template-columns:1fr!important}
+  .lunaria-device-choice{min-height:92px!important}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -3873,7 +3914,7 @@ function v223CleanLegacyGames(){
       <button id="newGameBtn">✦ Nouvelle partie</button>
       <button id="settingsBtn">⚙ Paramètres</button>
     </div>
-    <div class="version">VERSION 2.2.5</div>
+    <div class="version">VERSION 2.2.6</div>
   </div>
 </div>
 
@@ -3965,7 +4006,7 @@ function v223CleanLegacyGames(){
       <div class="settings-card-title">🖥 Affichage</div>
       <div class="settings-actions">
         
-      <button id="installAppBtn" class="install-app-button">⬇ Installer JDR Lunaria</button>
+      <button id="installAppBtn" class="install-app-button">⬇ Télécharger Lunaria</button>
         <button id="fullscreenSettingsBtn">⛶ Plein écran</button>
         <button id="resetSettingsBtn" class="danger-soft">↺ Réinitialiser les paramètres</button>
       </div>
@@ -4463,6 +4504,39 @@ function v223CleanLegacyGames(){
     <section class="card"><h2>📜 Remarques</h2><textarea id="remarques"></textarea></section>
     <section class="card"><h2>📖 Passé</h2><textarea id="passe"></textarea></section>
   </main>
+</div>
+
+
+<div id="lunariaDownloadModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-box lunaria-download-box" role="dialog" aria-modal="true" aria-labelledby="lunariaDownloadTitle">
+    <button type="button" id="closeLunariaDownloadBtn" class="lunaria-download-close" aria-label="Fermer">×</button>
+
+    <div class="lunaria-download-icon">🌙</div>
+    <h2 id="lunariaDownloadTitle">Télécharger JDR Lunaria</h2>
+    <p class="lunaria-download-text">Choisis l'appareil sur lequel tu veux installer Lunaria.</p>
+
+    <div class="lunaria-download-choices">
+      <button type="button" id="installLunariaDesktopBtn" class="lunaria-device-choice">
+        <span class="lunaria-device-icon">🖥️</span>
+        <span>
+          <strong>Ordinateur</strong>
+          <small>Installer Lunaria sur PC</small>
+        </span>
+      </button>
+
+      <button type="button" id="installLunariaMobileBtn" class="lunaria-device-choice">
+        <span class="lunaria-device-icon">📱</span>
+        <span>
+          <strong>Téléphone</strong>
+          <small>Installer Lunaria sur mobile</small>
+        </span>
+      </button>
+    </div>
+
+    <p class="lunaria-download-note">
+      Une fois installé, tu pourras ouvrir Lunaria directement depuis ton bureau ou ton écran d'accueil.
+    </p>
+  </div>
 </div>
 
 <div id="itemModal" class="modal hidden">
@@ -6977,7 +7051,8 @@ window.addEventListener("pagehide",()=>{
 });
 
 /* =========================
-   JDR LUNARIA — PWA V2.2.5
+   JDR LUNARIA — PWA V2.2.6
+   Fenêtre de choix Ordinateur / Téléphone
    ========================= */
 let lunariaInstallPrompt=null;
 
@@ -6986,42 +7061,32 @@ function isLunariaStandalone(){
       || window.navigator.standalone===true;
 }
 
-function updateLunariaInstallButton(){
-  const btn=document.getElementById("installAppBtn");
-  if(!btn)return;
+function openLunariaDownloadChoice(){
+  const modal=document.getElementById("lunariaDownloadModal");
+  if(!modal)return;
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden","false");
+}
 
-  btn.classList.remove("hidden");
-
-  if(isLunariaStandalone()){
-    btn.textContent="✓ JDR Lunaria est installé";
-    btn.disabled=true;
-    btn.style.opacity=".72";
-    return;
-  }
-
-  btn.disabled=false;
-  btn.style.opacity="1";
-
-  if(lunariaInstallPrompt){
-    btn.textContent="⬇ Installer JDR Lunaria";
-  }else{
-    btn.textContent="⬇ Ajouter JDR Lunaria à cet appareil";
-  }
+function closeLunariaDownloadChoice(){
+  const modal=document.getElementById("lunariaDownloadModal");
+  if(!modal)return;
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden","true");
 }
 
 window.addEventListener("beforeinstallprompt",(event)=>{
   event.preventDefault();
   lunariaInstallPrompt=event;
-  updateLunariaInstallButton();
 });
 
 window.addEventListener("appinstalled",()=>{
   lunariaInstallPrompt=null;
-  updateLunariaInstallButton();
+  closeLunariaDownloadChoice();
   try{notice("✓ JDR Lunaria installé");}catch(e){}
 });
 
-async function installLunaria(){
+async function installLunariaDesktop(){
   if(isLunariaStandalone()){
     alert("JDR Lunaria est déjà installé sur cet appareil.");
     return;
@@ -7031,22 +7096,45 @@ async function installLunaria(){
     try{
       lunariaInstallPrompt.prompt();
       const choice=await lunariaInstallPrompt.userChoice;
-      if(choice && choice.outcome==="accepted"){
+      if(choice?.outcome==="accepted"){
         lunariaInstallPrompt=null;
+        closeLunariaDownloadChoice();
       }
-      updateLunariaInstallButton();
       return;
     }catch(err){
-      console.warn("Installation PWA Lunaria :",err);
+      console.warn("Installation PC Lunaria :",err);
     }
+  }
+
+  alert('Sur PC : ouvre Lunaria dans Chrome ou Edge, puis clique sur l’icône d’installation dans la barre d’adresse ou dans le menu ⋮ → "Installer JDR Lunaria".');
+}
+
+async function installLunariaMobile(){
+  if(isLunariaStandalone()){
+    alert("JDR Lunaria est déjà installé sur cet appareil.");
+    return;
   }
 
   const ua=navigator.userAgent||"";
   const isiOS=/iPad|iPhone|iPod/.test(ua);
   const isAndroid=/Android/i.test(ua);
 
+  if(isAndroid && lunariaInstallPrompt){
+    try{
+      lunariaInstallPrompt.prompt();
+      const choice=await lunariaInstallPrompt.userChoice;
+      if(choice?.outcome==="accepted"){
+        lunariaInstallPrompt=null;
+        closeLunariaDownloadChoice();
+      }
+      return;
+    }catch(err){
+      console.warn("Installation mobile Lunaria :",err);
+    }
+  }
+
   if(isiOS){
-    alert('Sur iPhone/iPad : ouvre le menu Partager de Safari puis choisis "Sur l’écran d’accueil".');
+    alert('Sur iPhone/iPad : ouvre Lunaria dans Safari, touche Partager, puis "Sur l’écran d’accueil".');
     return;
   }
 
@@ -7055,15 +7143,26 @@ async function installLunaria(){
     return;
   }
 
-  alert('Sur PC : dans Chrome ou Edge, clique sur l’icône d’installation à droite de la barre d’adresse, ou ouvre le menu ⋮ puis choisis "Installer JDR Lunaria".');
+  alert('Ouvre cette page depuis ton téléphone puis utilise le menu du navigateur pour l’ajouter à l’écran d’accueil.');
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
-  const installBtn=document.getElementById("installAppBtn");
-  if(installBtn){
-    installBtn.onclick=installLunaria;
+  const mainBtn=document.getElementById("installAppBtn");
+  const closeBtn=document.getElementById("closeLunariaDownloadBtn");
+  const desktopBtn=document.getElementById("installLunariaDesktopBtn");
+  const mobileBtn=document.getElementById("installLunariaMobileBtn");
+  const modal=document.getElementById("lunariaDownloadModal");
+
+  if(mainBtn)mainBtn.onclick=openLunariaDownloadChoice;
+  if(closeBtn)closeBtn.onclick=closeLunariaDownloadChoice;
+  if(desktopBtn)desktopBtn.onclick=installLunariaDesktop;
+  if(mobileBtn)mobileBtn.onclick=installLunariaMobile;
+
+  if(modal){
+    modal.addEventListener("click",(event)=>{
+      if(event.target===modal)closeLunariaDownloadChoice();
+    });
   }
-  updateLunariaInstallButton();
 });
 
 if("serviceWorker" in navigator){
@@ -7073,7 +7172,6 @@ if("serviceWorker" in navigator){
     });
   });
 }
-
 
 v223CleanLegacyGames();
 
